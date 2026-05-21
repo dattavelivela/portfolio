@@ -392,6 +392,139 @@
 <path d="M14.2031 2.23248H17.2051V5.37328L19.3418 3.1408V0H16.3369L14.2031 2.23248Z" fill="#003323"/>
 </svg>
 </div>
+	<script>
+		(() => {
+			const rinsoTitle = "Rinso - 30 Min Laundry Pickup"
+			const rinsoDescription = "Achieved 42 organic orders within the first 45 days and now scaling toward the first 100+ customers in Gurgaon."
+			const rinsoUrl = "https://rinsoindia.com"
+			const rinsoThumbnail = "assets/rinso-thumbnail.png"
+			const sloshTitle = "Slosh - AI Agency"
+			const sloshDescription = "Reduced traditional fashion shoot costs from ~₹1,000 to ~₹250 per image using AI-generated creatives for Alankriti.in and 3 designer boutiques in Gurgaon."
+			const sloshUrl = "https://sloshai.vercel.app/"
+			const sloshThumbnail = "assets/slosh-thumbnail.png"
+			const bottomProjects = [
+				{
+					title: "Automail",
+					description: "Built a tool that allows you to design mails and integrates with your backend.",
+					url: null,
+					image: "https://framerusercontent.com/images/bPdL38DQxjQAUhxT3pcHN2fsNc.png?width=1280&height=600",
+					alt: "Automail thumbnail",
+				},
+				{
+					title: "Ship Note",
+					description: "Built a micro-SaaS in 6 nights - the easiest way to share product updates directly to your website or dashboard.",
+					url: "https://x.com/wdattavelivela/status/1913904673980899775",
+					image: "https://framerusercontent.com/images/O5XuJN4QULftEx2hSrbavhaIKs.jpg?width=7680&height=4320",
+					alt: "Ship Note thumbnail",
+				},
+				{
+					title: "Caveman",
+					description: "An AI-built experiment exploring fast, playful product prototyping from idea to working interface.",
+					url: null,
+				},
+			]
+
+			document.addEventListener("click", (event) => {
+				const link = event.target.closest?.('a[href="https://rinsoindia.com"], a[href="https://rinsoindia.com/"], a[href="https://sloshai.vercel.app/"]')
+				if (!link) return
+				event.preventDefault()
+				event.stopPropagation()
+				window.open(link.href, "_blank", "noopener")
+			}, true)
+
+			function setCardImage(card, src, alt) {
+				const image = card?.querySelector("img")
+				if (!image) return
+				image.removeAttribute("srcset")
+				image.removeAttribute("sizes")
+				image.src = src
+				image.alt = alt
+				image.style.objectFit = "cover"
+				image.style.objectPosition = "center"
+			}
+
+			function addThreeProjectBlocks() {
+				const builtUsingText = [...document.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.trim() === "BUILT USING LLM'S")
+				if (builtUsingText) builtUsingText.textContent = "BUILDING"
+
+				const projectsHeading = [...document.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.trim() === "Projects")
+				if (projectsHeading) projectsHeading.textContent = ""
+
+				const automailTitle = [...document.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.trim() === "Automail")
+				const sourceRow = automailTitle?.closest(".framer-1mitm3g")
+				if (!sourceRow || document.querySelector('[data-extra-project-blocks="true"]')) return
+
+				automailTitle.textContent = rinsoTitle
+				const description = [...sourceRow.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.includes("Built a tool that allows you to design mails"))
+				if (description) description.textContent = rinsoDescription
+				const rinsoCard = automailTitle.closest(".framer-n35vw8")
+				setCardImage(rinsoCard, rinsoThumbnail, "Rinso thumbnail")
+				const buttonTemplate = sourceRow.querySelector("a.framer-zk8jav")
+				if (rinsoCard && buttonTemplate && !rinsoCard.querySelector('a[href="https://rinsoindia.com"]')) {
+					const button = buttonTemplate.cloneNode(true)
+					button.href = rinsoUrl
+					button.target = "_blank"
+					button.rel = "noopener"
+					const buttonText = button.querySelector(".framer-text")
+					if (buttonText) buttonText.textContent = "View"
+					rinsoCard.append(button)
+				}
+				const shipTitle = [...sourceRow.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.trim() === "Ship Note")
+				if (shipTitle) shipTitle.textContent = sloshTitle
+				const shipDescription = [...sourceRow.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.includes("Built a micro-SaaS in 6 nights"))
+				if (shipDescription) shipDescription.textContent = sloshDescription
+				const sloshCard = shipTitle?.closest(".framer-npdgsx")
+				setCardImage(sloshCard, sloshThumbnail, "Slosh AI Agency thumbnail")
+				const sloshButton = sloshCard?.querySelector("a")
+				if (sloshButton) {
+					sloshButton.href = sloshUrl
+					sloshButton.target = "_blank"
+					sloshButton.rel = "noopener"
+				}
+
+				const duplicateRow = sourceRow.cloneNode(true)
+				duplicateRow.dataset.extraProjectBlocks = "true"
+				const duplicateCards = [...duplicateRow.querySelectorAll(".framer-n35vw8, .framer-npdgsx, .framer-942m80")]
+				bottomProjects.forEach((project, index) => {
+					const card = duplicateCards[index]
+					if (!card) return
+					const textNodes = [...card.querySelectorAll(".framer-text")]
+					const titleNode = textNodes.find((node) => node.textContent?.trim())
+					const descriptionNode = textNodes.find((node) => node !== titleNode && node.textContent?.trim() && node.textContent.trim() !== "View")
+					if (titleNode) titleNode.textContent = project.title
+					if (descriptionNode) descriptionNode.textContent = project.description
+					if (project.image) setCardImage(card, project.image, project.alt || project.title)
+					const button = card.querySelector("a")
+					if (button && project.url) {
+						button.href = project.url
+						button.target = "_blank"
+						button.rel = "noopener"
+					} else if (button) {
+						button.remove()
+					}
+				})
+				sourceRow.after(duplicateRow)
+			}
+
+			function start() {
+				addThreeProjectBlocks()
+				const retry = setInterval(addThreeProjectBlocks, 500)
+				setTimeout(() => clearInterval(retry), 8000)
+			}
+
+			if (document.readyState === "complete") {
+				start()
+			} else {
+				window.addEventListener("load", start)
+			}
+		})()
+	</script>
 	<!-- Start of bodyEnd -->
     
     <!-- End of bodyEnd -->
