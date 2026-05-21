@@ -402,27 +402,10 @@
 			const sloshDescription = "Reduced traditional fashion shoot costs from ~₹1,000 to ~₹250 per image using AI-generated creatives for Alankriti.in and 3 designer boutiques in Gurgaon."
 			const sloshUrl = "https://sloshai.vercel.app/"
 			const sloshThumbnail = "assets/slosh-thumbnail.png"
-			const bottomProjects = [
-				{
-					title: "Automail",
-					description: "Built a tool that allows you to design mails and integrates with your backend.",
-					url: null,
-					image: "https://framerusercontent.com/images/bPdL38DQxjQAUhxT3pcHN2fsNc.png?width=1280&height=600",
-					alt: "Automail thumbnail",
-				},
-				{
-					title: "Ship Note",
-					description: "Built a micro-SaaS in 6 nights - the easiest way to share product updates directly to your website or dashboard.",
-					url: "https://x.com/wdattavelivela/status/1913904673980899775",
-					image: "https://framerusercontent.com/images/O5XuJN4QULftEx2hSrbavhaIKs.jpg?width=7680&height=4320",
-					alt: "Ship Note thumbnail",
-				},
-				{
-					title: "Caveman",
-					description: "An AI-built experiment exploring fast, playful product prototyping from idea to working interface.",
-					url: null,
-				},
-			]
+			const shipNoteTitle = "Ship Note"
+			const shipNoteDescription = "Built a micro-SaaS in 6 nights - the easiest way to share product updates directly to your website or dashboard."
+			const shipNoteUrl = "https://x.com/wdattavelivela/status/1913904673980899775"
+			const shipNoteThumbnail = "https://framerusercontent.com/images/O5XuJN4QULftEx2hSrbavhaIKs.jpg?width=7680&height=4320"
 
 			document.addEventListener("click", (event) => {
 				const link = event.target.closest?.('a[href="https://rinsoindia.com"], a[href="https://rinsoindia.com/"], a[href="https://sloshai.vercel.app/"]')
@@ -487,29 +470,20 @@
 					sloshButton.target = "_blank"
 					sloshButton.rel = "noopener"
 				}
-
-				const duplicateRow = sourceRow.cloneNode(true)
-				duplicateRow.dataset.extraProjectBlocks = "true"
-				const duplicateCards = [...duplicateRow.querySelectorAll(".framer-n35vw8, .framer-npdgsx, .framer-942m80")]
-				bottomProjects.forEach((project, index) => {
-					const card = duplicateCards[index]
-					if (!card) return
-					const textNodes = [...card.querySelectorAll(".framer-text")]
-					const titleNode = textNodes.find((node) => node.textContent?.trim())
-					const descriptionNode = textNodes.find((node) => node !== titleNode && node.textContent?.trim() && node.textContent.trim() !== "View")
-					if (titleNode) titleNode.textContent = project.title
-					if (descriptionNode) descriptionNode.textContent = project.description
-					if (project.image) setCardImage(card, project.image, project.alt || project.title)
-					const button = card.querySelector("a")
-					if (button && project.url) {
-						button.href = project.url
-						button.target = "_blank"
-						button.rel = "noopener"
-					} else if (button) {
-						button.remove()
-					}
-				})
-				sourceRow.after(duplicateRow)
+				const findTitle = [...sourceRow.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.trim() === "Find Inspiration - Not Sites")
+				if (findTitle) findTitle.textContent = shipNoteTitle
+				const findDescription = [...sourceRow.querySelectorAll(".framer-text")]
+					.find((node) => node.textContent?.includes("Stop wasting time searching for curated sites"))
+				if (findDescription) findDescription.textContent = shipNoteDescription
+				const topShipCard = findTitle?.closest(".framer-942m80")
+				setCardImage(topShipCard, shipNoteThumbnail, "Ship Note thumbnail")
+				const topShipButton = topShipCard?.querySelector("a")
+				if (topShipButton) {
+					topShipButton.href = shipNoteUrl
+					topShipButton.target = "_blank"
+					topShipButton.rel = "noopener"
+				}
 			}
 
 			function start() {
