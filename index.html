@@ -487,11 +487,15 @@
 			}
 
 			const bioText = "I’m Gurudatta, based in Gurgaon with 3+ years of experience in B2B. I work across product, design, frontend, and GTM, with product thinking and UX as my strongest areas. I enjoy simplifying messy business workflows into clear, usable, and scalable product experiences. Currently, I work at Procol ❤️"
+			const bioLine2 = "Outside work, I love building 0→1 — I’ve co-founded Slosh, an AI creative agency, and Rinso, a 30-minute laundry pickup service."
+			const bioHTML = bioText + '<br class="framer-text"><br class="framer-text">' + bioLine2
 
 			function patchBio() {
-				const bio = [...document.querySelectorAll(".framer-text")]
+				const bio = [...document.querySelectorAll("p.framer-text")]
 					.find((node) => /Gurudatta/.test(node.textContent) && /experience in B2B/.test(node.textContent))
-				if (bio && bio.textContent.trim() !== bioText) bio.textContent = bioText
+				if (bio && !(bio.textContent.includes("3+ years") && bio.textContent.includes("Outside work"))) {
+					bio.innerHTML = bioHTML
+				}
 			}
 
 			function start() {
