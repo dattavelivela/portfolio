@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Ledger of work</title>
+<link href="https://api.fontshare.com/v2/css?f[]=zodiak@400,500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e9eee6;
+  --band:#dfe7db;
+  --rule:#b5c6b0;
+  --ink:#1d3330;
+  --soft:#5d6f68;
+  --quiet:#8b9c94;
+  --stamp:#553285;
+  --serif:"Zodiak",Georgia,serif;
+  --sans:"Satoshi",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--stamp);outline-offset:3px;border-radius:2px}
+.num{font-variant-numeric:tabular-nums lining-nums}
+
+.sheet{max-width:940px;margin:0 auto;padding:0 32px}
+
+/* ── document header ───────────────────────── */
+.head{display:flex;align-items:baseline;gap:18px;padding:30px 0 12px}
+.head .doc{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.01em}
+.head .who{margin-left:auto;font-size:13.5px;color:var(--soft)}
+
+.rule{height:1px;background:var(--rule);transform-origin:left;position:relative}
+.rule.thick{height:2px;background:var(--ink)}
+
+/* ── statement ─────────────────────────────── */
+.state{padding:64px 0 46px;display:grid;grid-template-columns:1fr 232px;gap:56px;align-items:end}
+h1{
+  font-family:var(--serif);font-weight:600;
+  font-size:clamp(38px,6.6vw,72px);line-height:1.02;letter-spacing:-.022em;
+  margin:0;max-width:13ch;
+}
+.state p{font-size:16.5px;line-height:1.65;color:var(--soft);margin:18px 0 0;max-width:44ch}
+
+.issue{font-size:13.5px;line-height:1.5}
+.issue div{display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px solid var(--rule)}
+.issue div:first-child{border-top:1px solid var(--rule)}
+.issue dt{color:var(--quiet);margin:0}
+.issue dd{margin:0;text-align:right}
+.issue a{text-decoration:none;border-bottom:1px solid var(--rule)}
+.issue a:hover{color:var(--stamp);border-color:var(--stamp)}
+
+/* ── ledger ────────────────────────────────── */
+.ledger{margin-top:26px}
+.cap{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.cap h2{font-family:var(--serif);font-size:23px;font-weight:600;margin:0;letter-spacing:-.01em}
+.cap span{margin-left:auto;font-size:13px;color:var(--quiet)}
+
+.cols,.line>summary{
+  display:grid;grid-template-columns:46px 1fr 118px 152px;gap:16px;align-items:baseline;
+}
+.cols{padding:0 12px 8px;font-size:12.5px;color:var(--quiet)}
+.cols .r{text-align:right}
+
+.line{border-bottom:1px solid var(--rule)}
+.line:nth-of-type(even){background:var(--band)}
+.line>summary{
+  padding:15px 12px;cursor:pointer;list-style:none;
+  transition:background .16s ease;
+}
+.line>summary::-webkit-details-marker{display:none}
+.line>summary:hover{background:rgba(85,50,133,.055)}
+.line .no{font-size:13px;color:var(--quiet);padding-top:3px}
+.line h3{
+  font-family:var(--serif);font-size:21px;font-weight:500;
+  letter-spacing:-.012em;line-height:1.25;margin:0;
+}
+.line .gloss{font-size:14.5px;color:var(--soft);margin:4px 0 0;max-width:52ch}
+.line .when{font-size:13.5px;color:var(--soft);padding-top:4px}
+.line .amt{
+  font-family:var(--serif);font-size:19px;font-weight:600;text-align:right;
+  padding-top:1px;letter-spacing:-.01em;
+}
+.line .amt small{display:block;font-family:var(--sans);font-size:12px;font-weight:400;color:var(--quiet);letter-spacing:0;margin-top:2px}
+
+.body{padding:0 12px 22px 78px;display:grid;grid-template-columns:288px 1fr;gap:24px;align-items:start}
+.body .plate{border:1px solid var(--rule);background:var(--paper);padding:5px}
+.body .plate img{aspect-ratio:1366/656;object-fit:cover;width:100%}
+.body p{font-size:15px;line-height:1.68;color:var(--soft);margin:0 0 12px;max-width:50ch}
+.body p:last-child{margin-bottom:0}
+.body .go{color:var(--stamp);text-decoration:none;border-bottom:1px solid var(--stamp);font-weight:500}
+
+/* totals */
+.totals{display:grid;grid-template-columns:46px 1fr 118px 152px;gap:16px;padding:16px 12px 0}
+.totals .lbl{grid-column:2;font-family:var(--serif);font-size:17px;font-weight:600}
+.totals .set{grid-column:3/5;display:flex;flex-direction:column;gap:6px}
+.totals .set div{display:flex;justify-content:space-between;font-size:14px;color:var(--soft)}
+.totals .set b{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink)}
+
+/* ── nights ────────────────────────────────── */
+.nights{padding:52px 0 0}
+.nl{display:grid;grid-template-columns:46px 1fr 152px;gap:16px;padding:13px 12px;border-bottom:1px solid var(--rule);align-items:baseline}
+.nl:first-of-type{border-top:1px solid var(--rule)}
+.nl .no{font-size:13px;color:var(--quiet)}
+.nl h3{font-family:var(--serif);font-size:18px;font-weight:500;margin:0}
+.nl p{font-size:14px;color:var(--soft);margin:3px 0 0}
+.nl .amt{text-align:right;font-size:13.5px;color:var(--soft)}
+
+/* ── sign off ──────────────────────────────── */
+.sign{padding:58px 0 90px;display:grid;grid-template-columns:1fr 232px;gap:56px;align-items:end}
+.sign h2{font-family:var(--serif);font-size:clamp(26px,4.2vw,42px);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin:0 0 16px;max-width:16ch}
+.sign p{font-size:16px;color:var(--soft);margin:0 0 20px;max-width:42ch}
+.sign a.mail{
+  font-family:var(--serif);font-size:clamp(19px,2.7vw,27px);font-weight:600;
+  color:var(--stamp);text-decoration:none;border-bottom:2px solid var(--stamp);
+}
+.stampmark{
+  border:1.5px solid var(--stamp);color:var(--stamp);border-radius:3px;
+  padding:12px 14px;transform:rotate(-3deg);text-align:center;
+}
+.stampmark b{display:block;font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:.02em}
+.stampmark span{font-size:12px;opacity:.8}
+
+/* ── one load sequence ─────────────────────── */
+@media (prefers-reduced-motion:no-preference){
+  .rule{animation:draw .62s cubic-bezier(.22,.7,.25,1) both}
+  .lift{animation:lift .58s cubic-bezier(.22,.7,.25,1) both}
+  .state{animation-delay:.06s}
+  .ledger .cap{animation-delay:.14s}
+  .line:nth-of-type(1){animation-delay:.20s}
+  .line:nth-of-type(2){animation-delay:.25s}
+  .line:nth-of-type(3){animation-delay:.30s}
+  .line:nth-of-type(4){animation-delay:.35s}
+  .line:nth-of-type(5){animation-delay:.40s}
+  .line:nth-of-type(6){animation-delay:.45s}
+}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes lift{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+@media (max-width:820px){
+  .sheet{padding:0 20px}
+  .state,.sign{grid-template-columns:1fr;gap:32px;align-items:start}
+  .cols{display:none}
+  .line>summary{grid-template-columns:34px 1fr;gap:12px;row-gap:8px}
+  .line .when{grid-column:2;padding-top:0}
+  .line .amt{grid-column:2;text-align:left;font-size:17px}
+  .line .amt small{display:inline;margin-left:7px}
+  .body{grid-template-columns:1fr;padding-left:12px}
+  .totals{grid-template-columns:1fr}
+  .totals .lbl,.totals .set{grid-column:1}
+  .nl{grid-template-columns:34px 1fr}
+  .nl .amt{grid-column:2;text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="head">
+    <span class="doc">Ledger of work</span>
+    <span class="who">Gurudatta Velivela, product designer</span>
+  </div>
+  <div class="rule thick"></div>
+
+  <section class="state lift">
+    <div>
+      <h1>I design the paperwork out of procurement.</h1>
+      <p>Three years spent on the software people open at 9am and close at 7pm — purchase orders,
+         reconciliation, approval chains. Currently at Procol, previously Dukaan and Pine Labs.
+         The work below is listed the way the work itself is: line by line.</p>
+    </div>
+    <dl class="issue">
+      <div><dt>Based</dt><dd>Gurgaon</dd></div>
+      <div><dt>Practising since</dt><dd class="num">2023</dd></div>
+      <div><dt>Write to</dt><dd><a href="mailto:gurudatta.velivela@procol.in">Email</a></dd></div>
+    </dl>
+  </section>
+
+  <section class="ledger">
+    <div class="cap lift"><h2>Items</h2><span class="num">Nine, across three companies</span></div>
+    <div class="cols">
+      <span class="num">No.</span><span>Description</span><span>Period</span><span class="r">Outcome</span>
+    </div>
+    <div class="rule"></div>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">01</span>
+        <div>
+          <h3>Agentic source-to-pay</h3>
+          <p class="gloss">Buyers weren't slow because sourcing is hard. They were slow because
+             everything between the decisions ate the day.</p>
+        </div>
+        <span class="when num">2024—now</span>
+        <span class="amt">0 → 1<small>Procol</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"></div>
+        <div>
+          <p>Agents take the repeatable stretch of a purchase; buyers keep the judgment and can
+             reverse anything. The audit trail became a product surface rather than a log file,
+             because compliance needed the record anyway and buyers needed the trust.</p>
+          <p><a class="go" href="07-case-study.html">Read the case study</a></p>
+        </div>
+      </div>
+    </details>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">02</span>
+        <div>
+          <h3>Self-serve analytics</h3>
+          <p class="gloss">Every new chart used to mean hard-coded SQL and a queue.</p>
+        </div>
+        <span class="when num">2025</span>
+        <span class="amt">Shipped<small>Procol</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/analytics-builder.jpg" alt="Self-serve analytics builder"></div>
+        <div><p>Configurable widgets composed over the pipelines that already existed, so people
+          build their own views and engineering leaves the loop entirely.</p></div>
+      </div>
+    </details>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">03</span>
+        <div>
+          <h3>Reverse auction, reconciliation, and four more</h3>
+          <p class="gloss">The surfaces nobody screenshots and everybody lives in.</p>
+        </div>
+        <span class="when num">2024—now</span>
+        <span class="amt num">6<small>surfaces</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/product-features.jpg" alt="Core platform surfaces"></div>
+        <div><p>Japanese reverse auction, GST reconciliation, audit trail, vendor onboarding,
+          template creation, bill of quantities. Built on one shared grammar so a buyer learns
+          the system once instead of six times.</p></div>
+      </div>
+    </details>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">04</span>
+        <div>
+          <h3>The Dukaan app, rebuilt</h3>
+          <p class="gloss">Owned from planning and strategy through to design.</p>
+        </div>
+        <span class="when num">2023—24</span>
+        <span class="amt">Shipped<small>Dukaan</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/dukaan-app-revamp.png" alt="Dukaan app revamp"></div>
+        <div><p>Activation, adoption and conversion all moved. Alongside it, one design system
+          scaled across web and mobile, which retired the split and the maintenance bill that
+          came with it.</p></div>
+      </div>
+    </details>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">05</span>
+        <div>
+          <h3>Bot9</h3>
+          <p class="gloss">An AI support product, designed from nothing with the founders.</p>
+        </div>
+        <span class="when num">2023—24</span>
+        <span class="amt">0 → 1<small>Dukaan</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/dukaan-bot9.png" alt="Bot9"></div>
+        <div><p>Resolves customer support tickets. I designed the MVP solo, sitting with the
+          founders and cross-functional teams — back when that sentence still needed explaining.</p></div>
+      </div>
+    </details>
+
+    <details class="line lift">
+      <summary>
+        <span class="no num">06</span>
+        <div>
+          <h3>Device management, One Web</h3>
+          <p class="gloss">Funnel analysis and onsite research first. Wireframes second.</p>
+        </div>
+        <span class="when num">2023</span>
+        <span class="amt num">−60%<small>turnaround</small></span>
+      </summary>
+      <div class="body">
+        <div class="plate"><img src="../assets/pinelabs-device-mgmt.png" alt="Device management in One Web"></div>
+        <div><p>Tested with real user groups before anything was built, which is the only reason
+          the number exists. Done as the intern. Also rebuilt enterprise sign-in, and presented a
+          research-backed vertical study to leadership.</p></div>
+      </div>
+    </details>
+
+    <div class="rule thick"></div>
+    <div class="totals">
+      <span class="lbl">Carried forward</span>
+      <div class="set">
+        <div><span>Companies</span><b class="num">3</b></div>
+        <div><span>Zero to one</span><b class="num">2</b></div>
+        <div><span>Years</span><b class="num">3</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="nights">
+    <div class="cap"><h2>Built at night</h2><span>Shipped, not concepts</span></div>
+    <div class="nl">
+      <span class="no num">01</span>
+      <div><h3>Ship Note</h3><p>Push product updates straight to your own site or dashboard.</p></div>
+      <span class="amt num">6 nights</span>
+    </div>
+    <div class="nl">
+      <span class="no num">02</span>
+      <div><h3>Automail</h3><p>Design emails visually, then wire them into your backend.</p></div>
+      <span class="amt">Live</span>
+    </div>
+    <div class="nl">
+      <span class="no num">03</span>
+      <div><h3>Find</h3><p>Forty curated sources of inspiration, one click away.</p></div>
+      <span class="amt">Live</span>
+    </div>
+  </section>
+
+  <section class="sign">
+    <div>
+      <h2>If the workflow is the hard part, we'll get on.</h2>
+      <p>That's the work I'm best at, and the work I keep choosing.</p>
+      <a class="mail" href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a>
+    </div>
+    <div class="stampmark">
+      <b>Open to talk</b>
+      <span>Gurgaon, India</span>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

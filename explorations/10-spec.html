@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Product Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f8f3ef;
+  --ink:#000;
+  --soft:#5c5652;
+  --quiet:#8f8781;
+  --rule:#000;
+  --wide:"Martian Mono",ui-monospace,monospace;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--mono);font-size:14px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+.sheet{max-width:1080px;margin:0 auto;padding:0 28px}
+.hr{height:1px;background:var(--rule)}
+.hr.h2{height:2px}
+
+/* ── masthead ─────────────────────────────── */
+.top{display:flex;gap:16px;padding:16px 0;font-size:12px;flex-wrap:wrap}
+.top .r{margin-left:auto}
+.top a{text-decoration:none}
+.top a:hover{background:var(--ink);color:var(--paper)}
+
+.mast{padding:52px 0 40px;text-align:center}
+.mast .nm{
+  font-family:var(--wide);font-weight:800;
+  font-size:clamp(15px,4.3vw,49px);line-height:1.06;
+  letter-spacing:.16em;text-indent:.16em;
+  margin:0 0 14px;white-space:nowrap;
+}
+.mast .rl{
+  font-family:var(--wide);font-weight:400;font-size:clamp(8px,1.5vw,13px);
+  letter-spacing:.42em;text-indent:.42em;color:var(--soft);white-space:nowrap;
+}
+
+/* ── fact strip ───────────────────────────── */
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule)}
+.facts div{padding:15px 16px 15px 0;border-right:1px solid var(--rule)}
+.facts div:last-child{border-right:none;padding-right:0}
+.facts dt{font-size:11px;color:var(--quiet);margin:0 0 5px}
+.facts dd{margin:0;font-size:13.5px;font-weight:500}
+.facts a{text-decoration:none;border-bottom:1px solid var(--ink)}
+
+/* ── statement ────────────────────────────── */
+.say{padding:46px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:1fr 1fr;gap:44px}
+.say p{margin:0;font-size:16px;line-height:1.7;max-width:46ch}
+.say p+p{color:var(--soft)}
+
+/* ── section head ─────────────────────────── */
+.sec{padding-top:38px}
+.sh{display:flex;align-items:baseline;gap:14px;padding-bottom:12px}
+.sh h2{font-family:var(--wide);font-weight:600;font-size:15px;letter-spacing:.13em;margin:0}
+.sh span{margin-left:auto;font-size:11.5px;color:var(--quiet)}
+
+/* ── work list ────────────────────────────── */
+.job{border-top:2px solid var(--rule)}
+.jt{display:flex;align-items:center;gap:11px;padding:13px 0 11px}
+.jt img{height:17px;width:auto}
+.jt b{font-family:var(--wide);font-weight:600;font-size:13px;letter-spacing:.08em}
+.jt .yr{margin-left:auto;font-size:12px;color:var(--soft)}
+
+.it{display:grid;grid-template-columns:34px 1fr 300px 118px;gap:18px;
+    padding:13px 0;border-top:1px solid var(--rule);align-items:start}
+.it .n{font-size:11.5px;color:var(--quiet);padding-top:3px}
+.it h3{font-family:var(--wide);font-weight:600;font-size:14px;letter-spacing:.02em;margin:0 0 5px;line-height:1.4}
+.it p{margin:0;font-size:13px;line-height:1.6;color:var(--soft)}
+.it .plate{border:1px solid var(--rule)}
+.it .plate img{aspect-ratio:1366/656;object-fit:cover;width:100%;filter:grayscale(1) contrast(1.06);transition:filter .25s}
+.it:hover .plate img{filter:none}
+.it .st{font-size:11px;text-align:right;padding-top:3px;color:var(--soft)}
+.it .st b{display:inline-block;background:var(--ink);color:var(--paper);padding:2px 6px;font-weight:500;letter-spacing:.06em}
+
+/* ── lab / grid of concepts ───────────────── */
+.lab{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--rule)}
+.lb{padding:16px 16px 18px 0;border-right:1px solid var(--rule)}
+.lb:last-child{border-right:none;padding-right:0}
+.lb h3{font-family:var(--wide);font-weight:600;font-size:13px;margin:0 0 6px;letter-spacing:.02em}
+.lb p{margin:0;font-size:12.5px;line-height:1.58;color:var(--soft)}
+.lb .st{margin-top:9px;font-size:11px;color:var(--quiet)}
+
+/* ── nights ───────────────────────────────── */
+.night{display:grid;grid-template-columns:34px 1fr 140px;gap:18px;padding:12px 0;
+       border-top:1px solid var(--rule);align-items:baseline}
+.night:first-of-type{border-top:2px solid var(--rule)}
+.night .n{font-size:11.5px;color:var(--quiet)}
+.night h3{font-family:var(--wide);font-weight:600;font-size:13.5px;margin:0 0 4px;letter-spacing:.02em}
+.night p{margin:0;font-size:12.5px;color:var(--soft)}
+.night .st{text-align:right;font-size:11px;color:var(--soft)}
+
+/* ── reading ──────────────────────────────── */
+.read{border-top:2px solid var(--rule);columns:2;column-gap:44px;padding-top:6px}
+.rd{break-inside:avoid;display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:12.5px}
+.rd b{font-weight:500}
+.rd span{margin-left:auto;color:var(--quiet);text-align:right}
+
+/* ── close ────────────────────────────────── */
+.close{margin-top:52px;background:var(--ink);color:var(--paper);padding:44px 32px;text-align:center}
+.close p{font-family:var(--wide);font-weight:400;font-size:11px;letter-spacing:.36em;text-indent:.36em;margin:0 0 18px;color:#b9b2ac}
+.close a{
+  font-family:var(--wide);font-weight:800;font-size:clamp(11px,2.5vw,24px);
+  letter-spacing:.06em;color:var(--paper);text-decoration:none;
+  border-bottom:2px solid var(--paper);
+}
+.close .ft{margin-top:26px;font-size:11.5px;color:#b9b2ac;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.close .ft a{font-family:var(--mono);font-size:11.5px;font-weight:400;letter-spacing:0;border-bottom-width:1px}
+footer{padding:22px 0 40px;text-align:center;font-size:11px;color:var(--quiet)}
+
+@media (max-width:860px){
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .facts div:nth-child(2n){border-right:none;padding-right:0}
+  .facts div{border-bottom:1px solid var(--rule)}
+  .say{grid-template-columns:1fr;gap:20px}
+  .it{grid-template-columns:26px 1fr;gap:12px}
+  .it .plate{grid-column:2;max-width:300px}
+  .it .st{grid-column:2;text-align:left}
+  .lab{grid-template-columns:1fr}
+  .lb{border-right:none;border-bottom:1px solid var(--rule);padding-right:0}
+  .lb:last-child{border-bottom:none}
+  .read{columns:1}
+  .mast .nm{white-space:normal;letter-spacing:.1em;text-indent:.1em}
+  .mast .rl{white-space:normal;letter-spacing:.28em;text-indent:.28em}
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="top">
+    <span>Product designer</span>
+    <span>Gurgaon, IN</span>
+    <span class="r"><a href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a></span>
+  </div>
+  <div class="hr h2"></div>
+
+  <div class="mast">
+    <h1 class="nm">GURUDATTA VELIVELA</h1>
+    <div class="rl">PRODUCT DESIGNER</div>
+  </div>
+
+  <dl class="facts">
+    <div><dt>Now</dt><dd>Procol</dd></div>
+    <div><dt>Previously</dt><dd>Dukaan, Pine Labs</dd></div>
+    <div><dt>Practising since</dt><dd>2023</dd></div>
+    <div><dt>Resume</dt><dd><a href="#">Available on request</a></dd></div>
+  </dl>
+
+  <section class="say">
+    <p>I turn messy business workflows into clear, usable software — procurement, dashboards,
+       reconciliation, the surfaces people open at 9am and close at 7pm.</p>
+    <p>Three years across product, design, frontend and GTM, with product thinking and UX as the
+       parts I lean on hardest. Outside the day job I build small things with LLMs.</p>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><h2>WORK</h2><span>9 items, 3 companies</span></div>
+
+    <div class="job">
+      <div class="jt"><img src="../assets/procol-mark.svg" alt=""><b>PROCOL</b><span class="yr">Aug 2024 — present</span></div>
+      <div class="it">
+        <span class="n">01</span>
+        <div><h3>Agentic source-to-pay</h3>
+          <p>Buyers weren't slow because sourcing is hard. They were slow because everything between
+             the decisions ate the day. Agents take the repeatable stretch; buyers keep the judgment.</p></div>
+        <div class="plate"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+        <div class="st"><b>0 → 1</b><br>Case study</div>
+      </div>
+      <div class="it">
+        <span class="n">02</span>
+        <div><h3>Self-serve analytics builder</h3>
+          <p>Configurable, scalable widgets replacing hard-coded SQL dashboards — people compose
+             their own views instead of filing a ticket.</p></div>
+        <div class="plate"><img src="../assets/analytics-builder.jpg" alt=""></div>
+        <div class="st"><b>LIVE</b><br>Write-up soon</div>
+      </div>
+      <div class="it">
+        <span class="n">03</span>
+        <div><h3>Core platform surfaces</h3>
+          <p>Japanese reverse auction, GST reconciliation, notifications, audit trail, vendor
+             onboarding, template creation, bill of quantities.</p></div>
+        <div class="plate"><img src="../assets/product-features.jpg" alt=""></div>
+        <div class="st"><b>6 SHIPPED</b><br>Write-up soon</div>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="jt"><img src="../assets/dukaan.png" alt=""><b>DUKAAN</b><span class="yr">Jun 2023 — Jul 2024</span></div>
+      <div class="it">
+        <span class="n">04</span>
+        <div><h3>Led the app revamp</h3>
+          <p>Owned it from planning and strategy through to design — activation, adoption and
+             conversion all moved.</p></div>
+        <div class="plate"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+        <div class="st"><b>SHIPPED</b><br>Write-up soon</div>
+      </div>
+      <div class="it">
+        <span class="n">05</span>
+        <div><h3>Multi-platform design system</h3>
+          <p>One system across web and mobile, retiring the split and the maintenance bill that came
+             with it.</p></div>
+        <div class="plate"><img src="../assets/dukaan-design-system.png" alt=""></div>
+        <div class="st"><b>SHIPPED</b><br>Write-up soon</div>
+      </div>
+      <div class="it">
+        <span class="n">06</span>
+        <div><h3>Bot9</h3>
+          <p>An AI product resolving support tickets. Designed the MVP solo, alongside the founders
+             and cross-functional teams.</p></div>
+        <div class="plate"><img src="../assets/dukaan-bot9.png" alt=""></div>
+        <div class="st"><b>0 → 1</b><br>Write-up soon</div>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="jt"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:19px"><span class="yr">Jan — Mar 2023</span></div>
+      <div class="it">
+        <span class="n">07</span>
+        <div><h3>Device management, One Web</h3>
+          <p>Funnel analysis and onsite research with the PM, then wireframes tested with real user
+             groups before anything got built.</p></div>
+        <div class="plate"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+        <div class="st"><b>−60% TAT</b><br>Write-up soon</div>
+      </div>
+      <div class="it">
+        <span class="n">08</span>
+        <div><h3>One app sign-in</h3>
+          <p>Rebuilt the enterprise sign-in experience end to end, for fewer tickets and higher
+             first-time completion.</p></div>
+        <div class="plate"><img src="../assets/pinelabs-one-app.png" alt=""></div>
+        <div class="st"><b>SHIPPED</b><br>Write-up soon</div>
+      </div>
+      <div class="it">
+        <span class="n">09</span>
+        <div><h3>Terminal issues &amp; market study</h3>
+          <p>Cut dashboard turnaround time, produced marketing material, and presented a
+             research-backed vertical study to leadership.</p></div>
+        <div class="plate"><img src="../assets/pinelabs-more.png" alt=""></div>
+        <div class="st"><b>RESEARCH</b><br>Write-up soon</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><h2>DESIGN LAB</h2><span>explorations without a brief</span></div>
+    <div class="lab">
+      <div class="lb"><h3>Rethinking the RFQ table</h3>
+        <p>What a comparison table looks like when the number of columns is the actual problem.</p>
+        <div class="st">Ongoing</div></div>
+      <div class="lb"><h3>Approval chains</h3>
+        <p>Making a nine-step approval feel like one.</p>
+        <div class="st">Ongoing</div></div>
+      <div class="lb"><h3>Empty states that teach</h3>
+        <p>The first screen is the onboarding.</p>
+        <div class="st">Ongoing</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><h2>NIGHTS</h2><span>shipped, not concepts</span></div>
+    <div class="night"><span class="n">01</span>
+      <div><h3>Ship Note</h3><p>Push product updates straight to your own site or dashboard.</p></div>
+      <div class="st">Built in 6 nights</div></div>
+    <div class="night"><span class="n">02</span>
+      <div><h3>Automail</h3><p>Design emails visually, then wire them into your backend.</p></div>
+      <div class="st">Live</div></div>
+    <div class="night"><span class="n">03</span>
+      <div><h3>Find</h3><p>Forty curated sources of inspiration, one click away.</p></div>
+      <div class="st">Live</div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><h2>WHAT I KEEP GOING BACK TO</h2><span>reading &amp; references</span></div>
+    <div class="read">
+      <div class="rd"><b>Refactoring UI</b><span>Wathan &amp; Schoger</span></div>
+      <div class="rd"><b>The Design of Everyday Things</b><span>Norman</span></div>
+      <div class="rd"><b>Shape Up</b><span>Singer</span></div>
+      <div class="rd"><b>Linear</b><span>Craft as strategy</span></div>
+      <div class="rd"><b>Stripe Docs</b><span>Still the bar</span></div>
+      <div class="rd"><b>Rauno</b><span>Interaction detail</span></div>
+      <div class="rd"><b>Julian Lehr</b><span>Writing on software</span></div>
+      <div class="rd"><b>Anthropic</b><span>Building with LLMs</span></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="close">
+  <p>AVAILABLE FOR CONVERSATIONS</p>
+  <a href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a>
+  <div class="ft">
+    <a href="#">LinkedIn</a><a href="#">X</a><a href="#">Resume</a>
+  </div>
+</div>
+<footer>Gurgaon, India</footer>
+
+</body>
+</html>

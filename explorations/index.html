@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio explorations</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14161a;--sub:#5f656e;--faint:#9aa0a8;--bg:#f7f7f5;--card:#fff;--line:#e8e8e4;
+--ui:"Inter",system-ui,sans-serif;--dis:"Cabinet Grotesk","Inter",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:70px 32px 100px}
+h1{font-family:var(--dis);font-size:34px;letter-spacing:-.8px;margin:0 0 9px}
+.lede{font-size:15.5px;line-height:1.65;color:var(--sub);max-width:62ch;margin:0 0 12px}
+.note{font-size:13.5px;color:var(--faint);margin:0 0 34px}
+.note a{color:var(--ink)}
+.grid{display:flex;flex-direction:column;gap:13px}
+.c{display:grid;grid-template-columns:52px 1fr auto;gap:20px;align-items:center;
+  padding:22px;background:var(--card);border:1px solid var(--line);border-radius:13px;
+  text-decoration:none;color:inherit;transition:.2s}
+.c:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 12px 28px rgba(20,22,26,.07)}
+.n{font-family:var(--dis);font-size:26px;font-weight:700;color:var(--faint);line-height:1}
+.c:hover .n{color:var(--ink)}
+h2{font-family:var(--dis);font-size:19px;margin:0 0 5px}
+.d{font-size:14px;line-height:1.6;color:var(--sub);margin:0 0 9px}
+.t{display:flex;gap:6px;flex-wrap:wrap}
+.t span{font-size:11.5px;color:var(--faint);background:#f3f3f0;padding:3px 8px;border-radius:4px}
+.go{font-size:19px;color:var(--faint)}
+.c:hover .go{color:var(--ink);transform:translateX(3px)}
+.go{transition:.2s}
+@media (max-width:700px){.c{grid-template-columns:1fr;gap:11px}.go{display:none}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>Portfolio explorations</h1>
+<p class="lede">Seven directions, all built from the same real content and screenshots — working
+prototypes, not mockups. <b>01–05</b> are ways of indexing work. <b>06–07</b> added depth and a thesis. <b>08</b> found a voice. <b>09</b> is the craft pass — the first one whose design comes from the subject matter rather than from a template.</p>
+<p class="lede" style="font-size:14px;color:#9aa0a8">What the benchmarks reward, in their own words:
+measurable outcomes · storytelling that ties user problems to design decisions · side experiments
+showing curiosity · a bold visual identity. 06 and 07 are aimed squarely at those.</p>
+<p class="note">The current site is untouched at <a href="../index.html">../index.html</a>.</p>
+
+<div class="grid">
+  <a class="c" href="01-scan.html">
+    <div class="n">01</div>
+    <div><h2>The 40-second scan</h2>
+      <p class="d">Dense two-column CV layout with a sticky rail and scrollspy. A <b>recruiter mode</b> toggle strips images and prose away, leaving only outcomes — the fastest possible read of the same page.</p>
+      <div class="t"><span>Sticky rail</span><span>Scrollspy</span><span>Density toggle</span><span>Safest bet</span></div></div>
+    <div class="go">→</div>
+  </a>
+
+  <a class="c" href="02-timeline.html">
+    <div class="n">02</div>
+    <div><h2>The career track</h2>
+      <p class="d">Scroll drives a horizontal rail through Pine Labs → Dukaan → Procol, so career progression is the literal motion of the page. Clickable stop markers, progress bar, stacks vertically on mobile.</p>
+      <div class="t"><span>Scroll-linked</span><span>Horizontal</span><span>Most memorable</span></div></div>
+    <div class="go">→</div>
+  </a>
+
+  <a class="c" href="03-deck.html">
+    <div class="n">03</div>
+    <div><h2>The deck</h2>
+      <p class="d">Full-screen scroll-snap slides on a dark ground, driven by arrow keys or number keys. Every case is one screen of <b>problem → did → result</b>, which is the shape an interviewer already thinks in.</p>
+      <div class="t"><span>Keyboard</span><span>Scroll-snap</span><span>Dark</span><span>Interview-ready</span></div></div>
+    <div class="go">→</div>
+  </a>
+
+  <a class="c" href="04-index.html">
+    <div class="n">04</div>
+    <div><h2>The filterable index</h2>
+      <p class="d">All nine projects as one scannable table, filtered live by what a recruiter is hiring for — 0 → 1, design systems, research, AI, growth. Rows expand in place for detail. Nothing gets buried.</p>
+      <div class="t"><span>Live filter</span><span>Expandable rows</span><span>Best for hiring fit</span></div></div>
+    <div class="go">→</div>
+  </a>
+
+  <a class="c" href="05-impact.html">
+    <div class="n">05</div>
+    <div><h2>Impact first</h2>
+      <p class="d">Leads with four numbers that count up on scroll — 60% TAT, 3 companies, 2 products 0 → 1, 6 nights — then proves each one underneath in alternating full-width cases.</p>
+      <div class="t"><span>Animated counters</span><span>Outcome-led</span><span>Strongest opener</span></div></div>
+    <div class="go">→</div>
+  </a>
+  <a class="c" href="06-editorial.html">
+    <div class="n">06</div>
+    <div><h2>Editorial index <b style="color:#c0410f">— new</b></h2>
+      <p class="d">Has an actual <b>voice</b>: cream-and-ink editorial identity, a thesis headline, and work grouped by year. Text-first rows reveal a floating screenshot that trails your cursor — recruiters read fast, images arrive on demand.</p>
+      <div class="t"><span>Thesis line</span><span>Year-anchored</span><span>Cursor preview</span><span>Has a point of view</span></div></div>
+    <div class="go">→</div>
+  </a>
+
+  <a class="c" href="07-case-study.html">
+    <div class="n">07</div>
+    <div><h2>The case study <b style="color:#c0410f">— new</b></h2>
+      <p class="d">The layer 01–05 were all missing. One project at depth: context → problem → constraints → four decisions <b>with their trade-offs</b> → outcome → what I'd redo. Sticky section nav, reading progress.</p>
+      <div class="t"><span>Narrative depth</span><span>Trade-offs stated</span><span>Scrollspy</span><span>Most load-bearing</span></div></div>
+    <div class="go">→</div>
+  </a>
+  <a class="c" href="08-voice.html" style="border-color:#e0452b">
+    <div class="n" style="color:#e0452b">08</div>
+    <div><h2>Voice <b style="color:#e0452b">— start here</b></h2>
+      <p class="d">Built after studying Rishabh, Judhajit, Aditya, Tanya and Sneha. Clash Display + mono meta, sections called <b>The day job</b> / <b>Nights &amp; weekends</b> / <b>Who's Datta</b>, subtitles that take a position, <code>W</code>/<code>N</code>/<code>M</code> shortcuts, rows that expand on hover. No tag chips — none of the five use them.</p>
+      <div class="t"><span>Has a voice</span><span>Mono meta</span><span>Keyboard</span><span>Closest to the benchmark</span></div></div>
+    <div class="go">→</div>
+  </a>
+  <a class="c" href="09-ledger.html" style="border-color:#553285;background:#e9eee6">
+    <div class="n" style="color:#553285">09</div>
+    <div><h2>Ledger of work <b style="color:#553285">— the craft pass</b></h2>
+      <p class="d">Built from the subject itself. Procurement's native form is the ruled document, so the portfolio <b>is</b> a ledger: work as numbered line items, outcomes sitting in the column where amounts belong, a carried-forward total. Greenbar accounting paper and stamp violet — no cream, no terracotta. Zodiak serif with tabular figures. Opens with native <code>&lt;details&gt;</code>, so it needs <b>zero JavaScript</b>.</p>
+      <div class="t"><span>Ledger structure</span><span>Tabular figures</span><span>No JS</span><span>Best craft</span></div></div>
+    <div class="go">→</div>
+  </a>
+  <a class="c" href="10-spec.html" style="border-color:#000;background:#f8f3ef">
+    <div class="n" style="color:#000">10</div>
+    <div><h2>Spec sheet <b>— latest</b></h2>
+      <p class="d">After <b>select.supabase.com</b>: one committed monospace carrying the whole identity, stark black on warm off-white, a letter-spread masthead, and terse factual density instead of prose. Content is the full current site — including the <b>design lab</b> and <b>reading list</b> the other explorations dropped. Honest states throughout (LIVE / 0 → 1 / Write-up soon). No JavaScript.</p>
+      <div class="t"><span>Monospace identity</span><span>Letter-spread</span><span>Full content</span><span>No JS</span></div></div>
+    <div class="go">→</div>
+  </a>
+</div>
+</div></body>
+</html>

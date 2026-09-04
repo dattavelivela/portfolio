@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Track</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101215; --sub:#616770; --faint:#9ba1a9;
+  --bg:#f6f6f4; --card:#fff; --line:#e6e6e2;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+  --procol:#ff5151; --dukaan:#1170ba; --pine:#00352f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+
+/* progress */
+.prog{position:fixed;top:0;left:0;right:0;height:2px;background:transparent;z-index:60}
+.prog i{display:block;height:100%;width:0;background:var(--ink);transition:width .1s linear}
+
+/* intro */
+.intro{max-width:760px;margin:0 auto;padding:100px 28px 44px}
+.intro h1{font-family:var(--dis);font-size:clamp(34px,5.4vw,54px);line-height:1.06;letter-spacing:-1.4px;margin:0 0 18px}
+.intro p{font-size:17px;line-height:1.6;color:var(--sub);max-width:54ch;margin:0 0 26px}
+.who{display:flex;gap:9px;flex-wrap:wrap;font-size:13px}
+.who span{background:var(--card);border:1px solid var(--line);padding:6px 11px;border-radius:20px;color:var(--sub)}
+.hint{margin-top:36px;font-size:12.5px;color:var(--faint);display:flex;align-items:center;gap:8px}
+.hint i{display:inline-block;width:26px;height:1px;background:var(--faint);animation:sl 1.6s ease-in-out infinite}
+@keyframes sl{0%,100%{transform:translateX(0);opacity:.4}50%{transform:translateX(7px);opacity:1}}
+
+/* sticky horizontal track */
+.track{position:relative;height:340vh}
+.stick{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden}
+.rail{display:flex;gap:26px;padding:0 max(28px,calc(50vw - 560px));will-change:transform}
+
+.stop{
+  flex:0 0 clamp(300px,64vw,760px);background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:15px;
+}
+.stophead{display:flex;align-items:center;gap:10px}
+.stophead img{height:22px;width:auto}
+.stophead .co{font-family:var(--dis);font-size:21px;font-weight:600}
+.stophead .yr{margin-left:auto;font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+.bar{height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:100%;transform-origin:left}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.it{display:flex;flex-direction:column;gap:7px}
+.it .sh{aspect-ratio:1366/656;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:#f2f2ef}
+.it .sh img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.it:hover .sh img{transform:scale(1.06)}
+.it h3{font-family:var(--dis);font-size:14.5px;font-weight:600;margin:0;line-height:1.28}
+.it p{font-size:12.5px;line-height:1.5;color:var(--sub);margin:0}
+.out{font-size:11.5px;font-weight:600;color:var(--ink);background:#eef0ee;padding:3px 7px;border-radius:4px;align-self:flex-start}
+
+.legend{
+  position:absolute;bottom:6vh;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;z-index:5;
+}
+.legend b{
+  width:34px;height:3px;border-radius:2px;background:var(--line);
+  transition:background .3s;cursor:pointer;
+}
+.legend b.on{background:var(--ink)}
+
+.tail{max-width:760px;margin:0 auto;padding:80px 28px 110px}
+.tail h2{font-family:var(--dis);font-size:24px;margin:0 0 16px}
+.sides{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px}
+.side{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:16px;transition:.2s}
+.side:hover{transform:translateY(-3px);border-color:var(--ink)}
+.side h3{font-family:var(--dis);font-size:15px;margin:0 0 5px}
+.side p{font-size:13px;color:var(--sub);line-height:1.5;margin:0}
+.foot{display:flex;gap:10px;flex-wrap:wrap}
+.foot a{font-size:14px;text-decoration:none;padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);transition:.18s}
+.foot a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.foot a.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+@media (max-width:820px){
+  .track{height:auto}
+  .stick{position:static;height:auto;display:block;padding:0 22px 60px}
+  .rail{flex-direction:column;padding:0;gap:18px;transform:none!important}
+  .stop{flex:none}
+  .grid{grid-template-columns:1fr}
+  .legend{display:none}
+  .sides{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.hint i{animation:none}}
+</style>
+</head>
+<body>
+<div class="prog"><i id="pbar"></i></div>
+
+<section class="intro">
+  <h1>Three years, three companies, one throughline.</h1>
+  <p>I turn messy business workflows into clear, usable software. Strongest in product thinking
+     and UX — comfortable enough in frontend and GTM to carry a thing from argument to shipped.</p>
+  <div class="who"><span>Product Designer</span><span>B2B SaaS</span><span>Gurgaon</span><span>3+ years</span></div>
+  <div class="hint"><i></i> Scroll to move through the track</div>
+</section>
+
+<div class="track" id="track">
+  <div class="stick">
+    <div class="rail" id="rail">
+
+      <article class="stop">
+        <div class="stophead">
+          <img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:26px">
+          <span class="yr">Jan — Mar 2023</span>
+        </div>
+        <div class="bar"><i style="background:var(--pine)"></i></div>
+        <div class="grid">
+          <div class="it">
+            <div class="sh"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+            <h3>Device management</h3>
+            <p>Funnel analysis and onsite research with the PM, then wireframes tested with user groups.</p>
+            <span class="out">60% TAT cut</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/pinelabs-one-app.png" alt=""></div>
+            <h3>One app sign-in</h3>
+            <p>Rebuilt the enterprise sign-in experience end to end.</p>
+            <span class="out">↑ completion</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/pinelabs-more.png" alt=""></div>
+            <h3>Terminal &amp; market study</h3>
+            <p>Cut dashboard TAT; ran a market study for a vertical.</p>
+            <span class="out">Research</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stop">
+        <div class="stophead">
+          <img src="../assets/dukaan.png" alt="">
+          <span class="co">Dukaan</span>
+          <span class="yr">Jun 2023 — Jul 2024</span>
+        </div>
+        <div class="bar"><i style="background:var(--dukaan)"></i></div>
+        <div class="grid">
+          <div class="it">
+            <div class="sh"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+            <h3>Led the app revamp</h3>
+            <p>Owned it from planning and strategy through to design.</p>
+            <span class="out">↑ activation</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/dukaan-design-system.png" alt=""></div>
+            <h3>Design system</h3>
+            <p>One system across web and mobile, retiring the split.</p>
+            <span class="out">↓ maintenance</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/dukaan-bot9.png" alt=""></div>
+            <h3>Bot9, 0 → 1</h3>
+            <p>AI support-ticket product. MVP designed with the founders.</p>
+            <span class="out">0 → 1</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="stop">
+        <div class="stophead">
+          <img src="../assets/procol-mark.svg" alt="">
+          <span class="co">Procol</span>
+          <span class="yr">Aug 2024 — Present</span>
+        </div>
+        <div class="bar"><i style="background:var(--procol)"></i></div>
+        <div class="grid">
+          <div class="it">
+            <div class="sh"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+            <h3>Agentic source-to-pay</h3>
+            <p>Buying teams hand routine procurement work to agents.</p>
+            <span class="out">0 → 1</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/analytics-builder.jpg" alt=""></div>
+            <h3>Analytics builder</h3>
+            <p>Configurable widgets replace hard-coded SQL dashboards.</p>
+            <span class="out">Self-serve</span>
+          </div>
+          <div class="it">
+            <div class="sh"><img src="../assets/product-features.jpg" alt=""></div>
+            <h3>Core platform</h3>
+            <p>Reverse auction, GST reconciliation, audit trail, vendor onboarding.</p>
+            <span class="out">6 surfaces</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+    <div class="legend" id="legend"><b class="on"></b><b></b><b></b></div>
+  </div>
+</div>
+
+<section class="tail">
+  <h2>On the side</h2>
+  <div class="sides">
+    <div class="side"><h3>Automail</h3><p>Design emails visually, wire them into your backend.</p></div>
+    <div class="side"><h3>Ship Note</h3><p>Micro-SaaS in six nights — product updates on your own site.</p></div>
+    <div class="side"><h3>Find</h3><p>40+ curated inspiration sources, one click.</p></div>
+  </div>
+  <div class="foot">
+    <a class="solid" href="mailto:gurudatta.velivela@procol.in">Email me</a>
+    <a href="#">Resume</a><a href="#">LinkedIn</a>
+  </div>
+</section>
+
+<script>
+const track=document.getElementById('track'),rail=document.getElementById('rail'),
+      pbar=document.getElementById('pbar'),dots=[...document.getElementById('legend').children];
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let raf=null;
+
+function frame(){
+  raf=null;
+  const de=document.documentElement;
+  pbar.style.width=(scrollY/(de.scrollHeight-innerHeight)*100)+'%';
+  if(innerWidth<=820)return;
+  const r=track.getBoundingClientRect(),span=track.offsetHeight-innerHeight;
+  let t=Math.min(1,Math.max(0,-r.top/span));
+  const dist=rail.scrollWidth-innerWidth+40;
+  rail.style.transform='translate3d('+(-t*dist)+'px,0,0)';
+  const i=Math.min(dots.length-1,Math.floor(t*dots.length+.001));
+  dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+}
+addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(frame)},{passive:true});
+addEventListener('resize',frame);
+frame();
+
+dots.forEach((d,i)=>d.addEventListener('click',()=>{
+  const span=track.offsetHeight-innerHeight;
+  scrollTo({top:track.offsetTop+span*(i/(dots.length-1||1)),behavior:reduce?'auto':'smooth'});
+}));
+</script>
+</body>
+</html>

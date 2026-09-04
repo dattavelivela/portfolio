@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e1013; --sub:#6a7079; --faint:#9299a1;
+  --bg:#0e1013; --panel:#16191d; --line:#262b31; --pop:#c8f169;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:#eef1f4;font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+
+.slide{
+  min-height:100vh;scroll-snap-align:start;display:flex;align-items:center;
+  padding:82px 40px;position:relative;
+}
+.inner{max-width:1000px;margin:0 auto;width:100%}
+
+/* chrome */
+.dots{position:fixed;right:26px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:11px;z-index:50}
+.dots b{width:7px;height:7px;border-radius:50%;background:#333a42;cursor:pointer;transition:.25s;display:block}
+.dots b.on{background:var(--pop);transform:scale(1.45)}
+.kbd{position:fixed;left:26px;bottom:22px;font-size:11.5px;color:var(--faint);z-index:50;letter-spacing:.02em}
+.kbd kbd{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:2px 6px;font-family:var(--ui);font-size:11px}
+.count{position:fixed;right:26px;bottom:22px;font-size:11.5px;color:var(--faint);z-index:50;font-variant-numeric:tabular-nums}
+
+/* title slide */
+.t1 h1{font-family:var(--dis);font-size:clamp(40px,7.4vw,86px);line-height:1.02;letter-spacing:-2.4px;margin:0 0 22px}
+.t1 h1 em{font-style:normal;color:var(--pop)}
+.t1 p{font-size:clamp(16px,2vw,20px);line-height:1.55;color:var(--sub);max-width:52ch;margin:0 0 30px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips span{font-size:13px;border:1px solid var(--line);padding:7px 13px;border-radius:22px;color:var(--sub)}
+
+/* case slides */
+.eyebrow{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.eyebrow img{height:19px;width:auto}
+.eyebrow .co{font-family:var(--dis);font-size:14px;font-weight:600;color:#eef1f4}
+.eyebrow .yr{font-size:12px;color:var(--faint)}
+.case{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.case h2{font-family:var(--dis);font-size:clamp(25px,3.6vw,40px);line-height:1.1;letter-spacing:-1px;margin:0 0 16px}
+.paw{display:flex;flex-direction:column;gap:13px;margin-bottom:20px}
+.paw div{display:grid;grid-template-columns:64px 1fr;gap:13px;font-size:14.5px;line-height:1.58}
+.paw dt{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);padding-top:3px}
+.paw dd{margin:0;color:#cdd3da}
+.paw .win dd{color:var(--pop);font-weight:500}
+.frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);aspect-ratio:1366/656}
+.frame img{width:100%;height:100%;object-fit:cover}
+
+/* reveal on entry */
+.slide .anim{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.slide.live .anim{opacity:1;transform:none}
+.slide.live .anim:nth-child(2){transition-delay:.07s}
+.slide.live .anim:nth-child(3){transition-delay:.14s}
+@media (prefers-reduced-motion:reduce){.slide .anim{opacity:1;transform:none;transition:none}}
+
+/* end slide */
+.end h2{font-family:var(--dis);font-size:clamp(30px,5vw,52px);letter-spacing:-1.4px;margin:0 0 26px}
+.links{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:40px}
+.links a{font-size:15px;text-decoration:none;padding:12px 20px;border-radius:9px;border:1px solid var(--line);color:#eef1f4;transition:.18s}
+.links a:hover{border-color:var(--pop);color:var(--pop);transform:translateY(-2px)}
+.links a.solid{background:var(--pop);color:#0e1013;border-color:var(--pop);font-weight:600}
+.sides{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.side{border:1px solid var(--line);border-radius:11px;padding:16px;background:var(--panel)}
+.side h3{font-family:var(--dis);font-size:15px;margin:0 0 5px}
+.side p{font-size:13px;color:var(--sub);line-height:1.5;margin:0}
+
+@media (max-width:860px){
+  .case{grid-template-columns:1fr;gap:24px}
+  .slide{padding:64px 22px}
+  .dots{display:none}.kbd{display:none}
+  .sides{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="dots" id="dots"></div>
+<div class="kbd"><kbd>↑</kbd> <kbd>↓</kbd> to move · <kbd>1</kbd>–<kbd>5</kbd> to jump</div>
+<div class="count" id="count">01 / 05</div>
+
+<section class="slide t1"><div class="inner">
+  <h1 class="anim">Gurudatta Velivela<br><em>designs the boring parts well.</em></h1>
+  <p class="anim">Three years turning messy B2B workflows into software people can actually use.
+     Product thinking and UX first; frontend and GTM when the work needs it.</p>
+  <div class="chips anim"><span>Product Designer</span><span>Procol · Gurgaon</span><span>ex Dukaan</span><span>ex Pine Labs</span></div>
+</div></section>
+
+<section class="slide"><div class="inner">
+  <div class="eyebrow anim"><img src="../assets/procol-mark.svg" alt=""><span class="co">Procol</span><span class="yr">Aug 2024 — Present</span></div>
+  <div class="case">
+    <div>
+      <h2 class="anim">Agentic source-to-pay</h2>
+      <dl class="paw anim">
+        <div><dt>Problem</dt><dd>Procurement teams burned their days on routine, repeatable steps.</dd></div>
+        <div><dt>Did</dt><dd>Designed an autonomous experience where agents take the routine work, and buyers supervise.</dd></div>
+        <div class="win"><dt>Result</dt><dd>Shipped 0 → 1, plus six core surfaces around it.</dd></div>
+      </dl>
+    </div>
+    <div class="frame anim"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+  </div>
+</div></section>
+
+<section class="slide"><div class="inner">
+  <div class="eyebrow anim"><img src="../assets/procol-mark.svg" alt=""><span class="co">Procol</span><span class="yr">2025</span></div>
+  <div class="case">
+    <div>
+      <h2 class="anim">Analytics without the eng ticket</h2>
+      <dl class="paw anim">
+        <div><dt>Problem</dt><dd>Every new dashboard meant hard-coded SQL and a queue.</dd></div>
+        <div><dt>Did</dt><dd>Built a self-serve builder — configurable, scalable widgets over the existing pipelines.</dd></div>
+        <div class="win"><dt>Result</dt><dd>Users compose their own views. Engineering leaves the loop.</dd></div>
+      </dl>
+    </div>
+    <div class="frame anim"><img src="../assets/analytics-builder.jpg" alt=""></div>
+  </div>
+</div></section>
+
+<section class="slide"><div class="inner">
+  <div class="eyebrow anim"><img src="../assets/dukaan.png" alt=""><span class="co">Dukaan</span><span class="yr">Jun 2023 — Jul 2024</span></div>
+  <div class="case">
+    <div>
+      <h2 class="anim">A rollercoaster, and a design system</h2>
+      <dl class="paw anim">
+        <div><dt>Problem</dt><dd>Web and mobile ran on separate systems; the app under-converted.</dd></div>
+        <div><dt>Did</dt><dd>Led the app revamp end to end and scaled one design system across both platforms. Designed Bot9, an AI support product, from 0 → 1 with the founders.</dd></div>
+        <div class="win"><dt>Result</dt><dd>Activation, adoption and conversion all up; maintenance down.</dd></div>
+      </dl>
+    </div>
+    <div class="frame anim"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+  </div>
+</div></section>
+
+<section class="slide"><div class="inner">
+  <div class="eyebrow anim"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:23px"><span class="yr">Jan — Mar 2023</span></div>
+  <div class="case">
+    <div>
+      <h2 class="anim">60% off turnaround time</h2>
+      <dl class="paw anim">
+        <div><dt>Problem</dt><dd>Enterprise merchants waited too long on device management.</dd></div>
+        <div><dt>Did</dt><dd>Ran funnel analysis and onsite research with the PM, then wireframes tested with real user groups.</dd></div>
+        <div class="win"><dt>Result</dt><dd>60% TAT reduction — as an intern.</dd></div>
+      </dl>
+    </div>
+    <div class="frame anim"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+  </div>
+</div></section>
+
+<section class="slide end"><div class="inner">
+  <h2 class="anim">Let's talk.</h2>
+  <div class="links anim">
+    <a class="solid" href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a>
+    <a href="#">Resume</a><a href="#">LinkedIn</a>
+  </div>
+  <div class="sides anim">
+    <div class="side"><h3>Automail</h3><p>Design emails visually, wire them into your backend.</p></div>
+    <div class="side"><h3>Ship Note</h3><p>Micro-SaaS in six nights.</p></div>
+    <div class="side"><h3>Find</h3><p>40+ curated inspiration sources, one click.</p></div>
+  </div>
+</div></section>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')],
+      dots=document.getElementById('dots'),count=document.getElementById('count');
+slides.forEach((s,i)=>{
+  const b=document.createElement('b');
+  b.addEventListener('click',()=>s.scrollIntoView());
+  dots.appendChild(b);
+});
+const bs=[...dots.children];
+const pad=n=>String(n).padStart(2,'0');
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    e.target.classList.add('live');
+    const i=slides.indexOf(e.target);
+    bs.forEach((b,k)=>b.classList.toggle('on',k===i));
+    count.textContent=pad(i+1)+' / '+pad(slides.length);
+  }
+}),{threshold:.5});
+slides.forEach(s=>io.observe(s));
+
+addEventListener('keydown',e=>{
+  const cur=bs.findIndex(b=>b.classList.contains('on'));
+  if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();slides[Math.min(slides.length-1,cur+1)].scrollIntoView()}
+  if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();slides[Math.max(0,cur-1)].scrollIntoView()}
+  if(/^[1-9]$/.test(e.key)&&slides[+e.key-1])slides[+e.key-1].scrollIntoView();
+});
+</script>
+</body>
+</html>

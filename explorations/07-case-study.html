@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agentic source-to-pay — Case study</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#191713; --sub:#5d574e; --faint:#a39b8e;
+  --paper:#f3efe7; --card:#fffdf8; --line:#ddd6c8; --pop:#c0410f;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+.prog{position:fixed;top:0;left:0;right:0;height:2px;z-index:70}
+.prog i{display:block;height:100%;width:0;background:var(--pop)}
+
+.back{max-width:1120px;margin:0 auto;padding:24px 40px;font-size:12.5px}
+.back a{text-decoration:none;color:var(--sub)}
+.back a:hover{color:var(--pop)}
+
+.hero{max-width:1120px;margin:0 auto;padding:34px 40px 44px;border-bottom:1.5px solid var(--ink)}
+.tagline{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--faint);margin-bottom:18px}
+.tagline img{height:16px;width:auto}
+.hero h1{font-family:var(--dis);font-weight:800;font-size:clamp(32px,6vw,68px);line-height:1;letter-spacing:-2.2px;margin:0 0 22px;max-width:16ch}
+.hero .lede{font-size:18px;line-height:1.6;color:var(--sub);max-width:56ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:36px;border-top:1px solid var(--line);padding-top:20px}
+.facts div{padding-right:18px;border-right:1px solid var(--line)}
+.facts div:last-child{border-right:none}
+.facts dt{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.facts dd{margin:0;font-size:14px;line-height:1.5;font-weight:500}
+
+.shell{max-width:1120px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:190px 1fr;gap:56px}
+.toc{position:sticky;top:32px;align-self:start;padding-top:52px}
+.toc a{display:block;font-size:12.5px;color:var(--faint);text-decoration:none;padding:6px 0 6px 13px;border-left:2px solid var(--line);transition:.18s}
+.toc a:hover{color:var(--sub)}
+.toc a.on{color:var(--ink);border-left-color:var(--pop);font-weight:500}
+
+main{padding:52px 0 90px;max-width:660px}
+section{margin-bottom:56px;scroll-margin-top:26px}
+h2{font-family:var(--dis);font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin:0 0 16px}
+h3{font-family:var(--dis);font-size:26px;font-weight:700;letter-spacing:-.8px;line-height:1.18;margin:0 0 14px}
+p{font-size:16px;line-height:1.72;color:var(--sub);margin:0 0 16px}
+p strong{color:var(--ink);font-weight:600}
+ul{margin:0 0 16px;padding-left:19px}
+li{font-size:16px;line-height:1.72;color:var(--sub);margin-bottom:7px}
+
+figure{margin:26px 0}
+figure .f{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+figcaption{font-size:12.5px;color:var(--faint);margin-top:9px;line-height:1.5}
+
+.pull{border-left:3px solid var(--pop);padding:4px 0 4px 20px;margin:26px 0}
+.pull p{font-family:var(--dis);font-size:21px;font-weight:500;line-height:1.4;color:var(--ink);margin:0;letter-spacing:-.4px}
+
+.dec{border:1px solid var(--line);border-radius:11px;background:var(--card);padding:20px;margin-bottom:14px}
+.dec .n{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--pop);margin-bottom:8px}
+.dec h4{font-family:var(--dis);font-size:18px;font-weight:700;margin:0 0 8px;letter-spacing:-.3px}
+.dec p{font-size:14.5px;margin:0 0 10px}
+.dec p:last-child{margin:0}
+.dec .tr{font-size:13px;color:var(--faint);border-top:1px dashed var(--line);padding-top:9px;margin-top:2px}
+.dec .tr b{color:var(--sub);font-weight:500}
+
+.res{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.res div{border:1px solid var(--line);border-radius:10px;padding:17px;background:var(--card)}
+.res b{display:block;font-family:var(--dis);font-size:22px;font-weight:800;letter-spacing:-.7px;margin-bottom:5px}
+.res span{font-size:13px;line-height:1.5;color:var(--sub)}
+
+.fill{background:#fdf3d8;border:1px dashed #d9b95e;border-radius:7px;padding:12px 14px;margin:0 0 16px;font-size:13.5px;line-height:1.6;color:#6b5411}
+.fill b{color:#4a3a08}
+
+.next{border-top:1.5px solid var(--ink);padding:30px 0 0;margin-top:20px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.next a{font-size:14px;text-decoration:none;padding:11px 18px;border:1px solid var(--line);border-radius:8px;background:var(--card);transition:.18s}
+.next a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.next a.solid{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.rv{opacity:0;transform:translateY(13px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0;padding:0 22px}
+  .toc{display:none}
+  .hero,.back{padding-left:22px;padding-right:22px}
+  .facts{grid-template-columns:repeat(2,1fr);gap:16px 0}
+  .facts div:nth-child(2n){border-right:none}
+  .res{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="prog"><i id="pbar"></i></div>
+
+<div class="back"><a href="06-editorial.html">&larr; All work</a></div>
+
+<header class="hero">
+  <div class="tagline"><img src="../assets/procol-mark.svg" alt="">Procol · Aug 2024 — Present · Product Designer</div>
+  <h1>Teaching procurement software to do its own paperwork</h1>
+  <p class="lede">Buying teams spend their days on steps that repeat. We designed a source-to-pay
+     platform where agents take that work and humans supervise it — which meant redesigning the
+     unit of work itself, not just the screens around it.</p>
+  <dl class="facts">
+    <div><dt>Role</dt><dd>Product Designer — sole designer on the surface</dd></div>
+    <div><dt>Team</dt><dd>PM, engineering, founders</dd></div>
+    <div><dt>Scope</dt><dd>0 &rarr; 1, plus 6 core surfaces</dd></div>
+    <div><dt>Status</dt><dd>Shipped, in active use</dd></div>
+  </dl>
+</header>
+
+<div class="shell">
+  <nav class="toc">
+    <a href="#context" class="on">Context</a>
+    <a href="#problem">The problem</a>
+    <a href="#constraints">Constraints</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#shipped">What shipped</a>
+    <a href="#outcome">Outcome</a>
+    <a href="#learned">What I'd redo</a>
+  </nav>
+
+  <main>
+    <section id="context" class="rv">
+      <h2>Context</h2>
+      <h3>Procurement is a relay race with too many batons</h3>
+      <p>A single purchase moves through requisition, sourcing, negotiation, award, invoice and
+        reconciliation — each step owned by someone different, each handoff a place to stall. Procol
+        builds the software that runs it. Most of that software historically assumed a person would
+        drive every step personally.</p>
+      <figure>
+        <div class="f"><img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay interface"></div>
+        <figcaption>The shipped platform. Agents run the repeatable stretch; buyers hold the decisions.</figcaption>
+      </figure>
+    </section>
+
+    <section id="problem" class="rv">
+      <h2>The problem</h2>
+      <h3>The expensive part wasn't the decisions. It was everything between them.</h3>
+      <p>Buyers weren't slow because sourcing is hard. They were slow because the work
+        <strong>between</strong> decisions — chasing vendors, re-keying line items, checking a GST
+        number against an invoice, assembling a bill of quantities — ate the day. The judgment calls
+        took minutes; the connective tissue took hours.</p>
+      <div class="fill"><b>Fill in:</b> the evidence you actually had here. Support ticket volume?
+        Time-on-task from a workflow audit? A number of steps per PO? One real observation makes this
+        section land — recruiters read this paragraph to see whether you diagnose or assume.</div>
+      <div class="pull"><p>If a step is repeatable enough to write a runbook for, it's repeatable
+        enough to hand to an agent.</p></div>
+    </section>
+
+    <section id="constraints" class="rv">
+      <h2>Constraints</h2>
+      <h3>What made this harder than a normal redesign</h3>
+      <ul>
+        <li><strong>Money moves at the end.</strong> An agent that silently gets something wrong
+          costs real rupees, so no step could be a black box.</li>
+        <li><strong>Audit is non-negotiable.</strong> Enterprise procurement gets audited; every
+          action needs an attributable trail, whether a human or an agent took it.</li>
+        <li><strong>Trust starts at zero.</strong> Buyers are accountable for these decisions. They
+          won't delegate to something they can't inspect.</li>
+        <li><strong>The old workflows still had to work.</strong> Existing customers couldn't be
+          forced into an agentic model on day one.</li>
+      </ul>
+    </section>
+
+    <section id="decisions" class="rv">
+      <h2>Decisions</h2>
+      <h3>Four choices that shaped the product</h3>
+
+      <div class="dec">
+        <div class="n">Decision 01</div>
+        <h4>Supervision, not automation</h4>
+        <p>The agent proposes and executes, but every consequential action surfaces as something a
+          buyer can see, question and reverse. The mental model we designed for is a capable junior
+          who shows their work — not a machine that acts on your behalf invisibly.</p>
+        <p class="tr"><b>Trade-off:</b> slower than full automation, and more UI to build. Worth it,
+          because an agent nobody trusts gets switched off in week two.</p>
+      </div>
+
+      <div class="dec">
+        <div class="n">Decision 02</div>
+        <h4>The audit trail became a product surface, not a log file</h4>
+        <p>Compliance needed a record anyway. Rather than bury it, we made the trail legible enough
+          that buyers use it to understand what the agent did — the same artefact serving audit and
+          trust at once.</p>
+        <p class="tr"><b>Trade-off:</b> a compliance feature had to carry everyday UX weight, which
+          raised the bar on its design considerably.</p>
+      </div>
+
+      <div class="dec">
+        <div class="n">Decision 03</div>
+        <h4>Agentic mode sits alongside the manual path</h4>
+        <p>Teams opt in per workflow instead of migrating wholesale, so trust builds on the steps
+          with the least downside first.</p>
+        <p class="tr"><b>Trade-off:</b> two paths to maintain, and a harder information architecture.</p>
+      </div>
+
+      <div class="dec">
+        <div class="n">Decision 04</div>
+        <h4>Design the six surrounding surfaces as one system</h4>
+        <p>Reverse auction, GST reconciliation, audit trail, vendor onboarding, template creation and
+          bill of quantities were built to share patterns, so the agent behaves recognisably the same
+          in each.</p>
+        <p class="tr"><b>Trade-off:</b> slower to ship the first surface, faster for every one after.</p>
+      </div>
+    </section>
+
+    <section id="shipped" class="rv">
+      <h2>What shipped</h2>
+      <h3>Six surfaces around one model</h3>
+      <figure>
+        <div class="f"><img src="../assets/product-features.jpg" alt="Core platform surfaces"></div>
+        <figcaption>Reconciliation and the audit trail — where the agent's work becomes inspectable.</figcaption>
+      </figure>
+      <p>Japanese reverse auction, GST reconciliation, notifications, audit trail, vendor onboarding,
+        template creation and bill of quantities — each shipped against the same interaction grammar
+        so buyers learn the agent once.</p>
+    </section>
+
+    <section id="outcome" class="rv">
+      <h2>Outcome</h2>
+      <h3>What actually changed</h3>
+      <div class="res">
+        <div><b>0 &rarr; 1</b><span>Shipped and in active use with real buying teams</span></div>
+        <div><b>6 surfaces</b><span>Built on one shared agent model</span></div>
+      </div>
+      <div class="fill"><b>Fill in:</b> this is the weakest section and the one recruiters weigh most.
+        Anything real helps — cycle time before and after, adoption of agentic mode, PO volume
+        processed, tickets deflected, a customer quote. If you genuinely can't share numbers, say
+        <i>"metrics under NDA, happy to discuss live"</i> — that reads far better than silence.</div>
+    </section>
+
+    <section id="learned" class="rv">
+      <h2>What I'd redo</h2>
+      <h3>Honestly</h3>
+      <div class="fill"><b>Fill in:</b> one or two real regrets. This section costs you nothing and
+        is disproportionately convincing — it's the clearest signal that you evaluate your own work.
+        What did you over-build? Which assumption did users break? What would you cut?</div>
+
+      <div class="next">
+        <a class="solid" href="mailto:gurudatta.velivela@procol.in">Talk about this work</a>
+        <a href="06-editorial.html">All work</a>
+        <a href="index.html">Other directions</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const pbar=document.getElementById('pbar');
+addEventListener('scroll',()=>{
+  const de=document.documentElement;
+  pbar.style.width=(scrollY/(de.scrollHeight-innerHeight)*100)+'%';
+},{passive:true});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+}),{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+const links=[...document.querySelectorAll('.toc a')],
+      secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('on'));
+    const i=secs.indexOf(e.target); if(i>-1)links[i].classList.add('on');
+  }
+}),{rootMargin:'-12% 0px -75% 0px'});
+secs.forEach(s=>s&&spy.observe(s));
+</script>
+</body>
+</html>

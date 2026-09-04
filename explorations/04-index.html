@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15171b; --sub:#5f656e; --faint:#9aa0a8;
+  --bg:#fcfcfb; --card:#fff; --line:#e9e9e5; --hi:#f4f0e2; --pop:#7a4dd6;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:1000px;margin:0 auto;padding:70px 32px 110px}
+
+header{margin-bottom:34px}
+header h1{font-family:var(--dis);font-size:33px;letter-spacing:-.7px;margin:0 0 7px}
+header p{font-size:15.5px;color:var(--sub);line-height:1.6;max-width:56ch;margin:0 0 18px}
+.links{display:flex;gap:9px;flex-wrap:wrap}
+.links a{font-size:13px;text-decoration:none;padding:8px 14px;border:1px solid var(--line);border-radius:7px;background:var(--card);transition:.18s}
+.links a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.links a.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* filter bar */
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);padding:16px 0;border-bottom:1px solid var(--line);margin-bottom:6px}
+.barin{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.f{
+  font-size:13px;font-weight:500;padding:7px 13px;border-radius:20px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--sub);transition:.18s;user-select:none;
+}
+.f:hover{border-color:var(--faint)}
+.f.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tally{margin-left:auto;font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+/* rows */
+.list{display:flex;flex-direction:column}
+.r{
+  display:grid;grid-template-columns:112px 1fr 150px;gap:20px;align-items:center;
+  padding:17px 10px;border-bottom:1px solid var(--line);cursor:pointer;
+  border-radius:9px;transition:background .2s,transform .28s ease,opacity .28s ease;
+}
+.r:hover{background:var(--card)}
+.r.hide{display:none}
+.r.pop{animation:pop .34s ease both}
+@keyframes pop{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.sh{aspect-ratio:1366/656;border-radius:5px;overflow:hidden;border:1px solid var(--line);background:#f2f2ef}
+.sh img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.r:hover .sh img{transform:scale(1.07)}
+.r h3{font-family:var(--dis);font-size:16.5px;font-weight:600;margin:0 0 4px}
+.r .meta{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--faint);margin-bottom:6px}
+.r .meta img{height:13px;width:auto}
+.r .sum{font-size:13.5px;line-height:1.55;color:var(--sub);margin:0}
+.r .out{font-size:12.5px;font-weight:600;color:var(--pop);background:#f1ebfc;padding:4px 9px;border-radius:5px;display:inline-block}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.tags span{font-size:11px;color:var(--faint);background:#f3f3f0;padding:2px 7px;border-radius:4px}
+
+/* expandable detail */
+.det{grid-column:1/-1;max-height:0;overflow:hidden;transition:max-height .38s ease}
+.r.open .det{max-height:220px}
+.det p{font-size:13.5px;line-height:1.65;color:var(--sub);margin:12px 0 2px;max-width:66ch}
+@media (prefers-reduced-motion:reduce){.det{transition:none}.r.pop{animation:none}}
+
+.empty{padding:44px 10px;color:var(--faint);font-size:14px;display:none}
+.empty.on{display:block}
+
+@media (max-width:760px){
+  .r{grid-template-columns:84px 1fr;gap:14px}
+  .r .out{grid-column:2;justify-self:start}
+  .tally{width:100%;margin:4px 0 0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Gurudatta Velivela</h1>
+  <p>Product Designer at Procol. Three years turning messy B2B workflows into usable software —
+     across product, design, frontend and GTM. Filter this index by what you're hiring for.</p>
+  <div class="links">
+    <a class="solid" href="mailto:gurudatta.velivela@procol.in">Email</a>
+    <a href="#">Resume</a><a href="#">LinkedIn</a>
+  </div>
+</header>
+
+<div class="bar"><div class="barin" id="filters">
+  <span class="f on" data-f="all">Everything</span>
+  <span class="f" data-f="0-1">0 → 1</span>
+  <span class="f" data-f="systems">Design systems</span>
+  <span class="f" data-f="research">Research</span>
+  <span class="f" data-f="ai">AI</span>
+  <span class="f" data-f="growth">Growth</span>
+  <span class="f" data-f="b2b">B2B</span>
+  <span class="tally" id="tally">9 of 9</span>
+</div></div>
+
+<div class="list" id="list">
+
+  <div class="r" data-t="0-1 b2b ai">
+    <div class="sh"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/procol-mark.svg" alt="">Procol · 2024—now</div>
+      <h3>Agentic source-to-pay platform</h3>
+      <p class="sum">An autonomous procurement experience — buying teams hand routine work to agents.</p>
+      <div class="tags"><span>0 → 1</span><span>B2B</span><span>Agentic UX</span></div>
+    </div>
+    <span class="out">Shipped 0 → 1</span>
+    <div class="det"><p>Designed the agent supervision model, the hand-off points, and the six core surfaces around it: Japanese reverse auction, GST reconciliation, audit trail, vendor onboarding, template creation and bill of quantities.</p></div>
+  </div>
+
+  <div class="r" data-t="b2b systems">
+    <div class="sh"><img src="../assets/analytics-builder.jpg" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/procol-mark.svg" alt="">Procol · 2025</div>
+      <h3>Self-serve analytics builder</h3>
+      <p class="sum">Configurable, scalable widgets in place of hard-coded SQL dashboards.</p>
+      <div class="tags"><span>Data viz</span><span>Self-serve</span></div>
+    </div>
+    <span class="out">Eng out of the loop</span>
+    <div class="det"><p>Users compose their own visualisations on top of existing data pipelines, instead of filing a ticket and waiting on a queue.</p></div>
+  </div>
+
+  <div class="r" data-t="b2b">
+    <div class="sh"><img src="../assets/product-features.jpg" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/procol-mark.svg" alt="">Procol · 2024—now</div>
+      <h3>Core platform features</h3>
+      <p class="sum">Reverse auction, GST reconciliation, audit trail, vendor onboarding, BoQ.</p>
+      <div class="tags"><span>Workflows</span><span>Enterprise</span></div>
+    </div>
+    <span class="out">6 surfaces</span>
+    <div class="det"><p>The unglamorous half of procurement software — the surfaces buyers live in daily, where a saved click compounds across thousands of line items.</p></div>
+  </div>
+
+  <div class="r" data-t="growth">
+    <div class="sh"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/dukaan.png" alt="">Dukaan · 2023—24</div>
+      <h3>Led the app revamp</h3>
+      <p class="sum">Owned it from planning and strategy through to design.</p>
+      <div class="tags"><span>Mobile</span><span>Growth</span><span>NRR</span></div>
+    </div>
+    <span class="out">↑ activation</span>
+    <div class="det"><p>Improved activation, adoption and conversion, driving overall growth. Also redesigned the subscription flow off a data-driven strategy.</p></div>
+  </div>
+
+  <div class="r" data-t="systems">
+    <div class="sh"><img src="../assets/dukaan-design-system.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/dukaan.png" alt="">Dukaan · 2023—24</div>
+      <h3>Multi-platform design system</h3>
+      <p class="sum">One system across web and mobile, retiring the split.</p>
+      <div class="tags"><span>Design system</span><span>Scale</span></div>
+    </div>
+    <span class="out">↓ maintenance</span>
+    <div class="det"><p>Eliminated the need for separate web and mobile systems, which cut maintenance cost and lifted team productivity.</p></div>
+  </div>
+
+  <div class="r" data-t="0-1 ai">
+    <div class="sh"><img src="../assets/dukaan-bot9.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/dukaan.png" alt="">Dukaan · 2023—24</div>
+      <h3>Bot9, from 0 → 1</h3>
+      <p class="sum">AI product that resolves customer support tickets.</p>
+      <div class="tags"><span>AI</span><span>0 → 1</span><span>MVP</span></div>
+    </div>
+    <span class="out">Founder-facing</span>
+    <div class="det"><p>Designed the MVP solo, in close collaboration with the founders and cross-functional teams.</p></div>
+  </div>
+
+  <div class="r" data-t="research">
+    <div class="sh"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:15px">· 2023</div>
+      <h3>Device management in One Web</h3>
+      <p class="sum">Funnel analysis and onsite research with the PM, then wireframes tested with user groups.</p>
+      <div class="tags"><span>Research</span><span>Enterprise</span></div>
+    </div>
+    <span class="out">60% TAT cut</span>
+    <div class="det"><p>The strongest single number on this page, and it came from an internship — because the research came before the pixels.</p></div>
+  </div>
+
+  <div class="r" data-t="growth">
+    <div class="sh"><img src="../assets/pinelabs-one-app.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:15px">· 2023</div>
+      <h3>One app sign-in</h3>
+      <p class="sum">Rebuilt the enterprise sign-in experience end to end.</p>
+      <div class="tags"><span>Onboarding</span><span>Mobile</span></div>
+    </div>
+    <span class="out">↑ completion</span>
+    <div class="det"><p>Aimed at two things at once: fewer support tickets, and a higher first-time sign-in completion rate.</p></div>
+  </div>
+
+  <div class="r" data-t="research">
+    <div class="sh"><img src="../assets/pinelabs-more.png" alt=""></div>
+    <div>
+      <div class="meta"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:15px">· 2023</div>
+      <h3>Terminal issues &amp; market study</h3>
+      <p class="sum">Cut dashboard TAT, produced marketing material, ran a market study for a vertical.</p>
+      <div class="tags"><span>Ops</span><span>Strategy</span></div>
+    </div>
+    <span class="out">Research → strategy</span>
+    <div class="det"><p>Presented research-backed strategy directly to the leadership team.</p></div>
+  </div>
+
+</div>
+<div class="empty" id="empty">Nothing matches that filter. <b>Everything</b> brings it all back.</div>
+
+</div>
+
+<script>
+const rows=[...document.querySelectorAll('.r')],
+      fs=[...document.querySelectorAll('.f')],
+      tally=document.getElementById('tally'),
+      empty=document.getElementById('empty');
+
+fs.forEach(f=>f.addEventListener('click',()=>{
+  fs.forEach(x=>x.classList.remove('on')); f.classList.add('on');
+  const k=f.dataset.f; let n=0;
+  rows.forEach(r=>{
+    const show=k==='all'||r.dataset.t.split(' ').includes(k);
+    r.classList.toggle('hide',!show);
+    r.classList.remove('pop');
+    if(show){n++;requestAnimationFrame(()=>r.classList.add('pop'))}
+  });
+  tally.textContent=n+' of '+rows.length;
+  empty.classList.toggle('on',n===0);
+}));
+
+rows.forEach(r=>r.addEventListener('click',()=>r.classList.toggle('open')));
+</script>
+</body>
+</html>

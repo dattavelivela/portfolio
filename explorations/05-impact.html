@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Impact</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111418; --sub:#5c626b; --faint:#989ea6;
+  --bg:#fff; --soft:#f7f7f5; --line:#e9e9e5; --pop:#0b5c47;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{max-width:1060px;margin:0 auto;padding:0 32px}
+
+/* hero */
+.hero{padding:92px 0 40px}
+.hero h1{font-family:var(--dis);font-size:clamp(34px,5.6vw,60px);line-height:1.05;letter-spacing:-1.8px;margin:0 0 20px;max-width:19ch}
+.hero p{font-size:17px;line-height:1.6;color:var(--sub);max-width:54ch;margin:0 0 26px}
+.links{display:flex;gap:9px;flex-wrap:wrap}
+.links a{font-size:14px;text-decoration:none;padding:10px 17px;border:1px solid var(--line);border-radius:8px;color:var(--ink);transition:.18s}
+.links a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.links a.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* numbers */
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:44px 0 0}
+.num{padding:30px 22px 30px 0;border-right:1px solid var(--line);cursor:pointer;transition:background .2s}
+.num:last-child{border-right:none}
+.num:hover{background:var(--soft)}
+.num .v{font-family:var(--dis);font-size:clamp(30px,4.4vw,46px);font-weight:700;letter-spacing:-1.6px;line-height:1;font-variant-numeric:tabular-nums;margin-bottom:9px}
+.num .v small{font-size:.55em;font-weight:600;margin-left:1px}
+.num .l{font-size:13px;line-height:1.5;color:var(--sub)}
+.num .w{font-size:11.5px;color:var(--faint);margin-top:7px;opacity:0;transform:translateY(-3px);transition:.24s}
+.num:hover .w{opacity:1;transform:none}
+
+/* sections */
+section{padding:76px 0}
+.eyebrow{font-family:var(--dis);font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);margin-bottom:20px}
+
+.stack{display:flex;flex-direction:column;gap:16px}
+.item{
+  display:grid;grid-template-columns:1fr 340px;gap:34px;align-items:center;
+  padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--bg);
+  transition:border-color .22s,transform .22s,box-shadow .22s;
+}
+.item:hover{border-color:#d3d3cd;transform:translateY(-3px);box-shadow:0 12px 30px rgba(17,20,24,.06)}
+.item:nth-child(even){grid-template-columns:340px 1fr}
+.item:nth-child(even) .txt{order:2}
+.co{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--faint);margin-bottom:11px}
+.co img{height:16px;width:auto}
+.item h3{font-family:var(--dis);font-size:23px;line-height:1.2;letter-spacing:-.4px;margin:0 0 10px}
+.item p{font-size:14.5px;line-height:1.62;color:var(--sub);margin:0 0 13px}
+.res{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--pop);background:#e6f2ee;padding:6px 11px;border-radius:6px}
+.frame{aspect-ratio:1366/656;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.frame img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.item:hover .frame img{transform:scale(1.05)}
+
+.sides{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.side{padding:19px;border:1px solid var(--line);border-radius:12px;transition:.2s}
+.side:hover{border-color:var(--ink);transform:translateY(-3px)}
+.side h4{font-family:var(--dis);font-size:16px;margin:0 0 6px}
+.side p{font-size:13.5px;line-height:1.55;color:var(--sub);margin:0}
+
+footer{border-top:1px solid var(--line);padding:34px 0 70px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:13.5px;color:var(--sub)}
+footer a{color:var(--ink)}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media (max-width:880px){
+  .nums{grid-template-columns:repeat(2,1fr)}
+  .num{border-bottom:1px solid var(--line);padding-right:18px}
+  .num:nth-child(2n){border-right:none}
+  .item,.item:nth-child(even){grid-template-columns:1fr;gap:18px}
+  .item:nth-child(even) .txt{order:0}
+  .sides{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <h1>Three years of making the boring parts measurably better.</h1>
+  <p>I'm Gurudatta — a product designer working across product, design, frontend and GTM.
+     I turn messy B2B workflows into software people can actually use. Here's what that produced.</p>
+  <div class="links">
+    <a class="solid" href="mailto:gurudatta.velivela@procol.in">Email me</a>
+    <a href="#">Resume</a><a href="#">LinkedIn</a>
+  </div>
+
+  <div class="nums" id="nums">
+    <div class="num"><div class="v" data-to="60" data-suf="%">0<small>%</small></div>
+      <div class="l">turnaround time cut on device management</div><div class="w">Pine Labs · as an intern</div></div>
+    <div class="num"><div class="v" data-to="3">0</div>
+      <div class="l">companies, all B2B, all shipped work</div><div class="w">Procol · Dukaan · Pine Labs</div></div>
+    <div class="num"><div class="v" data-to="2">0</div>
+      <div class="l">products designed from 0 → 1</div><div class="w">Agentic S2P · Bot9</div></div>
+    <div class="num"><div class="v" data-to="6">0</div>
+      <div class="l">nights to ship a micro-SaaS</div><div class="w">Ship Note</div></div>
+  </div>
+</div>
+
+<section>
+  <div class="eyebrow">Selected work</div>
+  <div class="stack">
+
+    <article class="item rv">
+      <div class="txt">
+        <div class="co"><img src="../assets/procol-mark.svg" alt="">Procol · Aug 2024 — Present</div>
+        <h3>Agentic source-to-pay platform</h3>
+        <p>Procurement teams were spending their days on routine, repeatable steps. I designed an
+           autonomous experience where agents take that work and buyers supervise it — plus the six
+           core surfaces around it, from reverse auction to GST reconciliation.</p>
+        <span class="res">Shipped 0 → 1 · 6 surfaces</span>
+      </div>
+      <div class="frame"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+    </article>
+
+    <article class="item rv">
+      <div class="txt">
+        <div class="co"><img src="../assets/procol-mark.svg" alt="">Procol · 2025</div>
+        <h3>Analytics without the engineering ticket</h3>
+        <p>Every new dashboard meant hard-coded SQL and a queue. I replaced it with a self-serve
+           builder — configurable, scalable widgets composed on top of the pipelines that already existed.</p>
+        <span class="res">Engineering out of the loop</span>
+      </div>
+      <div class="frame"><img src="../assets/analytics-builder.jpg" alt=""></div>
+    </article>
+
+    <article class="item rv">
+      <div class="txt">
+        <div class="co"><img src="../assets/dukaan.png" alt="">Dukaan · Jun 2023 — Jul 2024</div>
+        <h3>App revamp, and one system for two platforms</h3>
+        <p>Led the revamp end to end — planning, strategy, design — lifting activation, adoption and
+           conversion. Then scaled the design system across web and mobile so the split stopped
+           costing maintenance. Also designed Bot9, an AI support product, from 0 → 1 with the founders.</p>
+        <span class="res">↑ activation · ↓ maintenance</span>
+      </div>
+      <div class="frame"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+    </article>
+
+    <article class="item rv">
+      <div class="txt">
+        <div class="co"><img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:19px">· Jan — Mar 2023</div>
+        <h3>60% off turnaround time</h3>
+        <p>Enterprise merchants were waiting too long on device management. I ran funnel analysis and
+           onsite research with the PM, then designed wireframes tested with real user groups before
+           anything got built.</p>
+        <span class="res">60% TAT reduction</span>
+      </div>
+      <div class="frame"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+    </article>
+
+  </div>
+</section>
+
+<section class="rv">
+  <div class="eyebrow">Built on the side, with LLMs</div>
+  <div class="sides">
+    <div class="side"><h4>Automail</h4><p>Design emails visually and wire them straight into your backend.</p></div>
+    <div class="side"><h4>Ship Note</h4><p>A micro-SaaS in six nights — push product updates to your own site or dashboard.</p></div>
+    <div class="side"><h4>Find</h4><p>Inspiration, not sites. 40+ curated sources, one click away.</p></div>
+  </div>
+</section>
+
+<footer>
+  <span>Gurudatta Velivela — Gurgaon</span>
+  <a href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a>
+  <a href="#">LinkedIn</a><a href="#">Resume</a>
+</footer>
+
+</div>
+
+<script>
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const ease=t=>1-Math.pow(1-t,3);
+function count(el){
+  const to=+el.dataset.to,suf=el.dataset.suf||'',dur=1050,t0=performance.now();
+  if(reduce){el.innerHTML=to+(suf?'<small>'+suf+'</small>':'');return}
+  (function step(now){
+    const p=Math.min(1,(now-t0)/dur),v=Math.round(ease(p)*to);
+    el.innerHTML=v+(suf?'<small>'+suf+'</small>':'');
+    if(p<1)requestAnimationFrame(step);
+  })(t0);
+}
+const nio=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.querySelectorAll('.v').forEach(count);nio.unobserve(e.target)}
+}),{threshold:.4});
+nio.observe(document.getElementById('nums'));
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+}),{threshold:.14});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

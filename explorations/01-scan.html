@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gurudatta Velivela — Scan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14161a; --sub:#5b6068; --faint:#9aa0a8;
+  --bg:#fbfbfa; --card:#fff; --line:#e8e8e4;
+  --accent:#1a5f4a; --accent-bg:#e4f2ec;
+  --ui:"Inter",system-ui,sans-serif; --dis:"Cabinet Grotesk","Inter",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+.wrap{display:grid;grid-template-columns:290px 1fr;gap:64px;max-width:1180px;margin:0 auto;padding:64px 40px 120px}
+
+/* ---- sticky rail ---- */
+.rail{position:sticky;top:64px;align-self:start}
+.rail h1{font-family:var(--dis);font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.5px}
+.rail .role{font-size:15px;color:var(--sub);line-height:1.5;margin-bottom:20px}
+.rail .meta{font-size:13px;color:var(--faint);line-height:1.9;margin-bottom:24px}
+.rail .meta b{color:var(--sub);font-weight:500}
+.railnav{display:flex;flex-direction:column;gap:2px;margin-bottom:26px;border-left:1px solid var(--line)}
+.railnav a{
+  font-size:13px;color:var(--faint);text-decoration:none;padding:5px 0 5px 14px;
+  border-left:2px solid transparent;margin-left:-1px;transition:color .18s,border-color .18s;
+}
+.railnav a:hover{color:var(--sub)}
+.railnav a.on{color:var(--ink);border-left-color:var(--accent);font-weight:500}
+.cta{display:flex;gap:8px;flex-wrap:wrap}
+.cta a{
+  font-size:13px;font-weight:500;text-decoration:none;padding:8px 13px;border-radius:7px;
+  border:1px solid var(--line);background:var(--card);transition:.18s;
+}
+.cta a:hover{border-color:var(--ink);transform:translateY(-1px)}
+.cta a.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ---- scan toggle ---- */
+.scanbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:36px;padding:11px 14px;
+  background:var(--accent-bg);border-radius:9px;font-size:13px;color:var(--accent);
+}
+.scanbar b{font-weight:600}
+.switch{margin-left:auto;position:relative;width:38px;height:21px;flex:0 0 auto}
+.switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:relative;z-index:2}
+.track{position:absolute;inset:0;background:#c9ded5;border-radius:11px;transition:.22s}
+.knob{position:absolute;top:3px;left:3px;width:15px;height:15px;background:#fff;border-radius:50%;transition:.22s}
+.switch input:checked~.track{background:var(--accent)}
+.switch input:checked~.knob{transform:translateX(17px)}
+
+/* ---- sections ---- */
+.sec{margin-bottom:56px;scroll-margin-top:40px}
+.sechead{
+  display:flex;align-items:baseline;gap:12px;margin-bottom:20px;
+  padding-bottom:11px;border-bottom:1px solid var(--line);
+}
+.sechead h2{font-family:var(--dis);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0}
+.sechead .n{font-size:12px;color:var(--faint);margin-left:auto}
+
+.job{margin-bottom:34px}
+.jobhead{display:flex;align-items:center;gap:9px;margin-bottom:3px}
+.jobhead img{height:19px;width:auto}
+.jobhead .co{font-family:var(--dis);font-size:19px;font-weight:600}
+.jobhead .when{margin-left:auto;font-size:12.5px;color:var(--faint)}
+.jobrole{font-size:13.5px;color:var(--sub);margin-bottom:15px}
+
+.row{
+  display:grid;grid-template-columns:132px 1fr;gap:18px;align-items:start;
+  padding:15px 0;border-top:1px solid var(--line);
+}
+.row:first-of-type{border-top:none}
+.shot{
+  border-radius:6px;overflow:hidden;background:#f2f2ef;border:1px solid var(--line);
+  aspect-ratio:1366/656;transition:transform .3s ease,box-shadow .3s ease;
+}
+.row:hover .shot{transform:scale(1.035);box-shadow:0 8px 22px rgba(20,22,26,.11)}
+.shot img{width:100%;height:100%;object-fit:cover}
+.rowtitle{font-family:var(--dis);font-size:16.5px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.rowbody{font-size:14px;line-height:1.62;color:var(--sub)}
+.out{
+  display:inline-flex;align-items:center;gap:5px;margin-top:9px;font-size:12.5px;
+  font-weight:600;color:var(--accent);background:var(--accent-bg);padding:4px 9px;border-radius:5px;
+}
+
+/* scan mode: hide imagery + prose, keep outcomes */
+body.scan .shot{display:none}
+body.scan .row{grid-template-columns:1fr;gap:5px;padding:11px 0}
+body.scan .rowbody{display:none}
+body.scan .side-desc{display:none}
+
+.sides{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.side{padding:15px;border:1px solid var(--line);border-radius:9px;background:var(--card);transition:.2s}
+.side:hover{border-color:var(--ink);transform:translateY(-2px)}
+.side h3{font-family:var(--dis);font-size:15px;margin:0 0 5px}
+.side p{font-size:13px;line-height:1.55;color:var(--sub);margin:0}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:36px;padding:36px 22px 80px}
+  .rail{position:static}
+  .railnav{display:none}
+  .row{grid-template-columns:104px 1fr}
+  .sides{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <aside class="rail">
+    <h1>Gurudatta Velivela</h1>
+    <div class="role">Product Designer — product, design, frontend &amp; GTM</div>
+    <div class="meta">
+      <b>3+ yrs</b> · B2B SaaS<br>
+      <b>Now</b> · Procol, Gurgaon<br>
+      <b>Before</b> · Dukaan, Pine Labs
+    </div>
+    <nav class="railnav">
+      <a href="#work" class="on">Work</a>
+      <a href="#side">Side projects</a>
+      <a href="#how">How I work</a>
+    </nav>
+    <div class="cta">
+      <a class="solid" href="mailto:gurudatta.velivela@procol.in">Email</a>
+      <a href="#">Resume</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="scanbar">
+      <b>Recruiter mode</b> — strips images and prose, leaves outcomes only. ~40s read.
+      <label class="switch">
+        <input type="checkbox" id="scan" aria-label="Toggle recruiter mode">
+        <span class="track"></span><span class="knob"></span>
+      </label>
+    </div>
+
+    <section class="sec" id="work">
+      <div class="sechead"><h2>Work</h2><span class="n">3 companies · 9 projects</span></div>
+
+      <div class="job rv">
+        <div class="jobhead">
+          <img src="../assets/procol-mark.svg" alt="">
+          <span class="co">Procol</span>
+          <span class="when">Aug 2024 — Present</span>
+        </div>
+        <div class="jobrole">Product Designer · agentic source-to-pay</div>
+
+        <div class="row">
+          <div class="shot"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+          <div>
+            <div class="rowtitle">Agentic source-to-pay platform</div>
+            <div class="rowbody">An autonomous procurement experience where buying teams hand routine work to agents.</div>
+            <span class="out">0 → 1 · shipped</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/analytics-builder.jpg" alt=""></div>
+          <div>
+            <div class="rowtitle">Self-serve analytics builder</div>
+            <div class="rowbody">Replaced hard-coded SQL dashboards with configurable widgets users compose themselves.</div>
+            <span class="out">Removed eng from the loop</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/product-features.jpg" alt=""></div>
+          <div>
+            <div class="rowtitle">Core platform features</div>
+            <div class="rowbody">Japanese reverse auction, GST reconciliation, audit trail, vendor onboarding, BoQ.</div>
+            <span class="out">6 shipped surfaces</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="job rv">
+        <div class="jobhead">
+          <img src="../assets/dukaan.png" alt="">
+          <span class="co">Dukaan</span>
+          <span class="when">Jun 2023 — Jul 2024</span>
+        </div>
+        <div class="jobrole">Product Designer · web dashboard &amp; app</div>
+
+        <div class="row">
+          <div class="shot"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+          <div>
+            <div class="rowtitle">Led the app revamp</div>
+            <div class="rowbody">Owned it from planning and strategy through design.</div>
+            <span class="out">↑ activation, adoption, conversion</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/dukaan-design-system.png" alt=""></div>
+          <div>
+            <div class="rowtitle">Multi-platform design system</div>
+            <div class="rowbody">Scaled one system across web and mobile, retiring the split.</div>
+            <span class="out">↓ maintenance cost</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/dukaan-bot9.png" alt=""></div>
+          <div>
+            <div class="rowtitle">Bot9, from 0 → 1</div>
+            <div class="rowbody">AI support-ticket product. Designed the MVP with the founders.</div>
+            <span class="out">0 → 1 · founder-facing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="job rv">
+        <div class="jobhead">
+          <img src="../assets/pinelabs.svg" alt="Pine Labs" style="height:23px">
+          <span class="when">Jan — Mar 2023</span>
+        </div>
+        <div class="jobrole">Design intern · enterprise merchant tools</div>
+
+        <div class="row">
+          <div class="shot"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+          <div>
+            <div class="rowtitle">Device management in One Web</div>
+            <div class="rowbody">Funnel analysis and onsite research with the PM, then wireframes tested with user groups.</div>
+            <span class="out">60% TAT reduction</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/pinelabs-one-app.png" alt=""></div>
+          <div>
+            <div class="rowtitle">One app sign-in</div>
+            <div class="rowbody">Rebuilt enterprise sign-in end to end.</div>
+            <span class="out">↑ first-time completion</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="shot"><img src="../assets/pinelabs-more.png" alt=""></div>
+          <div>
+            <div class="rowtitle">Terminal issues &amp; market study</div>
+            <div class="rowbody">Cut TAT on dashboard terminal issues; ran a market study for a vertical.</div>
+            <span class="out">Research → strategy</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec rv" id="side">
+      <div class="sechead"><h2>Side projects</h2><span class="n">built with LLMs</span></div>
+      <div class="sides">
+        <div class="side"><h3>Automail</h3><p class="side-desc">Design emails visually, wire them into your backend.</p></div>
+        <div class="side"><h3>Ship Note</h3><p class="side-desc">Micro-SaaS in six nights — push product updates to your own site.</p></div>
+        <div class="side"><h3>Find</h3><p class="side-desc">40+ curated inspiration sources, one click.</p></div>
+      </div>
+    </section>
+
+    <section class="sec rv" id="how">
+      <div class="sechead"><h2>How I work</h2></div>
+      <div class="rowbody" style="font-size:15px;max-width:56ch">
+        I turn messy business workflows into clear, usable software. Strongest in product thinking
+        and UX; comfortable enough in frontend and GTM to carry a thing from argument to shipped.
+        I like the problems where the hard part is deciding what to build.
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+document.getElementById('scan').addEventListener('change',e=>{
+  document.body.classList.toggle('scan',e.target.checked);
+});
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+const links=[...document.querySelectorAll('.railnav a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    links.forEach(l=>l.classList.remove('on'));
+    const i=secs.indexOf(e.target); if(i>-1)links[i].classList.add('on');
+  }
+}),{rootMargin:'-15% 0px -70% 0px'});
+secs.forEach(s=>s&&spy.observe(s));
+</script>
+</body>
+</html>

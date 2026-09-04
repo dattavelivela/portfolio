@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datta — Product Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14120f; --sub:#6b645a; --faint:#a49a8c;
+  --bone:#eeeae1; --card:#f7f4ee; --line:#d8d2c5; --pop:#e0452b; --live:#1f7a52;
+  --dis:"Clash Display","Satoshi",sans-serif;
+  --ui:"Satoshi","Inter",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bone);color:var(--ink);font-family:var(--ui);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1000px;margin:0 auto;padding:0 36px}
+.mono{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em}
+
+/* nav with shortcuts */
+nav{display:flex;align-items:center;gap:5px;padding:26px 0 0;flex-wrap:wrap}
+nav a{
+  display:flex;align-items:center;gap:7px;text-decoration:none;
+  font-size:13.5px;padding:7px 11px;border-radius:7px;transition:background .16s;
+}
+nav a:hover,nav a.hot{background:#e2ddd2}
+nav a i{
+  font-style:normal;font-family:var(--mono);font-size:10px;color:var(--faint);
+  border:1px solid var(--line);border-radius:3px;padding:1px 4px;
+}
+nav .sp{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:var(--live)}
+nav .sp b{width:6px;height:6px;border-radius:50%;background:var(--live);display:block;animation:blip 2.4s ease-in-out infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.28}}
+
+/* hero */
+.hero{padding:76px 0 56px}
+.hero .hi{font-family:var(--mono);font-size:12.5px;color:var(--pop);margin-bottom:20px}
+.hero h1{
+  font-family:var(--dis);font-weight:600;font-size:clamp(36px,6.6vw,74px);
+  line-height:1.02;letter-spacing:-2.2px;margin:0 0 26px;max-width:17ch;
+}
+.hero h1 span{color:var(--faint)}
+.hero .say{font-size:17px;line-height:1.66;color:var(--sub);max-width:50ch;margin:0 0 12px}
+.hero .say b{color:var(--ink);font-weight:500}
+.hero .socials{display:flex;gap:16px;margin-top:26px;font-size:13.5px}
+.hero .socials a{color:var(--sub);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:1px;transition:.16s}
+.hero .socials a:hover{color:var(--pop);border-color:var(--pop)}
+
+/* section head */
+.sh{display:flex;align-items:baseline;gap:12px;padding:22px 0 4px;border-top:1px solid var(--line)}
+.sh h2{font-family:var(--dis);font-size:22px;font-weight:600;letter-spacing:-.5px;margin:0}
+.sh .c{margin-left:auto;color:var(--faint)}
+
+/* work rows — hover expands */
+.row{display:block;text-decoration:none;border-top:1px solid var(--line);padding:18px 0;cursor:pointer}
+.row:first-of-type{border-top:none}
+.top{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:baseline}
+.row h3{font-family:var(--dis);font-size:clamp(19px,2.5vw,25px);font-weight:600;letter-spacing:-.6px;margin:0;line-height:1.22}
+.row h3 em{font-style:normal;color:var(--sub);font-weight:500}
+.row .meta{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap}
+.row .meta u{text-decoration:none;color:var(--live)}
+.row .meta s{text-decoration:none;color:var(--pop)}
+.grow{max-height:0;overflow:hidden;transition:max-height .42s cubic-bezier(.2,.75,.25,1)}
+.row:hover .grow,.row.open .grow{max-height:340px}
+.grow .in{display:grid;grid-template-columns:250px 1fr;gap:22px;padding-top:15px;align-items:start}
+.grow .f{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--card);aspect-ratio:1366/656}
+.grow p{font-size:14.5px;line-height:1.65;color:var(--sub);margin:0}
+@media (prefers-reduced-motion:reduce){.grow{transition:none}}
+
+/* code thesis */
+.thesis{padding:44px 0;border-top:1px solid var(--line);margin-top:38px}
+.thesis h2{font-family:var(--dis);font-size:clamp(24px,3.6vw,38px);font-weight:600;letter-spacing:-1.1px;line-height:1.16;margin:0 0 18px;max-width:20ch}
+.thesis p{font-size:16px;line-height:1.7;color:var(--sub);max-width:52ch;margin:0 0 14px}
+
+/* nights */
+.nights{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-top:16px}
+.nt{background:var(--bone);padding:20px 18px}
+.nt h3{font-family:var(--dis);font-size:17px;font-weight:600;margin:0 0 6px}
+.nt p{font-size:13.5px;line-height:1.55;color:var(--sub);margin:0 0 11px}
+.nt .mono{color:var(--faint)}
+
+/* close */
+.close{padding:56px 0 90px;border-top:1px solid var(--line);margin-top:40px}
+.close h2{font-family:var(--dis);font-size:clamp(24px,4vw,42px);font-weight:600;letter-spacing:-1.3px;margin:0 0 8px}
+.close a.m{
+  font-family:var(--dis);font-size:clamp(17px,2.6vw,27px);font-weight:600;color:var(--pop);
+  text-decoration:none;border-bottom:2px solid var(--pop);
+}
+.close .fine{margin-top:22px;color:var(--faint)}
+
+@media (max-width:760px){
+  .wrap{padding:0 22px}
+  nav a i{display:none}
+  nav .sp{width:100%;margin:8px 0 0}
+  .grow .in{grid-template-columns:1fr}
+  .row:hover .grow{max-height:0}
+  .row.open .grow{max-height:520px}
+  .nights{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <a href="#work" data-k="w">Work <i>W</i></a>
+  <a href="#nights" data-k="n">Nights &amp; weekends <i>N</i></a>
+  <a href="#me" data-k="m">Who's Datta <i>M</i></a>
+  <a href="#" data-k="r">Resume.pdf <i>R</i></a>
+  <span class="sp"><b></b>Open to conversations</span>
+</nav>
+
+<header class="hero">
+  <div class="hi">// hi, I'm Datta</div>
+  <h1>I make procurement software that people <span>don't quietly hate.</span></h1>
+  <p class="say">Three years in B2B, currently untangling source-to-pay at <b>Procol</b>.
+     Before that, <b>Dukaan</b> and <b>Pine Labs</b>. I like the problems where the hard part
+     isn't the pixels — it's deciding what's worth building at all.</p>
+  <p class="say">I also write enough code to be dangerous, mostly with LLMs at 1am.</p>
+  <div class="socials">
+    <a href="mailto:gurudatta.velivela@procol.in">Email</a>
+    <a href="#">LinkedIn</a>
+    <a href="#">X</a>
+  </div>
+</header>
+
+<section id="work">
+  <div class="sh"><h2>The day job</h2><span class="mono c">9 shipped · 3 companies</span></div>
+
+  <a class="row" href="07-case-study.html">
+    <div class="top">
+      <h3>Agentic source-to-pay <em>· teaching the software to do its own paperwork</em></h3>
+      <span class="meta">PROCOL • 2024—NOW • <u>LIVE</u></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/agentic-s2p.jpg" alt=""></div>
+      <p>Buyers weren't slow because sourcing is hard — they were slow because everything
+         <em>between</em> the decisions ate the day. Agents take the repeatable stretch; humans keep
+         the judgment. Shipped 0 → 1 with six surfaces around it. <b>Read the case study →</b></p>
+    </div></div>
+  </a>
+
+  <a class="row" href="#">
+    <div class="top">
+      <h3>Self-serve analytics <em>· deleting the dashboard ticket queue</em></h3>
+      <span class="meta">PROCOL • 2025 • <u>LIVE</u></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/analytics-builder.jpg" alt=""></div>
+      <p>Every new chart used to mean hard-coded SQL and a wait. Now it's configurable widgets over
+         the pipelines that already existed, and engineering leaves the loop entirely.</p>
+    </div></div>
+  </a>
+
+  <a class="row" href="#">
+    <div class="top">
+      <h3>The unglamorous six <em>· reverse auction, GST recon, audit trail, BoQ…</em></h3>
+      <span class="meta">PROCOL • 2024—NOW • <u>LIVE</u></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/product-features.jpg" alt=""></div>
+      <p>The surfaces nobody screenshots and everybody lives in. Built on one shared grammar, so a
+         buyer learns the system once instead of six times.</p>
+    </div></div>
+  </a>
+
+  <a class="row" href="#">
+    <div class="top">
+      <h3>Dukaan app revamp <em>· the rollercoaster year</em></h3>
+      <span class="meta">DUKAAN • 2023—24 • <u>SHIPPED</u></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/dukaan-app-revamp.png" alt=""></div>
+      <p>Owned it from strategy through design — activation, adoption and conversion all moved. Then
+         scaled one design system across web and mobile so the split stopped costing us maintenance.</p>
+    </div></div>
+  </a>
+
+  <a class="row" href="#">
+    <div class="top">
+      <h3>Bot9 <em>· an AI support product, from nothing</em></h3>
+      <span class="meta">DUKAAN • 2023—24 • <s>0 → 1</s></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/dukaan-bot9.png" alt=""></div>
+      <p>Designed the MVP solo, sitting with the founders. AI that resolves support tickets, back when
+         that sentence still needed explaining.</p>
+    </div></div>
+  </a>
+
+  <a class="row" href="#">
+    <div class="top">
+      <h3>60% off turnaround time <em>· as the intern</em></h3>
+      <span class="meta">PINE LABS • 2023 • <u>SHIPPED</u></span>
+    </div>
+    <div class="grow"><div class="in">
+      <div class="f"><img src="../assets/pinelabs-device-mgmt.png" alt=""></div>
+      <p>Funnel analysis and onsite research with the PM, wireframes tested with real user groups,
+         then device management rebuilt around what we found. The research came before the pixels,
+         which is the whole reason the number exists.</p>
+    </div></div>
+  </a>
+</section>
+
+<section class="thesis" id="me">
+  <h2>Design is the argument. Code is how I check it.</h2>
+  <p>I'm not trying to become an engineer. Writing code just means I stop drawing things that can't
+     exist, I understand the constraint before I argue with it, and I can talk to engineers in their
+     own language instead of through a Figma comment.</p>
+  <p>Lately that means building small things with LLMs — which is also the fastest way I've found to
+     learn what agentic products actually feel like to use, rather than to spec.</p>
+</section>
+
+<section id="nights">
+  <div class="sh"><h2>Nights &amp; weekends</h2><span class="mono c">shipped, not concepts</span></div>
+  <div class="nights">
+    <div class="nt"><h3>Ship Note</h3><p>Push product updates straight to your own site or dashboard.</p><span class="mono">BUILT IN 6 NIGHTS</span></div>
+    <div class="nt"><h3>Automail</h3><p>Design emails visually, wire them into your backend.</p><span class="mono">LIVE</span></div>
+    <div class="nt"><h3>Find</h3><p>Inspiration, not sites. 40+ curated sources, one click.</p><span class="mono">LIVE</span></div>
+  </div>
+</section>
+
+<section class="close">
+  <h2>Say hi.</h2>
+  <p class="say" style="margin-bottom:18px">If you're building something where the workflow is the
+     hard part, that's the stuff I'm best at.</p>
+  <a class="m" href="mailto:gurudatta.velivela@procol.in">gurudatta.velivela@procol.in</a>
+  <div class="fine mono">GURGAON, IN · PRESS W / N / M TO JUMP</div>
+</section>
+
+</div>
+
+<script>
+// keyboard shortcuts
+const keyed=[...document.querySelectorAll('nav a[data-k]')];
+addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(/^(input|textarea)$/i.test(document.activeElement.tagName))return;
+  const a=keyed.find(x=>x.dataset.k===e.key.toLowerCase());
+  if(!a)return;
+  const h=a.getAttribute('href');
+  if(h&&h.startsWith('#')&&h.length>1){
+    e.preventDefault();
+    document.querySelector(h).scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+    a.classList.add('hot'); setTimeout(()=>a.classList.remove('hot'),450);
+  }
+});
+// touch: tap to expand instead of hover
+if(matchMedia('(hover:none)').matches){
+  document.querySelectorAll('.row').forEach(r=>{
+    r.addEventListener('click',e=>{
+      if(!r.classList.contains('open')){e.preventDefault();
+        document.querySelectorAll('.row.open').forEach(o=>o.classList.remove('open'));
+        r.classList.add('open');}
+    });
+  });
+}
+</script>
+</body>
+</html>
