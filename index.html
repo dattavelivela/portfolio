@@ -162,18 +162,18 @@ a{color:inherit}
 .letter{padding:130px 0 0}
 .letter-stage{position:relative;width:min(620px,100%);margin:52px auto 0}
 .letter-sheet{
-  position:relative;background-color:#e9ecf4;color:var(--ink);
+  position:relative;background-color:#f8f1d5;color:var(--ink);
   width:min(580px,100%);margin:0 auto;
   padding:56px 58px 52px;
   /* uncoated stock: a fine grain rather than a flat fill */
   background-image:
-    radial-gradient(rgba(47,53,87,.055) 1px, transparent 1px),
-    radial-gradient(rgba(47,53,87,.035) 1px, transparent 1px);
+    radial-gradient(rgba(122,100,38,.07) 1px, transparent 1px),
+    radial-gradient(rgba(122,100,38,.045) 1px, transparent 1px);
   background-size:7px 7px, 11px 11px;
   background-position:0 0, 3px 4px;
-  box-shadow:0 1px 1px rgba(47,53,87,.08),
-             0 14px 30px -12px rgba(47,53,87,.16),
-             0 44px 76px -30px rgba(47,53,87,.22);
+  box-shadow:0 1px 1px rgba(90,74,30,.10),
+             0 14px 30px -12px rgba(90,74,30,.18),
+             0 44px 76px -30px rgba(90,74,30,.24);
 }
 .letter-sheet p{
   margin:0 0 21px;font-family:var(--mono);font-size:12.5px;line-height:25px;
@@ -237,7 +237,7 @@ a{color:inherit}
 .ident .tile img{width:100%;height:100%;object-fit:cover;display:block}
 .role{
   margin:0;font-size:17px;line-height:28px;color:var(--ink-70);
-  display:flex;align-items:center;flex-wrap:wrap;gap:0 3px;
+  display:flex;align-items:center;flex-wrap:wrap;gap:0 8px;
 }
 .co{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 a.co{text-decoration:none;color:inherit;border-bottom:1px solid transparent;transition:border-color .18s}
@@ -349,6 +349,17 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   .role{font-size:15px;line-height:26px}
   .ident .tile{width:60px;height:60px;border-radius:10px}
 }
+/* phones: the 53-week calendar cannot fit, and full recommendations
+   are unreadable in a 179px column */
+@media screen and (max-width:700px){
+  .gh-card{overflow-x:auto;overscroll-behavior-x:contain}
+  .gh-months,.gh-grid{min-width:540px}
+  .says-grid{grid-template-columns:1fr}
+  .says-grid .tcard{margin-left:0}
+  .says-grid .tcard + .tcard{margin-top:-1px}
+  .scatter{grid-template-columns:1fr}
+  .role{font-size:16px;line-height:28px}
+}
 @media (prefers-reduced-motion:reduce){
   .polaroid,.entry .media img{transition:none}
 }
@@ -366,7 +377,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     </div>
     <p>hello there! I'm datta.</p>
     <p class="role">
-      <span>Product Designer at</span>
+      <span>Senior Product Designer at</span>
       <a class="co" href="https://www.procol.ai/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt="">Procol,</a>
       <span>ex</span>
       <a class="co" href="https://mydukaan.io/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt="">Dukaan,</a>
