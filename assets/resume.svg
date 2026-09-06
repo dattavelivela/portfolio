@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 168" role="img" aria-label="Resume">
+  <defs>
+    <filter id="pg" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#2f3557" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="260" height="168" fill="#eef0f5"/>
+  <g filter="url(#pg)">
+    <rect x="84" y="16" width="92" height="136" rx="3" fill="#fff"/>
+  </g>
+  <!-- name + title -->
+  <rect x="96" y="30" width="46" height="7" rx="2" fill="#2f3557"/>
+  <rect x="96" y="42" width="30" height="4" rx="2" fill="#2f3557" opacity=".38"/>
+  <rect x="96" y="55" width="68" height="1.6" fill="#2f3557" opacity=".16"/>
+  <!-- experience block -->
+  <g fill="#2f3557">
+    <rect x="96" y="64" width="26" height="4" rx="2" opacity=".62"/>
+    <rect x="96" y="73" width="60" height="3" rx="1.5" opacity=".22"/>
+    <rect x="96" y="80" width="52" height="3" rx="1.5" opacity=".22"/>
+    <rect x="96" y="93" width="26" height="4" rx="2" opacity=".62"/>
+    <rect x="96" y="102" width="60" height="3" rx="1.5" opacity=".22"/>
+    <rect x="96" y="109" width="46" height="3" rx="1.5" opacity=".22"/>
+    <rect x="96" y="122" width="26" height="4" rx="2" opacity=".62"/>
+    <rect x="96" y="131" width="56" height="3" rx="1.5" opacity=".22"/>
+  </g>
+</svg>

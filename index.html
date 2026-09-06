@@ -46,6 +46,50 @@ a{color:inherit}
 .wrap{width:min(1400px,100% - 32px);margin:0 auto}
 .col{width:min(var(--col),100%);margin:0 auto}
 
+/* ── company hover card ───────────────────────────────────────────
+   Opens on hover and on keyboard focus, and stays open while the
+   pointer travels into it so the button is reachable.
+   ---------------------------------------------------------------- */
+.co-wrap{position:relative;display:inline-flex;align-items:center}
+.pop{
+  position:absolute;bottom:calc(100% + 12px);left:50%;
+  transform:translateX(-50%) translateY(5px);
+  width:288px;padding:15px 17px 14px;border-radius:13px;text-align:left;
+  background:#0e0e10;border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 22px 48px -18px rgba(0,0,0,.50),0 2px 8px -3px rgba(0,0,0,.32);
+  opacity:0;visibility:hidden;pointer-events:none;z-index:40;
+  display:flex;flex-flow:column;gap:7px;
+  transition:opacity .18s ease,transform .18s cubic-bezier(.2,.75,.25,1),visibility .18s;
+}
+.pop.pop-end{left:auto;right:0;transform:translateX(0) translateY(5px)}
+/* bridges the gap so the pointer can reach the card */
+.pop::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px}
+.co-wrap:hover .pop,.co-wrap:focus-within .pop{
+  opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0);
+}
+.co-wrap:hover .pop.pop-end,.co-wrap:focus-within .pop.pop-end{transform:translateX(0) translateY(0)}
+.pop-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#fff;line-height:1}
+.pop-head img{width:19px;height:19px;object-fit:contain}
+.pop-when{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:rgba(255,255,255,.52)}
+.pop-text{font-size:13px;line-height:20px;color:rgba(255,255,255,.80)}
+.pop-note{
+  font-size:12px;line-height:18px;color:#fff;
+  padding-left:10px;border-left:2px solid rgba(255,255,255,.35);
+}
+.pop-btn{
+  align-self:flex-start;margin-top:4px;padding:7px 13px;border-radius:999px;
+  background:#fff;color:#0e0e10;font-size:12px;font-weight:500;line-height:1;text-decoration:none;
+  transition:opacity .18s;
+}
+.pop-btn:hover{opacity:.86}
+/* flipped below when the link sits too near the top of the viewport */
+.co-wrap.pop-flip .pop{bottom:auto;top:calc(100% + 12px);transform:translateX(-50%) translateY(-5px)}
+.co-wrap.pop-flip .pop.pop-end{transform:translateX(0) translateY(-5px)}
+.co-wrap.pop-flip .pop::after{top:auto;bottom:100%}
+.co-wrap.pop-flip:hover .pop,.co-wrap.pop-flip:focus-within .pop{transform:translateX(-50%) translateY(0)}
+.co-wrap.pop-flip:hover .pop.pop-end,.co-wrap.pop-flip:focus-within .pop.pop-end{transform:translateX(0) translateY(0)}
+@media (hover:none){.pop{display:none}}
+
 /* ── sky ──────────────────────────────────────────────────────────
    A dawn gradient behind the opening screens, resolving into a bank
    of cloud that hands off to the page ground. Drawn, not an image,
@@ -92,6 +136,9 @@ a{color:inherit}
   transition:transform .45s cubic-bezier(.2,.75,.25,1), box-shadow .45s;
 }
 .polaroid img{width:100%;height:168px;object-fit:cover;border-radius:3px;background-color:var(--ink-05)}
+.polaroid-link{display:block;color:inherit;text-decoration:none}
+/* a logo tile, not a screenshot: show the whole mark rather than crop it */
+.polaroid.is-logo img{object-fit:contain;padding:34px;background:#fff}
 .polaroid figcaption{margin-top:9px;font-size:13px;line-height:18px;color:var(--ink-55)}
 .polaroid:hover{transform:translateY(-10px) rotate(0deg)!important;box-shadow:0 26px 54px -14px rgba(47,53,87,.34);z-index:20}
 /* hand-placed, the way a pile of prints actually falls */
@@ -194,17 +241,19 @@ a{color:inherit}
 }
 .clock svg{
   width:96px;height:96px;display:block;margin:0 auto;
-  filter:drop-shadow(0 10px 18px rgba(47,53,87,.16));
+  filter:drop-shadow(0 12px 22px rgba(47,53,87,.20));
   transition:transform .5s cubic-bezier(.2,.75,.25,1);
 }
 .clock:hover svg{transform:scale(1.04)}
 .clock.reset svg{transform:rotate(-360deg) scale(.94);transition:transform .55s cubic-bezier(.3,.7,.3,1)}
-.clock-face{fill:none;stroke:currentColor;stroke-width:3.4}
-.clock-ticks line{stroke:var(--ink-20);stroke-width:2.4;stroke-linecap:round}
-.clock-min,.clock-sec{stroke-linecap:round;transform-origin:50px 50px}
-.clock-min{stroke:currentColor;stroke-width:3.4}
-.clock-sec{stroke:#d06a6a;stroke-width:1.8}
-.clock-pin{fill:currentColor}
+.clock-body{fill:#fbfbfb}
+.clock-face{fill:url(#clockFace)}
+.clock-hour,.clock-min,.clock-sec{transform-origin:50px 50px;stroke-linecap:round}
+.clock-hour{stroke:#fff;stroke-width:6.4}
+.clock-min{stroke:#fff;stroke-width:5.4}
+.clock-sec{stroke:#c0392b;stroke-width:1.9}
+.clock-cap{fill:#f4f4f4}
+.clock-pin{fill:#c0392b}
 .clock-time{
   display:block;margin-top:14px;font-size:13px;letter-spacing:.12em;
   color:var(--ink-40);transition:color .18s;
@@ -375,19 +424,24 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <div class="ident">
       <span class="tile-frame"><span class="tile"><img decoding="async" src="assets/datta.jpg" alt="Gurudatta Velivela"></span></span>
     </div>
-    <p>hello there! I'm datta.</p>
+    <p>hello there! I'm Datta Velivela</p>
     <p class="role">
       <span>Senior Product Designer at</span>
-      <a class="co" href="https://www.procol.ai/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt="">Procol,</a>
+      <span class="co-wrap"><a class="co" href="https://www.procol.ai/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt="">Procol,</a><span class="pop" role="tooltip"><span class="pop-head"><img src="assets/procol-mark.svg" alt="">Procol</span><span class="pop-when">Aug 2024 - present</span><span class="pop-text">A B2B procurement platform - sourcing, RFQs and e-auctions for enterprise buying teams.</span><span class="pop-note">Recognised and rewarded for 3 quarters, in a team of 5.</span><a class="pop-btn" href="https://www.procol.ai/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span>
       <span>ex</span>
-      <a class="co" href="https://mydukaan.io/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt="">Dukaan,</a>
+      <span class="co-wrap"><a class="co" href="https://mydukaan.io/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt="">Dukaan,</a><span class="pop" role="tooltip"><span class="pop-head"><img src="assets/dukaan.png" alt="">Dukaan</span><span class="pop-when">Jun 2023 - Jul 2024</span><span class="pop-text">An e-commerce platform that lets small sellers set up and run an online store.</span><a class="pop-btn" href="https://mydukaan.io/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span>
       <span>ex</span>
-      <a class="co wordmark" href="https://www.pinelabs.com/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/pinelabs.svg" alt="Pine Labs"></a>
+      <span class="co-wrap"><a class="co wordmark" href="https://www.pinelabs.com/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/pinelabs.svg" alt="Pine Labs"></a><span class="pop pop-end" role="tooltip"><span class="pop-head"><img src="assets/pinelabs.svg" alt="">Pine Labs</span><span class="pop-when">Jan - Mar 2023</span><span class="pop-text">A merchant commerce and payments company - POS terminals and checkout for retailers.</span><a class="pop-btn" href="https://www.pinelabs.com/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span>
     </p>
-    <p class="muted">I'm a product designer who likes <span class="hl-yellow">the workflows nobody
-      screenshots</span> - purchase orders, reconciliation, approval chains, sign-in flows. Three
-      years turning <span class="hl-green">messy B2B software</span> into something that gets out
-      of the way.</p>
+    <p class="muted">For the last 3.5 years, I've worked across <span class="hl-yellow">product, design,
+      frontend, support, gtm eng</span> - whatever it takes to get something from an idea into
+      people's hands.
+      Outside work, I've knocked on 2,000+ doors to get our first
+      laundry customers, delivered orders myself, and walked into businesses to sell AI-generated
+      product visuals.</p>
+
+    <p class="muted">I like <span class="hl-green">messy problems, small teams, and building from
+      zero</span>. I don't really care where my job description ends.</p>
   </div>
 </section>
 
@@ -395,28 +449,36 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 <section class="wrap" style="padding-top:8px">
   <div class="scatter">
     <figure class="polaroid p1">
-      <img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform">
-      <figcaption>agents that do the boring half of a purchase</figcaption>
+      <img loading="lazy" decoding="async" src="assets/agnost.jpg" alt="Agnost AI">
+      <figcaption>recent design work for @agnostai, YC-backed</figcaption>
     </figure>
     <figure class="polaroid p2">
-      <img loading="lazy" decoding="async" src="assets/analytics-builder.jpg" alt="Self-serve analytics builder">
-      <figcaption>dashboards you build yourself</figcaption>
+      <a class="polaroid-link" href="https://drive.google.com/file/d/1GNTeA5kwUWKiDZBAoL4fIoTpiZ9IEbOu/view?usp=sharing" target="_blank" rel="noopener">
+        <img loading="lazy" decoding="async" src="assets/resume.svg" alt="Resume">
+        <figcaption>Here is my resume</figcaption>
+      </a>
     </figure>
     <figure class="polaroid p3">
-      <img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="Multi-platform design system">
-      <figcaption>one design system, two platforms</figcaption>
+      <a class="polaroid-link" href="https://www.rinsoindia.com/" target="_blank" rel="noopener">
+        <img loading="lazy" decoding="async" src="assets/rinso-thumbnail.jpg" alt="2,000 doors for the first 132 orders">
+        <figcaption>2,000 doors for the first 132 orders</figcaption>
+      </a>
     </figure>
     <figure class="polaroid p4">
-      <img loading="lazy" decoding="async" src="assets/dukaan-bot9.jpg" alt="Bot9">
-      <figcaption>an AI support product, 0 → 1</figcaption>
+      <a class="polaroid-link" href="https://www.slosh.agency/" target="_blank" rel="noopener">
+        <img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt="Side project">
+        <figcaption>things built in six nights</figcaption>
+      </a>
     </figure>
-    <figure class="polaroid p5">
-      <img loading="lazy" decoding="async" src="assets/pinelabs-one-app.jpg" alt="Pine Labs One app">
-      <figcaption>a sign-in worth finishing</figcaption>
+    <figure class="polaroid p5 is-logo">
+      <a class="polaroid-link" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">
+        <img loading="lazy" decoding="async" src="assets/dribbble.svg" alt="Dribbble">
+        <figcaption>checkout my visual work</figcaption>
+      </a>
     </figure>
     <figure class="polaroid p6">
-      <img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt="Side project">
-      <figcaption>things built in six nights</figcaption>
+      <img loading="lazy" decoding="async" src="assets/pinelabs-one-app.jpg" alt="Pine Labs One app">
+      <figcaption>a sign-in worth finishing</figcaption>
     </figure>
   </div>
 </section>
@@ -457,25 +519,10 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         <p>Scaled the design system across platforms, removing the need for separate web and mobile systems. Less to maintain, more shipped.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="A multi-platform design system"></div>
       </article>
-      <article class="entry" data-i="1">
-        <h3><b>Bot9, from 0 to 1</b> &#10022; Dukaan, AI</h3>
-        <p>An AI product that resolves customer support tickets. I designed the MVP on my own, working closely with the founders and cross-functional teams.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/dukaan-bot9.jpg" alt="Bot9, from 0 to 1"></div>
-      </article>
       <article class="entry" data-i="2">
         <h3><b>Device management in One Web</b> &#10022; Pine Labs, research</h3>
         <p>Funnel analysis and onsite research with the PM, then wireframes tested with real user groups. Turnaround time fell by 60%.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/pinelabs-device-mgmt.png" alt="Device management in One Web"></div>
-      </article>
-      <article class="entry" data-i="2">
-        <h3><b>The One app sign-in</b> &#10022; Pine Labs, onboarding</h3>
-        <p>Revamped the whole sign-in experience for enterprise users, to cut support tickets and raise the first-time completion rate.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/pinelabs-one-app.jpg" alt="The One app sign-in"></div>
-      </article>
-      <article class="entry" data-i="2">
-        <h3><b>And the rest of it</b> &#10022; Pine Labs</h3>
-        <p>Terminal issues in the One Web dashboard to bring TAT down, marketing material, and a market study for a vertical.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/pinelabs-more.jpg" alt="And the rest of it"></div>
       </article>
     </div>
   </div>
@@ -528,7 +575,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <figure class="tcard">
       <figcaption>
         <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/aman-gupta.jpg" alt=""></span>
-        <span><span class="nm">Aman Gupta</span><span class="rl">Building aiverse.design || Designing at Procol.io</span></span>
+        <span><span class="nm">Aman Gupta</span><span class="rl">Senior Product Designer at Mysa</span></span>
       </figcaption>
       <blockquote>
         <p>He grew from a strong visual designer into someone who could own new modules, unlock business opportunities, and build AI experiences.</p>
@@ -538,7 +585,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <figure class="tcard">
       <figcaption>
         <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/dawar-mir.jpg" alt=""></span>
-        <span><span class="nm">Dawar Mir</span><span class="rl">Staff Product Designer at PhonePe &middot; Previously Head of Product Design at Dukaan</span></span>
+        <span><span class="nm">Dawar Mir</span><span class="rl">Staff Designer at PhonePe &middot; ex Head of Design Dukaan</span></span>
       </figcaption>
       <blockquote>
         <p>What stood out most was his ability to combine strong design craft with deep curiosity and ownership. He was never limited by what he already knew, always eager to learn, pick people's brains, and take things forward on his own. Beyond being a strong designer, he showed genuine interest in the product and could be trusted to take responsibility and drive towards the goal without needing to be pushed.</p>
@@ -565,7 +612,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <figure class="tcard">
       <figcaption>
         <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/ashmit-srivastava.jpg" alt=""></span>
-        <span><span class="nm">Ashmit Srivastava</span><span class="rl">Senior Product Manager | AutoMint | Ex Pine Labs | FinTech</span></span>
+        <span><span class="nm">Ashmit Srivastava</span><span class="rl">Senior Product Manager | AutoMint</span></span>
       </figcaption>
       <blockquote>
         <p>He brings exceptional design skills and a user-centric approach to any area he's working on, delivers high-quality designs and works collaboratively with cross-functional teams. A talented and dedicated designer who would be an asset to any organization.</p>
@@ -602,11 +649,19 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   <button class="clock" type="button" id="clock"
           aria-label="Time you have spent here. Activate to reset it.">
     <svg viewBox="0 0 100 100" aria-hidden="true">
-      <circle class="clock-face" cx="50" cy="50" r="44"/>
-      <g class="clock-ticks"><line x1="50.0" y1="14.0" x2="50.0" y2="8.5"/><line x1="68.0" y1="18.8" x2="70.8" y2="14.1"/><line x1="81.2" y1="32.0" x2="85.9" y2="29.2"/><line x1="86.0" y1="50.0" x2="91.5" y2="50.0"/><line x1="81.2" y1="68.0" x2="85.9" y2="70.8"/><line x1="68.0" y1="81.2" x2="70.8" y2="85.9"/><line x1="50.0" y1="86.0" x2="50.0" y2="91.5"/><line x1="32.0" y1="81.2" x2="29.2" y2="85.9"/><line x1="18.8" y1="68.0" x2="14.1" y2="70.8"/><line x1="14.0" y1="50.0" x2="8.5" y2="50.0"/><line x1="18.8" y1="32.0" x2="14.1" y2="29.2"/><line x1="32.0" y1="18.8" x2="29.2" y2="14.1"/></g>
-      <line class="clock-min" x1="50" y1="50" x2="50" y2="28"/>
-      <line class="clock-sec" x1="50" y1="50" x2="50" y2="16"/>
-      <circle class="clock-pin" cx="50" cy="50" r="3.2"/>
+      <defs>
+        <radialGradient id="clockFace" cx="36%" cy="30%" r="82%">
+          <stop offset="0" stop-color="#4c4c4c"/>
+          <stop offset="1" stop-color="#333"/>
+        </radialGradient>
+      </defs>
+      <rect class="clock-body" x="3" y="3" width="94" height="94" rx="27"/>
+      <circle class="clock-face" cx="50" cy="50" r="36"/>
+      <line class="clock-hour" x1="50" y1="50" x2="50" y2="34"/>
+      <line class="clock-min"  x1="50" y1="50" x2="50" y2="25"/>
+      <line class="clock-sec"  x1="50" y1="59" x2="50" y2="18"/>
+      <circle class="clock-cap" cx="50" cy="50" r="6.4"/>
+      <circle class="clock-pin" cx="50" cy="50" r="3.4"/>
     </svg>
     <span class="clock-time" id="clockTime">0:00</span>
   </button>
@@ -732,6 +787,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 (function(){
   var btn=document.getElementById('clock'); if(!btn) return;
   var out=document.getElementById('clockTime'),
+      hour=btn.querySelector('.clock-hour'),
       min=btn.querySelector('.clock-min'),
       sec=btn.querySelector('.clock-sec'),
       KEY='datta.timeSpent';
@@ -750,6 +806,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     out.textContent=label(total);
     sec.style.transform='rotate('+(total%60)*6+'deg)';
     min.style.transform='rotate('+(total/60%60)*6+'deg)';
+    hour.style.transform='rotate('+(total/3600%12)*30+'deg)';
   }
   function tick(){
     var now=performance.now();
@@ -765,6 +822,23 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     total=0; last=performance.now(); write(0); paint();
     btn.classList.add('reset');
     setTimeout(function(){ btn.classList.remove('reset'); },560);
+  });
+})();
+
+/* ── company cards ─────────────────────────────────────────────────
+   Open above the link, or below it when the link is near the top of
+   the viewport and the card would be clipped.
+   ------------------------------------------------------------------ */
+(function(){
+  var wraps=[].slice.call(document.querySelectorAll('.co-wrap'));
+  wraps.forEach(function(w){
+    var pop=w.querySelector('.pop');
+    function place(){
+      var r=w.getBoundingClientRect();
+      w.classList.toggle('pop-flip', r.top < pop.offsetHeight + 26);
+    }
+    w.addEventListener('mouseenter',place);
+    w.addEventListener('focusin',place);
   });
 })();
 </script>
