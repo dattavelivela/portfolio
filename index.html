@@ -165,6 +165,27 @@ a{color:inherit}
   margin-top:26px;background-color:var(--ink-05);border-radius:11px;
   padding:10px;display:flex;align-items:center;justify-content:center;
 }
+.entry .media.two{flex-flow:column;gap:10px}
+.tl{margin:-16px 0 34px;display:flex;flex-flow:column;align-items:center}
+.stack > .tl:first-child{margin:4px 0 46px}
+.tl-track{display:flex;align-items:center}
+.tl-seg{width:58px;height:2px;border-radius:2px;background:var(--ink-10)}
+.tl-seg.l{background:linear-gradient(90deg,rgba(47,53,87,0),rgba(47,53,87,.1))}
+.tl-seg.r{background:linear-gradient(90deg,rgba(47,53,87,.1),rgba(47,53,87,0))}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-20);flex:0 0 auto}
+.tl-mark{position:relative;display:flex;align-items:center;flex:0 0 auto}
+.tl-mark .tl-dot{width:12px;height:12px;background:#c0392b;
+  transform:scale(.4);transition:transform .5s cubic-bezier(.34,1.4,.5,1) .12s}
+.tl.in .tl-mark .tl-dot{transform:scale(1)}
+.tl-pill{position:absolute;bottom:calc(100% + 13px);left:50%;white-space:nowrap;
+  background:#0e0e10;color:#fff;border:1px solid rgba(255,255,255,.13);
+  font:400 10px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  padding:10px 14px;border-radius:11px;
+  opacity:0;transform:translateX(-50%) translateY(5px);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.3,0,.2,1)}
+.tl-pill::after{content:"";position:absolute;top:100%;left:50%;margin-left:-6px;
+  border:6px solid transparent;border-top-color:#0e0e10;border-bottom:0}
+.tl.in .tl-pill{opacity:1;transform:translateX(-50%) translateY(0)}
 .entry .media img{
   width:100%;border-radius:6px;
   box-shadow:0 14px 30px -14px rgba(47,53,87,.28);
@@ -411,9 +432,17 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   .says-grid .tcard + .tcard{margin-top:-1px}
   .scatter{grid-template-columns:1fr}
   .role{font-size:16px;line-height:28px}
+  .tl{position:relative}
+  .tl-seg{width:34px}
+  .tl-mark{position:static}
+  .tl-pill{left:50%;bottom:calc(100% + 12px);transform:translateX(-50%);
+    font-size:9px;letter-spacing:.05em;padding:8px 11px}
+  .tl.in .tl-pill{transform:translateX(-50%)}
+  .tl-pill::after{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   .polaroid,.entry .media img{transition:none}
+  .tl-pill,.tl-mark .tl-dot{transition:none}
 }
 </style>
 </head>
@@ -470,7 +499,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <figure class="polaroid p4">
       <a class="polaroid-link" href="https://www.slosh.agency/" target="_blank" rel="noopener">
         <img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt="Side project">
-        <figcaption>things built in six nights</figcaption>
+        <figcaption>700+ AI visuals for 11 brands</figcaption>
       </a>
     </figure>
     <figure class="polaroid p5 is-logo">
@@ -480,8 +509,10 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       </a>
     </figure>
     <figure class="polaroid p6">
-      <img loading="lazy" decoding="async" src="assets/pinelabs-one-app.jpg" alt="Pine Labs One app">
-      <figcaption>a sign-in worth finishing</figcaption>
+      <a class="polaroid-link" href="#letter">
+        <img loading="lazy" decoding="async" src="assets/letter.svg" alt="A letter to the hiring team">
+        <figcaption>a letter to hiring team</figcaption>
+      </a>
     </figure>
   </div>
 </section>
@@ -497,9 +528,12 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       </div>
     </div>
     <div class="stack">
+      <div class="tl" aria-hidden="true"><span class="tl-track"><i class="tl-seg l"></i><i class="tl-dot"></i><i class="tl-seg"></i><i class="tl-dot"></i><i class="tl-seg"></i><span class="tl-mark"><i class="tl-dot"></i><span class="tl-pill">Procol &middot; Aug 2024 &ndash; now &middot; 2 yrs 1 mo</span></span><i class="tl-seg r"></i></span></div>
       <article class="entry" data-i="0">
-        <h3><b>Agentic source-to-pay platform</b> &#10022; Procol, 0 &rarr; 1</h3>
-        <p>An autonomous agentic source-to-pay experience that lets businesses elevate buyer productivity and automate procurement workflows.</p>
+        <h3><b>Agentic source-to-pay platform</b> &#10022; Procol.in &rarr; Procol.ai</h3>
+        <p>Solely led product solutioning and 0 to 1 design for Procol's AI foundations and its first AI product, working with
+          engineering on system design through a three-month war room. Autonomous source-to-pay: 10,000+ sourcing events created without a person,
+          humans in the loop only by choice. The company pivoted to AI behind it, and it now contributes over &#8377;X cr in revenue.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"></div>
       </article>
       <article class="entry" data-i="0">
@@ -508,23 +542,33 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         <div class="media"><img loading="lazy" decoding="async" src="assets/analytics-builder.jpg" alt="A self-serve analytics builder"></div>
       </article>
       <article class="entry" data-i="0">
-        <h3><b>The features underneath it</b> &#10022; Procol</h3>
-        <p>Japanese reverse auction, GST reconciliation, notifications, audit trail, vendor onboarding, template creation and bill of quantities.</p>
+        <h3><b>AI Demo Platform</b> &#10022; Procol, R&amp;D</h3>
+        <p>It began as one demo built with the CTO, no engineers and nothing hardcoded. Capability kept
+          getting added until it was Procol's AI demo platform, with me leading the building, the design
+          and the ideation with stakeholders. Trying an R&amp;D idea now costs zero engineering hours, and
+          deal intake and conversion moved with it: at the point a customer wants to click something,
+          they get the real thing instead of a Figma screen.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/product-features.jpg" alt="The features underneath it"></div>
       </article>
+      <div class="tl" aria-hidden="true"><span class="tl-track"><i class="tl-seg l"></i><i class="tl-dot"></i><i class="tl-seg"></i><span class="tl-mark"><i class="tl-dot"></i><span class="tl-pill">Dukaan &middot; Jun 2023 &ndash; Jul 2024 &middot; 1 yr 2 mos</span></span><i class="tl-seg"></i><i class="tl-dot"></i><i class="tl-seg r"></i></span></div>
       <article class="entry" data-i="1">
-        <h3><b>The app revamp</b> &#10022; Dukaan, growth</h3>
-        <p>Led it from planning and strategy through to designing the app, improving activation, adoption and conversion, and driving overall growth.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/dukaan-app-revamp.png" alt="The app revamp"></div>
+        <h3><b>The app, the dashboard, and the design system</b> &#10022; Dukaan, growth</h3>
+        <p>PM, design and support in a team of 15, owning the app and the web dashboard. The revamp
+          lifted activation, adoption and conversion, and NRR with them. One design system replaced
+          the separate web and mobile ones, and Mixpanel tracking on every tap meant the next call
+          had data behind it.</p>
+        <div class="media two">
+          <img loading="lazy" decoding="async" src="assets/dukaan-app-revamp.png" alt="The app revamp">
+          <img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="The design system">
+        </div>
       </article>
-      <article class="entry" data-i="1">
-        <h3><b>A multi-platform design system</b> &#10022; Dukaan, systems</h3>
-        <p>Scaled the design system across platforms, removing the need for separate web and mobile systems. Less to maintain, more shipped.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="A multi-platform design system"></div>
-      </article>
+      <div class="tl" aria-hidden="true"><span class="tl-track"><i class="tl-seg l"></i><span class="tl-mark"><i class="tl-dot"></i><span class="tl-pill">Pine Labs &middot; Jan &ndash; Mar 2023 &middot; 3 mos</span></span><i class="tl-seg"></i><i class="tl-dot"></i><i class="tl-seg"></i><i class="tl-dot"></i><i class="tl-seg r"></i></span></div>
       <article class="entry" data-i="2">
-        <h3><b>Device management in One Web</b> &#10022; Pine Labs, research</h3>
-        <p>Funnel analysis and onsite research with the PM, then wireframes tested with real user groups. Turnaround time fell by 60%.</p>
+        <h3><b>One Web and the One App</b> &#10022; Pine Labs, internship</h3>
+        <p>Worked with the PM on research and design across One Web and the One App, running funnel
+          analysis to find where merchants were dropping off. The two worst points were enterprise
+          sign-in and device management, so both were rebuilt: turnaround down 60%, fewer support
+          tickets, and more merchants finishing setup on the first attempt.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/pinelabs-device-mgmt.png" alt="Device management in One Web"></div>
       </article>
     </div>
@@ -532,7 +576,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 </section>
 
 <!-- 3 · a letter -->
-<section class="wrap letter">
+<section class="wrap letter" id="letter">
   <p class="label"><b>a letter</b><span class="sep"></span><b>to whoever is hiring</b></p>
 
 
@@ -692,6 +736,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   },{threshold:.15});
   media.forEach(function(m){ if(!m.classList.contains('in')) io.observe(m); });
+  [].slice.call(document.querySelectorAll('.tl')).forEach(function(x){ io.observe(x); });
 
   /* the rail follows whichever entry owns the middle of the screen */
   var btns=[].slice.call(document.querySelectorAll('.rail-btn')),

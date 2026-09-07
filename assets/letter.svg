@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 168" role="img" aria-label="A letter">
+  <!-- the paper itself, edge to edge: a detail of the letter, not a page on a desk -->
+  <rect width="260" height="168" fill="#f8f1d5"/>
+  <g fill="#2b2620" opacity=".05">
+    <circle cx="20" cy="24" r="1"/><circle cx="70" cy="52" r="1"/><circle cx="130" cy="20" r="1"/>
+    <circle cx="196" cy="60" r="1"/><circle cx="240" cy="110" r="1"/><circle cx="44" cy="132" r="1"/>
+  </g>
+  <g fill="#2b2620">
+    <rect x="30" y="34" width="120" height="4" rx="2" opacity=".72"/>
+    <rect x="30" y="48" width="176" height="3.4" rx="1.7" opacity=".44"/>
+    <rect x="30" y="59" width="164" height="3.4" rx="1.7" opacity=".44"/>
+    <rect x="30" y="70" width="88" height="3.4" rx="1.7" opacity=".44"/>
+    <rect x="30" y="90" width="176" height="3.4" rx="1.7" opacity=".44"/>
+    <rect x="30" y="101" width="140" height="3.4" rx="1.7" opacity=".44"/>
+  </g>
+  <!-- signed off by hand -->
+  <path d="M32 138c8-11 14-12 16-6s-6 13-9 11 1-12 10-14 14 6 20 4 6-8 11-7"
+        fill="none" stroke="#1c2038" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
