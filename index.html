@@ -121,6 +121,8 @@ a{color:inherit}
 }
 .hl-yellow{background-color:#f7edb7}
 .hl-green{background-color:#c0ddd0}
+/* the intro keeps the emphasis but drops the marker colour */
+.intro .hl-yellow,.intro .hl-green{background:none;padding:0;margin:0}
 
 /* ── section label ────────────────────────────────────────────── */
 .label{
@@ -128,6 +130,8 @@ a{color:inherit}
   color:var(--ink-40);font-size:15px;line-height:22px;margin:0;
 }
 .label b{font-weight:400;color:var(--ink-40)}
+.label a{color:inherit;text-decoration:none;border-bottom:1px solid var(--ink-20)}
+.label a:hover{color:var(--ink-70)}
 .label .sep{width:4px;height:4px;border-radius:50%;background-color:var(--ink-20)}
 
 /* ── the scattered polaroid cluster ───────────────────────────── */
@@ -160,6 +164,7 @@ a{color:inherit}
   margin:0 0 6px;font-size:17px;line-height:27px;font-weight:400;color:var(--ink-40);
 }
 .entry h3 b{font-weight:400;color:var(--ink)}
+.entry h3 .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background-color:var(--ink-20);vertical-align:middle;margin:0 9px}
 .entry p{margin:0;color:var(--ink-70)}
 .entry .media{
   margin-top:26px;background-color:var(--ink-05);border-radius:11px;
@@ -225,6 +230,41 @@ a{color:inherit}
 .gh-grid i[data-l="2"]{background-color:#40c463}
 .gh-grid i[data-l="3"]{background-color:#30a14e}
 .gh-grid i[data-l="4"]{background-color:#216e39}
+
+/* ── visual work ──────────────────────────────────────────────────
+   Dribbble shots on a horizontal track: native scroll with snap, so
+   trackpads, touch and keyboard all work; the arrows only nudge it.
+   ---------------------------------------------------------------- */
+.shots{padding:120px 0 0}
+.shots-track{
+  display:flex;gap:18px;margin:36px 0 0;padding:6px 0 30px;list-style:none;
+  overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  scrollbar-width:none;
+}
+.shots-track::-webkit-scrollbar{display:none}
+/* one shared height; each card takes the width its image's own ratio gives it */
+.shot{flex:0 0 auto;scroll-snap-align:start}
+.shot a{display:block;color:inherit;text-decoration:none}
+.shot img{
+  height:320px;width:auto;max-width:none;border-radius:11px;
+  background-color:var(--ink-05);border:1px solid var(--haze);
+  box-shadow:0 14px 30px -18px rgba(47,53,87,.30);
+  transition:transform .45s cubic-bezier(.2,.75,.25,1),box-shadow .45s;
+}
+.shot a:hover img{transform:translateY(-6px);box-shadow:0 24px 44px -20px rgba(47,53,87,.36)}
+/* width:0 + min-width:100% keeps a long caption from widening the card past its image */
+.shot span{display:block;width:0;min-width:100%;margin-top:11px;font-size:14px;line-height:20px;color:var(--ink-55)}
+.shots-nav{display:flex;justify-content:center;gap:10px}
+.shots-nav button{
+  appearance:none;width:38px;height:38px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--white);border:1px solid var(--haze);color:var(--ink-70);
+  transition:color .18s,border-color .18s,opacity .18s;
+}
+.shots-nav button:hover{color:var(--ink);border-color:var(--ink-20)}
+.shots-nav button:disabled{opacity:.35;cursor:default}
+.shots-nav svg{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){.shot img{transition:none}}
 
 /* ── the letter ───────────────────────────────────────────────────
    A large statement heading over a narrow measure, so the letter
@@ -427,6 +467,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 @media screen and (max-width:700px){
   .gh-card{overflow-x:auto;overscroll-behavior-x:contain}
   .gh-months,.gh-grid{min-width:540px}
+  .shot img{height:180px}
   .says-grid{grid-template-columns:1fr}
   .says-grid .tcard{margin-left:0}
   .says-grid .tcard + .tcard{margin-top:-1px}
@@ -524,26 +565,25 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       <div class="rail-list">
         <button class="rail-btn" type="button" data-i="0" aria-current="true"><span class="mark"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt=""></span><span>Procol</span></button>
         <button class="rail-btn" type="button" data-i="1" aria-current="false"><span class="mark"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt=""></span><span>Dukaan</span></button>
-        <button class="rail-btn" type="button" data-i="2" aria-current="false"><span class="mark"><img loading="lazy" decoding="async" src="assets/pinelabs-mark.png" alt=""></span><span>Pine Labs</span></button>
       </div>
     </div>
     <div class="stack">
       <article class="entry" data-i="0">
-        <h3><b>Agentic source-to-pay platform</b> &#10022; Procol.in &rarr; Procol.ai</h3>
+        <h3><b>Agentic source-to-pay platform</b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
           from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"></div>
       </article>
       <article class="entry" data-i="0">
-        <h3><b>AI Demo Platform</b> &#10022; Procol, R&amp;D</h3>
+        <h3><b>AI Demo Platform</b><span class="dot" aria-hidden="true"></span>Procol, R&amp;D</h3>
         <p>Solely built new AI ideas, including Intake AI, and Procol&rsquo;s demo platform. It let us experiment
           faster without an engineering dependency, moved multiple deals forward, and contributed to a &#8377;X crore
           enterprise win with a lean four-person team: one PM, two in sales, and myself.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/product-features.jpg" alt="Clara AI home, with recent tasks pending review"></div>
       </article>
       <article class="entry" data-i="1">
-        <h3><b>The app, the dashboard, and the design system</b> &#10022; Dukaan, growth</h3>
+        <h3><b>The app, the dashboard, and the design system</b><span class="dot" aria-hidden="true"></span>Dukaan, growth</h3>
         <p>PM, design and support in a team of 15, owning the app and the web dashboard. The revamp
           lifted activation, adoption and conversion, and NRR with them. One design system replaced
           the separate web and mobile ones, and Mixpanel tracking on every tap meant the next call
@@ -552,14 +592,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
           <img loading="lazy" decoding="async" src="assets/dukaan-app-revamp.png" alt="The app revamp">
           <img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="The design system">
         </div>
-      </article>
-      <article class="entry" data-i="2">
-        <h3><b>One Web and the One App</b> &#10022; Pine Labs, internship</h3>
-        <p>Worked with the PM on research and design across One Web and the One App, running funnel
-          analysis to find where merchants were dropping off. The two worst points were enterprise
-          sign-in and device management, so both were rebuilt: turnaround down 60%, fewer support
-          tickets, and more merchants finishing setup on the first attempt.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/pinelabs-device-mgmt.png" alt="Device management in One Web"></div>
       </article>
     </div>
   </div>
@@ -681,7 +713,26 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   </div>
 </section>
 
-<!-- 6 · close -->
+<!-- 6 · visual work -->
+<section class="wrap shots">
+  <p class="label"><b>Visual work</b><span class="sep"></span><b><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">dribbble</a></b></p>
+  <ul class="shots-track" id="shotsTrack" aria-label="Dribbble shots">
+    <li class="shot"><a href="https://dribbble.com/shots/27623681-Explorations-Trust-Section" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/trust-section.jpg" alt="" width="1600" height="833"><span>Explorations - Trust Section</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620408-Agnost-ai-Pricing-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-pricing.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Pricing Page</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620398-Product-Announcements" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/product-announcements.jpg" alt="" width="1600" height="1000"><span>Product Announcements</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620380-Footer" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/footer.jpg" alt="" width="1600" height="900"><span>Footer</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620354-Agnost-ai-Login-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-login.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Login Page</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/26556909-Redesigned-Experience-for-Sellers-Dukaan-App" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-sellers.jpg" alt="" width="1600" height="1143"><span>Redesigned Experience for Sellers | Dukaan App</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/24509989-Settings-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-settings.jpg" alt="" width="1600" height="1200"><span>Settings - Dukaan</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/24509941-New-Home-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-home.jpg" alt="" width="1600" height="1200"><span>New Home - Dukaan</span></a></li>
+  </ul>
+  <div class="shots-nav">
+    <button type="button" id="shotsPrev" aria-label="Previous shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg></button>
+    <button type="button" id="shotsNext" aria-label="Next shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+  </div>
+</section>
+
+<!-- 7 · close -->
 <section class="wrap close">
   <button class="clock" type="button" id="clock"
           aria-label="Time you have spent here. Activate to reset it.">
@@ -702,7 +753,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     </svg>
     <span class="clock-time" id="clockTime">0:00</span>
   </button>
-  <p>If the workflow is the hard part, we'll get on.</p>
+  <p>Let's talk?</p>
   <a class="mail" href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a>
   <div class="row">
     <span>Gurgaon, India</span>
@@ -816,6 +867,24 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       draw(days, j.total && (j.total.lastYear!=null?j.total.lastYear:Object.values(j.total)[0]));
     })
     .catch(function(){ count.textContent='could not reach github'; });
+})();
+
+/* ── visual work carousel ──────────────────────────────────────────
+   The arrows page by roughly one card width and grey out at the ends.
+   ------------------------------------------------------------------ */
+(function(){
+  var track=document.getElementById('shotsTrack'); if(!track) return;
+  var prev=document.getElementById('shotsPrev'), next=document.getElementById('shotsNext');
+  function step(){ var s=track.querySelector('.shot'); return s ? s.offsetWidth+18 : 300; }
+  function sync(){
+    prev.disabled=track.scrollLeft<=2;
+    next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;
+  }
+  prev.addEventListener('click',function(){ track.scrollBy({left:-step(),behavior:'smooth'}); });
+  next.addEventListener('click',function(){ track.scrollBy({left:step(),behavior:'smooth'}); });
+  track.addEventListener('scroll',sync,{passive:true});
+  addEventListener('resize',sync);
+  sync();
 })();
 
 /* ── time spent here ───────────────────────────────────────────────
