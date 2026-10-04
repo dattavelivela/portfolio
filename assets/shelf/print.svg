@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 58">
+  <!-- the top of a fresh instant print: one of the visuals, a dress on a hanger -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6eadb"/><stop offset="1" stop-color="#ead8c2"/></linearGradient>
+    <linearGradient id="dress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9573c"/><stop offset="1" stop-color="#a8331f"/></linearGradient>
+  </defs>
+  <rect width="62" height="58" fill="#fdfdfb"/>
+  <rect x="4" y="4.5" width="54" height="53.5" fill="url(#bg)"/>
+  <!-- an arch of light behind it -->
+  <path d="M15 58V30a16 16 0 0 1 32 0v28z" fill="#f6c7a3"/>
+  <!-- hanger -->
+  <path d="M31 14.5a2.6 2.6 0 1 1 2.4 2.6c-1.2 0-2.4.8-2.4 2.4v1.5" fill="none" stroke="#4a3a2a" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M19 27.5 31 21l12 6.5" fill="none" stroke="#4a3a2a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the dress -->
+  <path d="M25.5 26.5c1.4 3.4 3.4 5 5.5 5s4.1-1.6 5.5-5l1.6 1.2c-.6 4-1.6 7-2.6 9.3L44 58H18l8.5-21c-1-2.3-2-5.3-2.6-9.3z" fill="url(#dress)"/>
+  <path d="M26.5 37h9" stroke="#7d2414" stroke-opacity=".45" stroke-width=".9"/>
+  <path d="M31 38l-3 20M33.5 39l4 19" stroke="#fff" stroke-opacity=".14" stroke-width="1.6"/>
+  <!-- made, not shot -->
+  <path d="M51 9.5q.5 2.4 2.9 2.9-2.4.5-2.9 2.9-.5-2.4-2.9-2.9 2.4-.5 2.9-2.9z" fill="#fff"/>
+</svg>
