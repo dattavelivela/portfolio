@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 98 40">
+  <!-- a coir doormat from above: back edge at the top -->
+  <defs>
+    <filter id="coir" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3"/>
+      <feColorMatrix values="0 0 0 0 .23  0 0 0 0 .12  0 0 0 0 .03  1.6 0 0 0 -.7"/>
+    </filter>
+    <filter id="fleck" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="1" seed="9"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 .86  0 0 0 0 .62  1.4 0 0 0 -.8"/>
+    </filter>
+  </defs>
+  <rect width="98" height="40" rx="2" fill="#bb874c"/>
+  <rect x="3.5" y="3.5" width="91" height="33" rx="1" fill="none" stroke="#5e3b1a" stroke-width="2.4"/>
+  <text x="49" y="25" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="12" font-weight="800" letter-spacing="3" fill="#4b2d12" fill-opacity=".88">HELLO</text>
+  <rect width="98" height="40" rx="2" filter="url(#coir)"/>
+  <rect width="98" height="40" rx="2" filter="url(#fleck)" opacity=".5"/>
+</svg>
