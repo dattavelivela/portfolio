@@ -497,7 +497,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 
 /* ── the shelf ─────────────────────────────────────────────────────
    Six things stood on a desk and shot from a little above, the way a
-   product is: a laptop, a box of paper, a front door, a framed print,
+   product is: a laptop, a résumé folder, a front door, a framed print,
    a notebook and a letter. Each is built from boxes (.cu) carrying the
    three faces a camera above and to the left can see - front (.f),
    top (.t) and left (.l) - plus loose planes (.pl) for flaps, sheets
@@ -618,41 +618,27 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 /* glass */
 .laptop .screen::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.13) 47%,transparent 60%)}
 
-/* résumé: an open box, a ream of paper standing up out of it */
-.box{width:120px;height:152px;--d:128px}
-.box .wall{top:88px;height:64px}
-.box .w-front{left:0;width:120px;background:var(--linen),var(--grain),linear-gradient(#6fa9e4,#3f7bc9)}
-.box .w-left{right:100%;width:128px;transform-origin:100% 50%;transform:rotateY(-90deg);background:var(--linen),var(--grain),linear-gradient(#5390d5,#2c5fa9)}
-.box .w-back{left:0;width:120px;transform:translateZ(-128px);background:var(--linen),linear-gradient(#3f75bb,#284f8f)}
-.box .w-right{right:100%;width:128px;transform-origin:100% 50%;transform:translateX(120px) rotateY(-90deg);background:var(--linen),linear-gradient(#36689f,#21477f)}
-/* cardboard has an edge: a lit rim along the top of each outer wall */
-.box .w-front,.box .w-left{box-shadow:inset 0 1.5px 0 rgba(255,255,255,.45)}
-/* the four flaps, hinged on the rim: the near two fall open, the far two stand up */
-.box .flap{-webkit-backface-visibility:visible;backface-visibility:visible}
-.box .f-front{left:0;top:88px;width:120px;height:42px;transform-origin:50% 0;transform:rotateX(74deg);
-  background:var(--linen),linear-gradient(#8ec3ee,#a6d8e6 65%,#b2e3d8);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
-.box .f-left{right:100%;top:88px;width:128px;height:40px;transform-origin:100% 0;transform:rotateY(-90deg) rotateX(74deg);
-  background:var(--linen),linear-gradient(#77aee2,#93c8de 65%,#9fd5cc);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-.box .f-back{left:0;top:40px;width:120px;height:48px;transform-origin:50% 100%;transform:translateZ(-128px) rotateX(24deg);
-  background:var(--linen),linear-gradient(to top,#5c95d2,#8fc4e4 65%,#a3d8d3)}
-.box .f-right{right:100%;top:42px;width:128px;height:46px;transform-origin:100% 100%;transform:translateX(120px) rotateY(-90deg) rotateX(24deg);
-  background:var(--linen),linear-gradient(to top,#4a80c0,#7cb3db 65%,#8cc7c4)}
-.box .ream{--cw:104px;--ch:116px;--cd:112px;transform:translate3d(8px,34px,-8px)}
-/* the edges of a few hundred sheets */
-.box .ream .f{background:
-  linear-gradient(rgba(40,60,110,0) 30%,rgba(40,60,110,.26)),
-  repeating-linear-gradient(#fdfdfe 0 1.3px,#d9dee7 1.3px 2.1px),
-  #fff}
-.box .ream .l{background:
-  linear-gradient(rgba(40,60,110,.12) 30%,rgba(40,60,110,.36)),
-  repeating-linear-gradient(#f4f6f9 0 1.3px,#cfd5df 1.3px 2.1px),
-  #eef1f5}
-.box .ream .t{background:#f7f8fa}
-/* two loose sheets on top, the résumé uppermost */
-.box .sheet{left:0;bottom:100%;width:104px;height:112px;transform-origin:50% 100%}
-.box .s1{transform:translate3d(3px,-.6px,-56px) rotateY(7deg) translateZ(56px) rotateX(90deg);background:#fbfbfa;box-shadow:0 0 0 .5px rgba(40,60,110,.15)}
-.box .s2{transform:translate3d(-2px,-1.2px,-56px) rotateY(-4deg) translateZ(56px) rotateX(90deg);
-  background:url(assets/shelf/resume-page.svg) 0 0/100% 100%;box-shadow:0 0 0 .5px rgba(40,60,110,.18),0 1px 2px rgba(40,60,110,.12)}
+/* résumé: a manila folder stood on its fold, a few sheets in it and the
+   résumé on top, clipped */
+.folder{width:172px;height:150px;--d:26px}
+.folder .back{left:0;top:0;width:172px;height:150px;transform-origin:50% 100%;transform:translateZ(-22px) rotateX(5deg);
+  background:linear-gradient(rgba(70,48,14,0) 13%,rgba(70,48,14,.16) 18.5%,rgba(70,48,14,.08) 30%),url(assets/shelf/folder-back.svg) 0 0/100% 100%}
+/* the label stuck on the tab, set in the page's own type */
+.folder .back b{position:absolute;left:19px;top:3.6px;width:49px;height:8.6px;border-radius:1px;background:#fbf8ef;
+  font:700 7px/8.8px var(--mono);letter-spacing:.06em;text-indent:.06em;text-align:center;color:#3b2c12}
+/* one sheet stands a little proud of the rest */
+.folder .loose{left:19px;top:18px;width:146px;height:126px;transform:translateZ(-18px) rotateZ(2.4deg);
+  background:linear-gradient(#fbfbf9,#f0efeb);box-shadow:inset 0 0 0 .5px rgba(60,50,30,.14)}
+.folder .papers{--cw:150px;--ch:124px;--cd:6px;transform:translate3d(11px,26px,-10px) rotateZ(-1.2deg)}
+/* the front cover throws a soft shadow on the papers just above its edge */
+.folder .papers .f{background:linear-gradient(rgba(70,48,14,0) 8%,rgba(70,48,14,.13) 17%),url(assets/shelf/resume-page.svg) 50% 0/100% auto no-repeat,#fdfdfb;
+  box-shadow:inset 0 0 0 .5px rgba(60,50,30,.14)}
+.folder .papers .t{background:repeating-linear-gradient(#fdfdfc 0 .8px,#d9dce3 .8px 1.4px)}
+.folder .papers .l{background:linear-gradient(90deg,rgba(60,50,30,.16),rgba(60,50,30,.05)),repeating-linear-gradient(90deg,#fbfbfa 0 .8px,#d5d8df .8px 1.4px)}
+.folder .clip{left:31px;top:15px;width:11px;height:30px;transform:translateZ(-9.3px) rotateZ(-1.2deg);background:url(assets/shelf/clip.svg) 0 0/100% 100%}
+/* the front cover leans out a little, so the papers show over it */
+.folder .front{left:0;top:48px;width:172px;height:102px;transform-origin:50% 100%;transform:translateZ(-2px) rotateX(-6deg);
+  background:url(assets/shelf/folder-front.svg) 0 0/100% 100%}
 
 /* Rinso: one of the 2,000 front doors, an order left on the mat */
 .door{width:124px;height:238px;--d:76px}
@@ -784,14 +770,14 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       <figcaption>recent design work for @agnostai, YC-backed</figcaption>
       <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="thing box">
+    <figure class="thing folder">
       <a class="thing-link" href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">
         <span class="art" aria-hidden="true">
-          <i class="pl wall w-back"></i><i class="pl wall w-right"></i>
-          <i class="pl flap f-back"></i><i class="pl flap f-right"></i>
-          <span class="cu ream"><i class="f"></i><i class="t"></i><i class="l"></i><i class="sheet s1"></i><i class="sheet s2"></i></span>
-          <i class="pl wall w-front"></i><i class="pl wall w-left"></i>
-          <i class="pl flap f-front"></i><i class="pl flap f-left"></i>
+          <i class="pl back"><b>RÉSUMÉ</b></i>
+          <i class="pl loose"></i>
+          <span class="cu papers"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+          <i class="pl clip"></i>
+          <i class="pl front"></i>
         </span>
         <figcaption>Here is my resume</figcaption>
       </a>
