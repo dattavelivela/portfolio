@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 46">
+  <!-- the lid of the box, seen from above: back edge at the top, front edge at the bottom -->
+  <defs>
+    <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.9" fill="#e5392b" fill-opacity=".82"/></pattern>
+  </defs>
+  <rect width="64" height="46" fill="#3b8bef"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.1">
+    <circle cx="52" cy="35" r="6"/><circle cx="42" cy="40.5" r="2.6"/><circle cx="8" cy="6" r="3.2"/>
+  </g>
+  <!-- two lengths of tape, crossing -->
+  <rect x="0" y="12" width="64" height="11" fill="#f6d03c" fill-opacity=".8"/>
+  <rect x="0" y="12" width="64" height="11" fill="url(#dots)"/>
+  <rect x="21" y="0" width="11" height="46" fill="#f6d03c" fill-opacity=".8"/>
+  <rect x="21" y="0" width="11" height="46" fill="url(#dots)"/>
+  <rect x="0" y="12" width="64" height=".7" fill="#fff" fill-opacity=".5"/>
+  <rect x="21" y="0" width=".7" height="46" fill="#fff" fill-opacity=".5"/>
+  <!-- a receipt, slapped on -->
+  <g transform="rotate(8 53 7)">
+    <rect x="46" y="2.5" width="13" height="9" fill="#fbfbf8"/>
+    <g fill="#22252f" fill-opacity=".45"><rect x="47.5" y="4.3" width="8" height=".7"/><rect x="47.5" y="6.1" width="10" height=".7"/><rect x="47.5" y="7.9" width="6" height=".7"/></g>
+  </g>
+  <!-- CAUTION -->
+  <g transform="rotate(-13 40 30)">
+    <rect x="26.6" y="23.6" width="28" height="13.5" rx=".8" fill="#14336b" fill-opacity=".22"/>
+    <rect x="26" y="23" width="28" height="13.5" rx=".8" fill="#bfe9f3"/>
+    <rect x="28" y="24.7" width="24" height="6.6" fill="#fff" stroke="#d62f24" stroke-width=".8"/>
+    <text x="40" y="29.9" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="5" font-weight="800" letter-spacing=".3" fill="#d62f24">CAUTION</text>
+    <text x="40" y="34.6" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="2.3" font-weight="700" fill="#14336b">FRESH LAUNDRY · HANDLE WITH CARE</text>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 156">
+  <!-- the letter itself, half out of its envelope -->
+  <rect width="148" height="156" fill="#fcf9f1"/>
+  <g fill="#2a2f50">
+    <rect x="106" y="12" width="28" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="24" width="38" height="2.4" rx="1.2" fill-opacity=".62"/>
+    <rect x="14" y="34" width="120" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="41" width="112" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="48" width="120" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="55" width="70" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="66" width="120" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="73" width="104" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="80" width="116" height="1.6" fill-opacity=".3"/>
+    <rect x="14" y="87" width="48" height="1.6" fill-opacity=".3"/>
+  </g>
+  <!-- where it was folded in three -->
+  <rect y="51.4" width="148" height=".8" fill="#5a4a28" fill-opacity=".1"/>
+  <rect y="52.2" width="148" height=".8" fill="#fff" fill-opacity=".9"/>
+  <rect y="103.4" width="148" height=".8" fill="#5a4a28" fill-opacity=".1"/>
+</svg>

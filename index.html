@@ -135,28 +135,6 @@ a{color:inherit}
 .label a:hover{color:var(--ink-70)}
 .label .sep{width:4px;height:4px;border-radius:50%;background-color:var(--ink-20)}
 
-/* ── the scattered polaroid cluster ───────────────────────────── */
-.scatter{position:relative;height:520px;margin:0}
-.polaroid{
-  position:absolute;width:230px;background-color:var(--white);
-  padding:10px 10px 8px;border-radius:7px;
-  box-shadow:0 14px 34px -12px rgba(47,53,87,.28), 0 2px 6px rgba(47,53,87,.06);
-  transition:transform .45s cubic-bezier(.2,.75,.25,1), box-shadow .45s;
-}
-.polaroid img{width:100%;height:168px;object-fit:cover;border-radius:3px;background-color:var(--ink-05)}
-.polaroid-link{display:block;color:inherit;text-decoration:none}
-/* a logo tile, not a screenshot: show the whole mark rather than crop it */
-.polaroid.is-logo img{object-fit:contain;padding:34px;background:#fff}
-.polaroid figcaption{margin-top:9px;font-size:13px;line-height:18px;color:var(--ink-55)}
-.polaroid:hover{transform:translateY(-10px) rotate(0deg)!important;box-shadow:0 26px 54px -14px rgba(47,53,87,.34);z-index:20}
-/* hand-placed, the way a pile of prints actually falls */
-.polaroid.p1{left:2%;  top:150px; transform:rotate(-11deg)}
-.polaroid.p2{left:16%; top:60px;  transform:rotate(-5deg)}
-.polaroid.p3{left:31%; top:120px; transform:rotate(3deg)}
-.polaroid.p4{left:46%; top:36px;  transform:rotate(-2deg)}
-.polaroid.p5{left:61%; top:132px; transform:rotate(7deg)}
-.polaroid.p6{left:76%; top:64px;  transform:rotate(-4deg)}
-
 /* ── work list ────────────────────────────────────────────────── */
 .work{padding:26px 0 40px}
 .entry{margin:0 0 84px}
@@ -490,8 +468,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 @media screen and (max-width:1000px){
   :root{--col:100%}
   .intro{padding-top:88px}
-  .scatter{height:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-  .polaroid{position:static;width:auto;margin:0;transform:none!important}
   .entry .media{padding:8px}
   .ident .tile{width:60px;height:60px;border-radius:10px}
 }
@@ -514,212 +490,263 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   .tl-pill::after{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .polaroid,.entry .media img,.entry.nda .media img,.nda-tag{transition:none}
+  .entry .media img,.entry.nda .media img,.nda-tag{transition:none}
   .entry.nda .media.shake{animation:none}
   .tl-pill,.tl-mark .tl-dot{transition:none}
 }
 
 /* ── the shelf ─────────────────────────────────────────────────────
-   The pile is a row of things stood on a desk: a browser window, a
-   folder, a front door, a framed print, a notebook, a letter. Each is
-   turned a little so its face reads. The script sets --x/--z/--ry/--s
-   per object; each object sets its own width, --h (height) and --d
-   (depth).
+   Six things stood on a desk and shot from a little above, the way a
+   product is: a laptop, a box of paper, a front door, a framed print,
+   a notebook and a letter. Each is built from boxes (.cu) carrying the
+   three faces a camera above and to the left can see - front (.f),
+   top (.t) and left (.l) - plus loose planes (.pl) for flaps, sheets
+   and the like. One light, high and to the right: tops are brightest,
+   fronts carry the colour, left sides fall into shade.
+   The script sets --x/--z/--ry/--s per thing; each thing sets its own
+   width, height and --d, its depth on the desk.
    ------------------------------------------------------------------ */
-.scatter{
-  display:block;position:relative;height:360px;margin:0;
-  overflow:hidden;perspective:2400px;perspective-origin:50% 30%;
-  --floor:90px;
+.shelf{
+  position:relative;height:420px;margin:0;overflow:hidden;
+  /* a long lens: close to isometric, like a product shot, so every thing
+     on the row is seen from the same angle */
+  perspective:4200px;perspective-origin:50% 16%;
+  --floor:104px;--tilt:-22deg;
+  /* fine dark grain, for paper, card and paint */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .36 -.16'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  /* woven threads, for the box board and the notebook cloth */
+  --linen:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='l' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5 .07' numOctaves='1' seed='2' stitchTiles='stitch' result='a'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.07 1.5' numOctaves='1' seed='5' stitchTiles='stitch' result='b'/%3E%3CfeComposite in='a' in2='b' operator='arithmetic' k2='.5' k3='.5'/%3E%3CfeGaussianBlur stdDeviation='.35'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 -.43'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23l)'/%3E%3C/svg%3E");
+  /* brushed metal, for the laptop */
+  --brushed:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Cfilter id='b' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 -.46'/%3E%3C/filter%3E%3Crect width='200' height='120' filter='url(%23b)'/%3E%3C/svg%3E");
+  /* oak, grain running along the rails */
+  --oak:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.01 .32' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .26 0 0 0 0 .1 1.2 0 0 0 -.56'/%3E%3C/filter%3E%3Crect width='240' height='120' filter='url(%23w)'/%3E%3C/svg%3E");
 }
-/* the desk top: runs back behind the objects so their shadows land on it */
-.scatter::before{
-  content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--floor) + 46px);
-  background:linear-gradient(#eceef4,#f4f5f9 40%,rgba(255,255,255,0));
-  border-top:1px solid #e0e2eb;
+/* the desk top, running back behind the things so their shadows land on it */
+.shelf::before{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:calc(var(--floor) + 64px);
+  background:linear-gradient(#e8eaf1,#f2f3f7 45%,rgba(255,255,255,0));
+  border-top:1px solid #dfe1ea;
   -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
   mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
 }
-.scatter .polaroid:nth-child(n){
-  position:absolute;left:0;top:auto;bottom:var(--floor);margin:0;
-  width:var(--w,200px);height:var(--h,196px);padding:0;border-radius:4px;box-shadow:none;
-  background:var(--body,#c9cbd6);cursor:pointer;
-  transform-style:preserve-3d;transform-origin:50% 100%;
-  transform:translateX(var(--x,0px)) translateY(var(--lift,0px)) translateZ(var(--z,0px)) rotateY(calc(var(--ry,38deg) * var(--turn,1))) scale3d(var(--s,1),var(--s,1),var(--s,1))!important;
+.thing{
+  position:absolute;left:0;bottom:var(--floor);margin:0;
+  transform-style:preserve-3d;transform-origin:50% 100% calc(var(--d) * -.5);
+  transform:translateX(var(--x,0px)) translateY(var(--lift,0px)) translateZ(var(--z,0px)) rotateX(var(--tilt)) rotateY(calc(var(--ry,34deg) * var(--turn,1))) scale3d(var(--s,1),var(--s,1),var(--s,1));
   transition:transform .65s cubic-bezier(.2,.8,.2,1);
-  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
-.scatter .polaroid:hover{box-shadow:none;z-index:auto}
-/* laptops: hovering turns an object to face you and shows its caption;
-   a click goes straight to its link */
+.thing-link,.art{position:absolute;inset:0;display:block;transform-style:preserve-3d;color:inherit;text-decoration:none}
+.thing-link:focus:not(:focus-visible){outline:none}
+/* a box: place it with transform, size it with --cw/--ch/--cd */
+.cu{position:absolute;left:0;top:0;width:var(--cw);height:var(--ch);transform-style:preserve-3d}
+.cu>i,.pl{position:absolute;display:block;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.cu>.f{inset:0}
+.cu>.t{left:0;bottom:100%;width:100%;height:var(--cd);transform-origin:50% 100%;transform:rotateX(90deg)}
+.cu>.l{right:100%;top:0;width:var(--cd);height:100%;transform-origin:100% 50%;transform:rotateY(-90deg)}
+/* the shadow each thing throws on the desk: soft all round, longer to the back left */
+.thing .sh{
+  position:absolute;left:0;top:100%;width:100%;height:var(--d);pointer-events:none;
+  transform-origin:50% 0;transform:translateZ(calc(var(--d) * -1)) rotateX(90deg);
+  border-radius:6px;background:rgba(36,40,72,.26);
+  box-shadow:0 0 6px 2px rgba(36,40,72,.22),0 0 22px 8px rgba(36,40,72,.1),-18px -20px 36px 10px rgba(36,40,72,.12);
+  transition:opacity .4s;
+}
+/* the caption hangs in front of the thing and always faces the camera */
+.thing figcaption{
+  position:absolute;top:100%;left:-60px;right:-60px;margin:16px 0 0;text-align:center;
+  font-size:14px;line-height:19px;color:var(--ink-70);opacity:0;pointer-events:none;
+  transform-origin:50% 0;
+  transform:translateZ(14px) rotateY(calc(var(--ry,34deg) * var(--turn,1) * -1)) rotateX(calc(var(--tilt) * -1));
+  transition:opacity .2s;
+}
+/* laptops: hovering turns a thing to face you and shows its caption;
+   a click goes straight to its link. The script sets .hover, so a thing
+   that turns away from the pointer does not drop it and flicker */
 @media (hover:hover) and (pointer:fine){
-  .scatter .polaroid:hover{--turn:0;--lift:-10px;z-index:5}
-  .scatter .polaroid:hover figcaption{opacity:1;transition:opacity .3s .15s}
+  .thing.hover{--turn:.25;--lift:-10px;z-index:5}
+  .thing.hover figcaption{opacity:1;transition:opacity .3s .15s}
 }
-.scatter .polaroid.out{z-index:10}
-.scatter .polaroid-link{position:static;height:100%}
-.scatter .polaroid-link:focus:not(:focus-visible){outline:none}
-.scatter .polaroid img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
-.scatter .polaroid.is-logo img{object-fit:contain}
-/* the side: hung off the left edge and folded back, so it reads the
-   right way round from where you stand */
-.scatter .polaroid::before{
-  content:"";position:absolute;top:0;left:calc(-1 * var(--d,40px));width:var(--d,40px);height:100%;
-  transform-origin:100% 50%;transform:rotateY(-90deg);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
-  writing-mode:vertical-rl;white-space:nowrap;
-  background:linear-gradient(to right,rgba(0,0,0,.1),rgba(0,0,0,.24)),var(--body,#c9cbd6);
-}
-/* decoration layers, and the shadow each object casts on the desk */
-.fx,.sh{display:none}
-.scatter .fx{display:block;position:absolute;inset:0;pointer-events:none;transform:translateZ(1px);border-radius:inherit}
-.scatter .sh{
-  display:block;position:absolute;left:-8%;right:-22%;bottom:-10px;height:22px;pointer-events:none;
-  transform:translateZ(calc(var(--d,40px) * -.5));border-radius:50%;
-  background:radial-gradient(closest-side,rgba(47,53,87,.3),rgba(47,53,87,.1) 60%,transparent);
-  filter:blur(4px);transition:opacity .4s;
-}
-.scatter .polaroid.out .sh{opacity:.55}
-/* the caption reads once an object is out and facing you */
-.scatter .polaroid figcaption{
-  position:absolute;top:100%;left:-30px;right:-30px;margin-top:16px;text-align:center;
-  font-size:14px;line-height:19px;color:var(--ink-70);opacity:0;transition:opacity .2s;
-}
-.scatter .polaroid.out figcaption{opacity:1;transition:opacity .3s .3s}
+/* keyboard focus turns a thing to you too; the ring goes on its caption,
+   since an outline drawn round a turned plane reads as a glitch */
+.thing:has(:focus-visible){--turn:.25;--lift:-10px;z-index:5}
+.thing-link:focus-visible{outline:none}
+.thing-link:focus-visible figcaption{opacity:1;color:var(--ink);text-decoration:underline 1.5px;text-underline-offset:4px}
+.thing.out{z-index:10}
+.thing.out .sh{opacity:.6}
+.thing.out figcaption{opacity:1;transition:opacity .3s .3s}
 
-/* Agnost: a browser window, the site in it */
-.scatter .polaroid.p1{--w:216px;--h:150px;--d:5px;border-radius:9px!important;background:#f4f4f6}
-.scatter .polaroid.p1 img{
-  position:absolute;left:0;right:0;top:22px;bottom:0;width:auto;height:auto;
-  object-position:0 0;border-radius:0 0 9px 9px;
+/* Agnost: a laptop, the site open on it */
+.laptop{width:206px;height:142px;--d:150px}
+.laptop .base{--cw:206px;--ch:7px;--cd:142px;transform:translate3d(0,135px,0)}
+.laptop .lid{--cw:206px;--ch:132px;--cd:5px;transform-origin:50% 100%;transform:translate3d(0,3px,-136px) rotateX(10deg)}
+.laptop .base .t{
+  background:url(assets/shelf/deck.svg) 0 0/100% 100% no-repeat,var(--brushed),
+    linear-gradient(#b3b7bf,#d6d9de 16%,#e6e8eb 58%,#dcdfe3);
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.95);
 }
-.scatter .polaroid.p1::before{border-radius:4px;background:linear-gradient(#e2e2e7,#cfcfd6)}
-.scatter .polaroid.p1 .fx{
-  box-shadow:inset 0 0 0 1px rgba(20,20,40,.1);
+/* the front edge, with the scoop you open it by */
+.laptop .base .f{
+  border-radius:0 0 4px 4px;
+  background:radial-gradient(28px 7px at 50% 0,rgba(60,64,76,.35),transparent 70%),linear-gradient(#d3d6dc,#a4a8b1);
+}
+.laptop .base .l{border-radius:0 0 0 4px;background:
+  linear-gradient(#262830,#262830) 70% 45%/7px 2px no-repeat,
+  linear-gradient(#262830,#262830) 52% 45%/5px 2px no-repeat,
+  linear-gradient(#b6bac2,#8d929c)}
+.laptop .lid .f{
+  border-radius:7px 7px 1px 1px;background:linear-gradient(#22232a,#0c0d11);
+  box-shadow:inset 0 0 0 1px #464851,inset 0 0 0 2px #0a0a0d;
+}
+/* the camera */
+.laptop .lid .f::before{content:"";position:absolute;left:50%;top:3px;width:3px;height:3px;margin-left:-1.5px;border-radius:50%;background:#2b2e38}
+.laptop .lid .t{background:linear-gradient(90deg,#c8cbd2,#e8eaed)}
+.laptop .lid .l{background:linear-gradient(90deg,#9ea2ab,#b7bbc3)}
+.laptop .screen{position:absolute;left:7px;right:7px;top:7px;bottom:11px;overflow:hidden;border-radius:2px;background:#0b0b0d}
+/* the browser it is open in */
+.laptop .screen::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:10px;z-index:1;
   background:
-    radial-gradient(circle,#ff5f57 0 3.5px,transparent 4px) 12px 11px/8px 8px no-repeat,
-    radial-gradient(circle,#febc2e 0 3.5px,transparent 4px) 25px 11px/8px 8px no-repeat,
-    radial-gradient(circle,#28c840 0 3.5px,transparent 4px) 38px 11px/8px 8px no-repeat,
-    linear-gradient(rgba(20,20,40,.08),rgba(20,20,40,.08)) 0 22px/100% 1px no-repeat;
-  background-position:8px 7px,21px 7px,34px 7px,0 21px;
+    radial-gradient(circle at 5px 5px,#ff5f57 0 1.8px,transparent 2.2px),
+    radial-gradient(circle at 11px 5px,#febc2e 0 1.8px,transparent 2.2px),
+    radial-gradient(circle at 17px 5px,#28c840 0 1.8px,transparent 2.2px),
+    linear-gradient(#d9d9df,#d9d9df) 50% 2.5px/56px 5px no-repeat,
+    linear-gradient(#f2f2f5,#e6e6eb);
+  border-bottom:.5px solid rgba(0,0,0,.18);
 }
-.scatter .polaroid.p1 .fx::after{
-  content:"agnost.ai";position:absolute;top:5px;left:50%;width:84px;height:12px;margin-left:-30px;
-  border-radius:4px;background:#e6e6ea;font:500 7px/12px var(--sans);color:rgba(20,20,40,.5);text-align:center;
-}
+.laptop .screen img{position:absolute;left:0;top:10px;width:100%;height:calc(100% - 10px);object-fit:cover;object-position:0 0}
+/* glass */
+.laptop .screen::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.13) 47%,transparent 60%)}
 
-/* résumé: a manila folder, the page tucked inside. The image is the
-   page on a grey ground, clipped to just the sheet. */
-.scatter .polaroid.p2{--w:180px;--h:150px;--d:6px;border-radius:2px 6px 3px 3px!important;
-  background:linear-gradient(#d8b065,#c9a254)}
-.scatter .polaroid.p2 img{
-  position:absolute;left:-40px;top:-6px;width:260px;height:168px;max-width:none;
-  object-fit:fill;background:none;border-radius:0;
-  clip-path:inset(16px 84px 16px 84px round 2px);
-  transform:translateZ(.5px) rotate(-1.5deg);
-}
-/* the tab, carrying the label */
-.scatter .polaroid.p2::after{
-  content:"RÉSUMÉ";position:absolute;bottom:calc(100% - 1px);left:0;width:70px;height:16px;padding-left:10px;
-  border-radius:5px 7px 0 0;background:#d8b065;
-  font:700 7px/17px var(--mono);letter-spacing:.16em;color:rgba(70,48,10,.7);
-}
-.scatter .polaroid.p2::before{background:linear-gradient(to right,#b88f42,#a98238)}
-/* the front: shorter than the back, with a thumb notch */
-.scatter .polaroid.p2 .fx{
-  inset:auto 0 0 0;height:64%;border-radius:2px 2px 3px 3px;
-  background:linear-gradient(#edcb86,#dcb76c);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
-  -webkit-mask:radial-gradient(circle 15px at 50% 0,transparent 14px,#000 15px);
-  mask:radial-gradient(circle 15px at 50% 0,transparent 14px,#000 15px);
-}
+/* résumé: an open box, a ream of paper standing up out of it */
+.box{width:120px;height:152px;--d:128px}
+.box .wall{top:88px;height:64px}
+.box .w-front{left:0;width:120px;background:var(--linen),var(--grain),linear-gradient(#6fa9e4,#3f7bc9)}
+.box .w-left{right:100%;width:128px;transform-origin:100% 50%;transform:rotateY(-90deg);background:var(--linen),var(--grain),linear-gradient(#5390d5,#2c5fa9)}
+.box .w-back{left:0;width:120px;transform:translateZ(-128px);background:var(--linen),linear-gradient(#3f75bb,#284f8f)}
+.box .w-right{right:100%;width:128px;transform-origin:100% 50%;transform:translateX(120px) rotateY(-90deg);background:var(--linen),linear-gradient(#36689f,#21477f)}
+/* cardboard has an edge: a lit rim along the top of each outer wall */
+.box .w-front,.box .w-left{box-shadow:inset 0 1.5px 0 rgba(255,255,255,.45)}
+/* the four flaps, hinged on the rim: the near two fall open, the far two stand up */
+.box .flap{-webkit-backface-visibility:visible;backface-visibility:visible}
+.box .f-front{left:0;top:88px;width:120px;height:42px;transform-origin:50% 0;transform:rotateX(74deg);
+  background:var(--linen),linear-gradient(#8ec3ee,#a6d8e6 65%,#b2e3d8);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.box .f-left{right:100%;top:88px;width:128px;height:40px;transform-origin:100% 0;transform:rotateY(-90deg) rotateX(74deg);
+  background:var(--linen),linear-gradient(#77aee2,#93c8de 65%,#9fd5cc);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.box .f-back{left:0;top:40px;width:120px;height:48px;transform-origin:50% 100%;transform:translateZ(-128px) rotateX(24deg);
+  background:var(--linen),linear-gradient(to top,#5c95d2,#8fc4e4 65%,#a3d8d3)}
+.box .f-right{right:100%;top:42px;width:128px;height:46px;transform-origin:100% 100%;transform:translateX(120px) rotateY(-90deg) rotateX(24deg);
+  background:var(--linen),linear-gradient(to top,#4a80c0,#7cb3db 65%,#8cc7c4)}
+.box .ream{--cw:104px;--ch:116px;--cd:112px;transform:translate3d(8px,34px,-8px)}
+/* the edges of a few hundred sheets */
+.box .ream .f{background:
+  linear-gradient(rgba(40,60,110,0) 30%,rgba(40,60,110,.26)),
+  repeating-linear-gradient(#fdfdfe 0 1.3px,#d9dee7 1.3px 2.1px),
+  #fff}
+.box .ream .l{background:
+  linear-gradient(rgba(40,60,110,.12) 30%,rgba(40,60,110,.36)),
+  repeating-linear-gradient(#f4f6f9 0 1.3px,#cfd5df 1.3px 2.1px),
+  #eef1f5}
+.box .ream .t{background:#f7f8fa}
+/* two loose sheets on top, the résumé uppermost */
+.box .sheet{left:0;bottom:100%;width:104px;height:112px;transform-origin:50% 100%}
+.box .s1{transform:translate3d(3px,-.6px,-56px) rotateY(7deg) translateZ(56px) rotateX(90deg);background:#fbfbfa;box-shadow:0 0 0 .5px rgba(40,60,110,.15)}
+.box .s2{transform:translate3d(-2px,-1.2px,-56px) rotateY(-4deg) translateZ(56px) rotateX(90deg);
+  background:url(assets/shelf/resume-page.svg) 0 0/100% 100%;box-shadow:0 0 0 .5px rgba(40,60,110,.18),0 1px 2px rgba(40,60,110,.12)}
 
-/* Rinso: a front door, one of the 2,000 - wooden, brass "132" for the
-   first 132 orders, a Rinso flyer left in the letterbox. The card's own
-   image is not shown. */
-.scatter .polaroid.p3{--w:120px;--h:230px;--d:12px;--body:#e7e3d9;border-radius:2px!important;
-  background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 230"%3E %3Cdefs%3E %3ClinearGradient id="d" x1="0" y1="0" x2="1" y2="1"%3E%3Cstop offset="0" stop-color="%239a6438"/%3E%3Cstop offset="1" stop-color="%236f4123"/%3E%3C/linearGradient%3E %3ClinearGradient id="p" x1="0" y1="0" x2="1" y2="1"%3E%3Cstop offset="0" stop-color="%23a06a3c"/%3E%3Cstop offset="1" stop-color="%237a4a28"/%3E%3C/linearGradient%3E %3ClinearGradient id="c" x1="0" x2="1"%3E%3Cstop offset="0" stop-color="%23fbfaf6"/%3E%3Cstop offset="1" stop-color="%23e7e3d9"/%3E%3C/linearGradient%3E %3ClinearGradient id="g" x1="0" y1="0" x2="0" y2="1"%3E%3Cstop offset="0" stop-color="%23f3d27c"/%3E%3Cstop offset=".5" stop-color="%23d9a640"/%3E%3Cstop offset="1" stop-color="%23b9862a"/%3E%3C/linearGradient%3E %3CradialGradient id="k" cx=".35" cy=".3" r=".8"%3E%3Cstop offset="0" stop-color="%23fbe6a8"/%3E%3Cstop offset=".45" stop-color="%23d8a43e"/%3E%3Cstop offset="1" stop-color="%239c6d1f"/%3E%3C/radialGradient%3E %3C/defs%3E %3Crect width="120" height="230" rx="2" fill="url(%23c)"/%3E %3Crect x="8" y="8" width="104" height="222" fill="%233d2210" fill-opacity=".45"/%3E %3Crect x="9" y="9" width="102" height="221" rx="1" fill="url(%23d)"/%3E%3Cg stroke="%233d2210" stroke-opacity=".09" stroke-width=".8" fill="none"%3E%3Cpath d="M14 9C15.5 70 12.5 150 15 230"/%3E%3Cpath d="M23 9C24.5 70 21.5 150 24 230"/%3E%3Cpath d="M31 9C32.5 70 29.5 150 32 230"/%3E%3Cpath d="M40 9C41.5 70 38.5 150 41 230"/%3E%3Cpath d="M49 9C50.5 70 47.5 150 50 230"/%3E%3Cpath d="M58 9C59.5 70 56.5 150 59 230"/%3E%3Cpath d="M67 9C68.5 70 65.5 150 68 230"/%3E%3Cpath d="M76 9C77.5 70 74.5 150 77 230"/%3E%3Cpath d="M85 9C86.5 70 83.5 150 86 230"/%3E%3Cpath d="M94 9C95.5 70 92.5 150 95 230"/%3E%3Cpath d="M103 9C104.5 70 101.5 150 104 230"/%3E%3C/g%3E %3Crect x="18" y="40" width="38" height="64" rx="1.5" fill="url(%23p)"/%3E%3Cpath d="M18 104V40H56" fill="none" stroke="%233d2210" stroke-opacity=".6" stroke-width="1.6"/%3E%3Cpath d="M56 40V104H18" fill="none" stroke="%23d29a68" stroke-opacity=".6" stroke-width="1.6"/%3E%3Crect x="23" y="45" width="28" height="54" rx="1" fill="none" stroke="%233d2210" stroke-opacity=".2" stroke-width="1"/%3E%3Crect x="64" y="40" width="38" height="64" rx="1.5" fill="url(%23p)"/%3E%3Cpath d="M64 104V40H102" fill="none" stroke="%233d2210" stroke-opacity=".6" stroke-width="1.6"/%3E%3Cpath d="M102 40V104H64" fill="none" stroke="%23d29a68" stroke-opacity=".6" stroke-width="1.6"/%3E%3Crect x="69" y="45" width="28" height="54" rx="1" fill="none" stroke="%233d2210" stroke-opacity=".2" stroke-width="1"/%3E%3Crect x="18" y="148" width="38" height="70" rx="1.5" fill="url(%23p)"/%3E%3Cpath d="M18 218V148H56" fill="none" stroke="%233d2210" stroke-opacity=".6" stroke-width="1.6"/%3E%3Cpath d="M56 148V218H18" fill="none" stroke="%23d29a68" stroke-opacity=".6" stroke-width="1.6"/%3E%3Crect x="23" y="153" width="28" height="60" rx="1" fill="none" stroke="%233d2210" stroke-opacity=".2" stroke-width="1"/%3E%3Crect x="64" y="148" width="38" height="70" rx="1.5" fill="url(%23p)"/%3E%3Cpath d="M64 218V148H102" fill="none" stroke="%233d2210" stroke-opacity=".6" stroke-width="1.6"/%3E%3Cpath d="M102 148V218H64" fill="none" stroke="%23d29a68" stroke-opacity=".6" stroke-width="1.6"/%3E%3Crect x="69" y="153" width="28" height="60" rx="1" fill="none" stroke="%233d2210" stroke-opacity=".2" stroke-width="1"/%3E %3Ctext x="60" y="30" text-anchor="middle" font-family="Georgia,serif" font-size="13" letter-spacing="1.5" fill="url(%23g)" stroke="%238a5f18" stroke-width=".3"%3E132%3C/text%3E %3Crect x="38" y="118" width="44" height="16" rx="2" fill="url(%23g)" stroke="%239c6d1f" stroke-width=".5"/%3E %3Crect x="42" y="123.5" width="36" height="4.5" rx="1" fill="%233b2a0e"/%3E %3Cg transform="rotate(-6 60 112)"%3E %3Crect x="47" y="96" width="26" height="30" rx="1" fill="%23fff"/%3E %3Crect x="47" y="96" width="26" height="9" rx="1" fill="%231e74e0"/%3E %3Ctext x="60" y="103" text-anchor="middle" font-family="Georgia,serif" font-size="5.6" fill="%23fff"%3ERinso%3C/text%3E %3Crect x="50" y="108" width="20" height="1.4" fill="%231e74e0" fill-opacity=".45"/%3E %3Crect x="50" y="111.5" width="15" height="1.4" fill="%231e74e0" fill-opacity=".3"/%3E %3C/g%3E %3Crect x="38" y="125.7" width="44" height="8.3" rx="1.5" fill="url(%23g)"/%3E %3Crect x="42" y="125.7" width="36" height="2.3" fill="%233b2a0e"/%3E %3Ccircle cx="100" cy="138" r="7" fill="%239c6d1f" fill-opacity=".35"/%3E %3Ccircle cx="100" cy="137" r="6" fill="url(%23k)"/%3E %3Crect x="0" y="226" width="120" height="4" fill="%23d9d4c8"/%3E %3C/svg%3E') 0 0/100% 100% no-repeat}
-.scatter .polaroid.p3 img{visibility:hidden}
-.scatter .polaroid.p3::before{background:linear-gradient(to right,#ddd8cb,#cfc9bb)}
+/* Rinso: one of the 2,000 front doors, an order left on the mat */
+.door{width:124px;height:238px;--d:76px}
+.door .slab{--cw:104px;--ch:221px;--cd:7px;transform:translate3d(10px,14px,-60px)}
+.door .slab .f{background:url(assets/shelf/door.svg) 0 0/100% 100% no-repeat}
+.door .jamb{--cw:10px;--ch:223px;--cd:20px}
+.door .jl{transform:translate3d(0,12px,-52px)}
+.door .jr{transform:translate3d(114px,12px,-52px)}
+.door .head{--cw:124px;--ch:14px;--cd:22px;transform:translate3d(0,0,-51px)}
+.door .sill{--cw:124px;--ch:3px;--cd:24px;transform:translate3d(0,235px,-50px)}
+/* the frame and sill are painted: cream, lit from the right */
+.door .jamb .f,.door .head .f,.door .sill .f{background:linear-gradient(#f8f5ee,#ebe6da)}
+.door .head .t,.door .sill .t{background:linear-gradient(#f4f0e7,#fdfcf8)}
+.door .jamb .l,.door .head .l,.door .sill .l{background:linear-gradient(90deg,#cbc3b2,#dcd5c6)}
+.door .jamb .f{box-shadow:inset -1px 0 0 rgba(255,255,255,.8),inset 1px 0 0 rgba(120,100,70,.12)}
+.door .head .f{box-shadow:inset 0 -2px 2px -1px rgba(80,60,30,.18)}
+/* the brass knob stands off the door, and always reads as round */
+.door .knob{left:0;top:0;width:11px;height:11px;border-radius:50%;
+  background:radial-gradient(circle at 64% 30%,#fff7d6 0 7%,#f0cc70 24%,#c99632 58%,#8a5f18);
+  box-shadow:-1px 2px 3px rgba(40,20,0,.35);
+  transform:translate3d(99.5px,130px,-53px) rotateY(calc(var(--ry,34deg) * var(--turn,1) * -1)) rotateX(calc(var(--tilt) * -1))}
+/* a Rinso flyer, poking out of the letterbox */
+.door .flyer{left:52px;top:129px;width:20px;height:24px;transform-origin:50% 0;transform:translateZ(-59.5px) rotateX(62deg) rotateZ(-5deg);
+  background:url(assets/rinso-thumbnail.jpg) 50% 0/auto 11px no-repeat,
+    linear-gradient(#2a7be6,#2a7be6) 3px 14px/12px 1.4px no-repeat,
+    linear-gradient(#2a7be6,#2a7be6) 3px 17.5px/9px 1.4px no-repeat,#fff;
+  box-shadow:0 0 0 .5px rgba(0,0,0,.12)}
+.door .mat{--cw:98px;--ch:3px;--cd:40px;transform:translate3d(13px,235px,-6px)}
+.door .mat .t{background:url(assets/shelf/mat.svg) 0 0/100% 100%}
+.door .mat .f,.door .mat .l{background:linear-gradient(#a2733f,#7e5529)}
+.door .parcel{--cw:60px;--ch:38px;--cd:42px;transform-origin:50% 50% -21px;transform:translate3d(66px,197px,-4px) rotateY(-12deg)}
+.door .parcel .f{background:url(assets/shelf/parcel-front.svg) 0 0/100% 100%;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.door .parcel .t{background:url(assets/shelf/parcel-top.svg) 0 0/100% 100%}
+.door .parcel .l{background:url(assets/shelf/parcel-side.svg) 0 0/100% 100%}
+/* the parcel's own shadow, on the mat */
+.door .psh{left:62px;top:234.5px;width:68px;height:46px;transform-origin:50% 0;transform:translateZ(-48px) rotateX(90deg);
+  border-radius:4px;background:rgba(40,24,8,.28);box-shadow:0 0 6px 2px rgba(40,24,8,.24)}
+.door .sh{height:26px;transform:translateZ(-76px) rotateX(90deg)}
 
-/* slosh: a framed print in light oak with a white mat, the visual in it */
-.scatter .polaroid.p4{--w:186px;--h:150px;--d:14px;padding:12px;border-radius:2px!important;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.22),transparent 40%,rgba(0,0,0,.08)),
-    repeating-linear-gradient(92deg,rgba(120,80,30,.07) 0 2px,transparent 2px 7px),
-    #d9b98a}
-.scatter .polaroid.p4 .polaroid-link{display:block;padding:12px;background:#fbfaf7;box-shadow:inset 0 1px 3px rgba(0,0,0,.18)}
-.scatter .polaroid.p4 img{height:100%;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
-.scatter .polaroid.p4::before{background:
-  repeating-linear-gradient(0deg,rgba(120,80,30,.07) 0 2px,transparent 2px 7px),
-  linear-gradient(to right,#c7a473,#b8945f)}
-/* glass over the print */
-.scatter .polaroid.p4 .fx{inset:12px;border-radius:0;background:linear-gradient(118deg,transparent 30%,rgba(255,255,255,.2) 42%,transparent 54%)}
+/* slosh: a framed print in light oak, a white mat, glass over it */
+.frame{width:172px;height:140px;--d:30px}
+.frame .body{--cw:172px;--ch:136px;--cd:14px;transform-origin:50% 100%;transform:translate3d(0,4px,-8px) rotateX(7deg)}
+/* the rails meet at mitred corners; each catches the light its own way */
+.frame .body .f{
+  border:13px solid;border-color:rgba(255,255,255,.22) rgba(255,255,255,.08) rgba(60,36,10,.16) rgba(60,36,10,.1);
+  background:var(--oak),linear-gradient(135deg,#e3c391,#c99f68);
+  box-shadow:inset 0 0 0 .5px rgba(90,60,20,.4),0 0 0 .5px rgba(90,60,20,.35);
+}
+.frame .board{position:absolute;inset:0;padding:11px;background:#fbfaf6;
+  box-shadow:inset -3px 3px 4px -1px rgba(70,46,14,.3),inset 1px -1px 0 rgba(255,255,255,.9)}
+.frame .board img{width:100%;height:100%;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.06),inset 0 0 2px rgba(0,0,0,.2)}
+.frame .glass{position:absolute;inset:0;background:
+  linear-gradient(118deg,transparent 26%,rgba(255,255,255,.3) 38%,transparent 50%),
+  linear-gradient(118deg,transparent 58%,rgba(255,255,255,.14) 64%,transparent 70%)}
+.frame .body .t{background:var(--oak),linear-gradient(#ecd5ab,#e0c393)}
+.frame .body .l{background:var(--oak),linear-gradient(90deg,#a98352,#bf9864)}
 
-/* Dribbble: a pink hardcover notebook, the ball pressed into its cover */
-.scatter .polaroid.p5{--w:164px;--h:214px;--d:16px;border-radius:3px 9px 9px 3px!important;
-  background:linear-gradient(150deg,#f06a9f,#d73f7c)}
-.scatter .polaroid.p5 img{
-  position:absolute;left:50%;top:44%;width:80px;height:80px;margin:-40px 0 0 -46px;
-  background:none!important;padding:0!important;border-radius:0;
-  mix-blend-mode:multiply;opacity:.55;
-  filter:drop-shadow(0 1px 0 rgba(255,255,255,.5));
-}
-.scatter .polaroid.p5::before{border-radius:4px 0 0 4px;background:linear-gradient(to right,#c2366e,#d9467f 60%,#b8306a)}
-.scatter .polaroid.p5 .fx{background:
-  linear-gradient(to right,rgba(255,255,255,.18),transparent 5px),
-  linear-gradient(140deg,rgba(255,255,255,.16),transparent 45%)}
-.scatter .polaroid.p5 .fx::after{
-  content:"";position:absolute;top:0;bottom:0;right:22px;width:7px;
-  background:linear-gradient(to right,#a8285c,#c9407a 50%,#9e2456);box-shadow:1px 0 2px rgba(90,0,30,.35);
-}
+/* Dribbble: a pink cloth notebook, the ball pressed into its cover */
+.book{width:144px;height:198px;--d:26px}
+.book .body{--cw:144px;--ch:198px;--cd:26px}
+.book .body .f{border-radius:0 3px 3px 0;
+  background:url(assets/shelf/cover.svg) 0 0/100% 100% no-repeat,var(--linen),var(--grain),linear-gradient(155deg,#f677a9,#d9417f)}
+/* the spine: cloth over a rounded back */
+.book .body .l{border-radius:3px 0 0 3px;
+  background:var(--linen),var(--grain),linear-gradient(90deg,#9f2459,#c43a77 38%,#d4498a 55%,#b2306a)}
+/* from above: both boards, the page block between them, the elastic over it all */
+.book .body .t{background:
+  linear-gradient(90deg,transparent 117px,#a3285d 117px 125px,transparent 125px),
+  linear-gradient(#c64079 0 3px,transparent 3px calc(100% - 3px),#ee6a9e calc(100% - 3px)),
+  linear-gradient(90deg,#b8346f 0 3px,transparent 3px calc(100% - 2px),rgba(90,20,46,.4) calc(100% - 2px)),
+  repeating-linear-gradient(#faf6ee 0 .9px,#e3dac8 .9px 1.5px)}
 
-/* the letter: one sheet of writing paper, opened out of its folds.
-   The letter is drawn - ink lines and the hand signature - so the image
-   itself is not shown. */
-.scatter .polaroid.p6{--w:160px;--h:214px;--d:1px;border-radius:1px!important;
-  background:
-    url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="28 124 58 24"%3E%3Cpath d="M32 138c8-11 14-12 16-6s-6 13-9 11 1-12 10-14 14 6 20 4 6-8 11-7" fill="none" stroke="%231c2038" stroke-width="2.6" stroke-linecap="round"/%3E%3C/svg%3E') 18px 160px/58px 24px no-repeat,
-    linear-gradient(90deg,rgba(60,50,30,.035),transparent 30%,transparent 70%,rgba(60,50,30,.06)),
-    linear-gradient(transparent 33.3%,rgba(60,50,30,.018) 33.3% 66.6%,transparent 66.6%),
-    repeating-linear-gradient(17deg,rgba(60,50,30,.012) 0 1px,transparent 1px 3px),
-    #fcfaf4}
-.scatter .polaroid.p6::before{background:#e8e3d6}
-.scatter .polaroid.p6 img{visibility:hidden}
-/* fold creases: a faint shadow and a highlight each */
-.scatter .polaroid.p6 .fx{background:
-  linear-gradient(transparent calc(33.3% - 1px),rgba(60,50,30,.07) calc(33.3% - 1px) 33.3%,rgba(255,255,255,.9) 33.3% calc(33.3% + 1px),transparent calc(33.3% + 1px)),
-  linear-gradient(transparent calc(66.6% - 1px),rgba(60,50,30,.07) calc(66.6% - 1px) 66.6%,rgba(255,255,255,.9) 66.6% calc(66.6% + 1px),transparent calc(66.6% + 1px))}
-/* date, greeting and body, in ink */
-.scatter .polaroid.p6 .fx::before{
-  content:"";position:absolute;left:18px;right:18px;top:18px;height:150px;
-  background:
-    linear-gradient(rgba(40,44,70,.28),rgba(40,44,70,.28)) 100% 0/30px 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.6),rgba(40,44,70,.6)) 0 16px/46px 2px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 30px/100% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 38px/96% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 46px/100% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 54px/58% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 68px/100% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 76px/92% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 84px/100% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 92px/40% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 106px/100% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 114px/70% 1.6px no-repeat,
-    linear-gradient(rgba(40,44,70,.3),rgba(40,44,70,.3)) 0 132px/34px 1.6px no-repeat;
-}
-/* the bottom corner lifting off the page */
-.scatter .polaroid.p6 .fx::after{
-  content:"";position:absolute;right:0;bottom:0;width:16px;height:16px;
-  background:linear-gradient(135deg,transparent 50%,#efebe1 50%,#fbf9f3);
-  box-shadow:-1px -1px 2px rgba(60,50,30,.12);border-radius:0 0 1px 0;
-}
+/* the letter: an airmail envelope, the letter half out of it */
+.envelope{width:170px;height:178px;--d:12px}
+.envelope .body{--cw:170px;--ch:110px;--cd:6px;transform:translate3d(0,68px,-3px)}
+.envelope .body .f{background:url(assets/shelf/envelope.svg) 0 0/100% 100%}
+.envelope .body .t{background:linear-gradient(#e9e0cc 0 1px,#3d3424 1px calc(100% - 1.5px),#f8f3e6 calc(100% - 1.5px))}
+.envelope .body .l{background:linear-gradient(90deg,#d7cdb7,#e4dbc7)}
+.envelope .to{position:absolute;left:44px;top:56px;font:30px/1 var(--script);color:#262b4d;white-space:nowrap;transform:rotate(-3deg)}
+.envelope .sheet{left:13px;top:12px;width:144px;height:152px;transform:translateZ(-6px) rotateZ(-3deg);
+  background:url(assets/shelf/letter-sheet.svg) 0 0/100% 100%;box-shadow:0 0 0 .5px rgba(60,50,30,.14)}
+/* the flap, opened up behind the letter: its tissue lining shows */
+.envelope .flap{left:0;top:8px;width:170px;height:60px;transform-origin:50% 100%;transform:translateZ(-9px) rotateX(16deg);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cpattern id='p' width='4' height='4' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'%3E%3Crect width='4' height='4' fill='%23e2e8f4'/%3E%3Crect width='2' height='4' fill='%23c8d3ea'/%3E%3C/pattern%3E%3C/defs%3E%3Cpath d='M0 60L78 3.5Q85-1 92 3.5L170 60Z' fill='url(%23p)'/%3E%3C/svg%3E") 0 0/100% 100%}
 
+@media screen and (max-width:1000px){
+  .shelf{height:350px;--floor:86px}
+}
 @media screen and (max-width:700px){
-  .scatter{height:372px;margin:0 -16px;--floor:66px;perspective:1800px}
-  .scatter .polaroid figcaption{font-size:13px;margin-top:12px}
+  .shelf{height:372px;margin:0 -16px;--floor:66px}
+  .thing figcaption{font-size:13px;margin-top:14px}
 }
 @media (prefers-reduced-motion:reduce){
-  .scatter .polaroid:nth-child(n){transition:none}
+  .thing{transition:none}
 }
 </style>
 </head>
@@ -746,48 +773,75 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   </div>
 </section>
 
-<!-- 1 · the pile -->
+<!-- 1 · the shelf -->
 <section class="wrap" style="padding-top:8px">
-  <div class="scatter">
-    <figure class="polaroid p1">
-      <img loading="lazy" decoding="async" src="assets/agnost.jpg" alt="Agnost AI">
+  <div class="shelf">
+    <figure class="thing laptop">
+      <span class="art" aria-hidden="true">
+        <span class="cu lid"><i class="f"><span class="screen"><img loading="lazy" decoding="async" src="assets/agnost.jpg" alt=""></span></i><i class="t"></i><i class="l"></i></span>
+        <span class="cu base"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+      </span>
       <figcaption>recent design work for @agnostai, YC-backed</figcaption>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="polaroid p2">
-      <a class="polaroid-link" href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">
-        <img loading="lazy" decoding="async" src="assets/resume.svg" alt="Resume">
+    <figure class="thing box">
+      <a class="thing-link" href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">
+        <span class="art" aria-hidden="true">
+          <i class="pl wall w-back"></i><i class="pl wall w-right"></i>
+          <i class="pl flap f-back"></i><i class="pl flap f-right"></i>
+          <span class="cu ream"><i class="f"></i><i class="t"></i><i class="l"></i><i class="sheet s1"></i><i class="sheet s2"></i></span>
+          <i class="pl wall w-front"></i><i class="pl wall w-left"></i>
+          <i class="pl flap f-front"></i><i class="pl flap f-left"></i>
+        </span>
         <figcaption>Here is my resume</figcaption>
       </a>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="polaroid p3">
-      <a class="polaroid-link" href="https://www.rinsoindia.com/" target="_blank" rel="noopener">
-        <img loading="lazy" decoding="async" src="assets/rinso-thumbnail.jpg" alt="2,000 doors for the first 132 orders">
+    <figure class="thing door">
+      <a class="thing-link" href="https://www.rinsoindia.com/" target="_blank" rel="noopener">
+        <span class="art" aria-hidden="true">
+          <span class="cu slab"><i class="f"></i></span>
+          <span class="cu jamb jl"><i class="f"></i><i class="l"></i></span>
+          <span class="cu jamb jr"><i class="f"></i><i class="l"></i></span>
+          <span class="cu head"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+          <span class="cu sill"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+          <i class="pl knob"></i><i class="pl flyer"></i>
+          <span class="cu mat"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+          <i class="pl psh"></i>
+          <span class="cu parcel"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+        </span>
         <figcaption>2,000 doors for the first 132 orders</figcaption>
       </a>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="polaroid p4">
-      <a class="polaroid-link" href="https://www.slosh.agency/" target="_blank" rel="noopener">
-        <img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt="Side project">
+    <figure class="thing frame">
+      <a class="thing-link" href="https://www.slosh.agency/" target="_blank" rel="noopener">
+        <span class="art" aria-hidden="true">
+          <span class="cu body"><i class="f"><span class="board"><img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt=""></span><span class="glass"></span></i><i class="t"></i><i class="l"></i></span>
+        </span>
         <figcaption>700+ AI visuals for 11 brands</figcaption>
       </a>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="polaroid p5 is-logo">
-      <a class="polaroid-link" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">
-        <img loading="lazy" decoding="async" src="assets/dribbble.svg" alt="Dribbble">
+    <figure class="thing book">
+      <a class="thing-link" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">
+        <span class="art" aria-hidden="true">
+          <span class="cu body"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+        </span>
         <figcaption>checkout my visual work</figcaption>
       </a>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="polaroid p6">
-      <a class="polaroid-link" href="#letter">
-        <img loading="lazy" decoding="async" src="assets/letter.svg" alt="A letter to the hiring team">
+    <figure class="thing envelope">
+      <a class="thing-link" href="#letter">
+        <span class="art" aria-hidden="true">
+          <i class="pl flap"></i>
+          <i class="pl sheet"></i>
+          <span class="cu body"><i class="f"><span class="to">to whoever is hiring</span></i><i class="t"></i><i class="l"></i></span>
+        </span>
         <figcaption>a letter to hiring team</figcaption>
       </a>
-      <i class="fx" aria-hidden="true"></i><i class="sh" aria-hidden="true"></i>
+      <i class="sh" aria-hidden="true"></i>
     </figure>
   </div>
 </section>
@@ -1036,45 +1090,72 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 })();
 
 /* ── the shelf ─────────────────────────────────────────────────────
-   Lays the objects out along the desk, each turned a little, and
-   overlapping when the row is wider than the room. On a laptop, hover
-   turns one to face you and a click follows its link. On touch, a tap
-   pulls one out to face you while the others slide aside; a second tap
-   follows its link and a tap anywhere else puts it back.
+   Lays the things out along the desk, each turned a little, and
+   overlapping when the row is wider than the room. Every thing turns
+   about the middle of its footprint, so that point is what gets placed.
+   On a laptop, hover turns one to face you and a click follows its
+   link. On touch, a tap pulls one out to face you while the others
+   slide aside; a second tap follows its link and a tap anywhere else
+   puts it back.
    ------------------------------------------------------------------ */
 (function(){
-  var shelf=document.querySelector('.scatter'); if(!shelf) return;
-  var cards=[].slice.call(shelf.querySelectorAll('.polaroid'));
+  var shelf=document.querySelector('.shelf'); if(!shelf) return;
+  var things=[].slice.call(shelf.querySelectorAll('.thing'));
   var phone=matchMedia('(max-width:700px)'), fine=matchMedia('(hover:hover) and (pointer:fine)'), out=-1;
-  var TURN=38, rad=TURN*Math.PI/180, MAXGAP=6;
+  var TURN=34, FACE=8.5, MAXGAP=16, reach=[];
+
+  /* how far each thing, turned and at full size, reaches left and right
+     of its pivot - flaps, lids and parcels included. Measured with the
+     pivot in the middle of the shelf, where perspective skews nothing */
+  function measure(){
+    var w=shelf.clientWidth, mid=shelf.getBoundingClientRect().left+w/2;
+    things.forEach(function(c){
+      c.style.setProperty('--x',(w/2-c.offsetWidth/2)+'px'); c.style.setProperty('--z','0px');
+      c.style.setProperty('--ry',TURN+'deg'); c.style.setProperty('--s',1); c.style.setProperty('--turn',1);
+    });
+    reach=things.map(function(c){
+      var l=1e9, r=-1e9;
+      [].forEach.call(c.querySelectorAll('.art i'),function(f){
+        var b=f.getBoundingClientRect(); if(!b.width) return;
+        l=Math.min(l,b.left); r=Math.max(r,b.right);
+      });
+      return [mid-l, r-mid];
+    });
+    things.forEach(function(c){ c.style.removeProperty('--turn'); });
+  }
+
+  /* measure and lay out in one still frame, so nothing animates on load or
+     while the window is resized */
+  function settle(){
+    things.forEach(function(c){ c.style.transition='none'; });
+    measure(); lay();
+    void shelf.offsetWidth;
+    things.forEach(function(c){ c.style.transition=''; });
+  }
 
   function lay(){
-    var rest=phone.matches ? .56 : 1, lift=phone.matches ? 1.08 : 1.3, edge=phone.matches ? 12 : 0;
-    var w=shelf.clientWidth;
-    /* how wide each turned object reads: its face, foreshortened, plus its side */
-    var sides=cards.map(function(c){
-      var d=parseFloat(getComputedStyle(c).getPropertyValue('--d'));
-      return rest*(isNaN(d)?40:d)*Math.sin(rad);
-    });
-    var seen=cards.map(function(c,i){ return rest*c.offsetWidth*Math.cos(rad)+sides[i]; });
+    var w=shelf.clientWidth, n=things.length, edge=phone.matches ? 12 : 28;
+    var full=reach.reduce(function(a,e){ return a+e[0]+e[1]; },0);
+    /* full size on a wide screen, smaller as the room narrows; on a phone
+       they stay small and overlap, and a tap brings one out */
+    var rest=phone.matches ? .52 : Math.max(.6,Math.min(.9,(w-2*edge-MAXGAP*(n-1))/full)),
+        lift=phone.matches ? 1.06 : Math.max(1.06,rest*1.27);
+    var seen=reach.map(function(e){ return rest*(e[0]+e[1]); });
     var total=seen.reduce(function(a,b){return a+b;},0);
-    var gap=Math.min(MAXGAP,(w-2*edge-total)/(cards.length-1));
-    var at=(w-total-gap*(cards.length-1))/2;
-    var xs=seen.map(function(v){ var cx=at+v/2; at+=v+gap; return cx; });
+    var gap=Math.min(MAXGAP,(w-2*edge-total)/(n-1));
+    var at=(w-total-gap*(n-1))/2;
+    var xs=reach.map(function(e,i){ var cx=at+rest*e[0]; at+=seen[i]+gap; return cx; });
     if(out>=0){
       /* the one out takes the middle; the rest line up outward from it */
-      var half=cards[out].offsetWidth*lift/2+22, l=w/2-half, r=w/2+half;
+      var half=things[out].offsetWidth*lift/2+22, l=w/2-half, r=w/2+half;
       xs[out]=w/2;
-      for(var j=out-1;j>=0;j--){ xs[j]=l-seen[j]/2; l-=seen[j]+gap; }
-      for(var k=out+1;k<cards.length;k++){ xs[k]=r+seen[k]/2; r+=seen[k]+gap; }
+      for(var j=out-1;j>=0;j--){ xs[j]=l-rest*reach[j][1]; l-=seen[j]+gap; }
+      for(var k=out+1;k<n;k++){ xs[k]=r+rest*reach[k][0]; r+=seen[k]+gap; }
     }
-    cards.forEach(function(c,i){
-      var cx=xs[i], z=0, ry=TURN, s=rest;
-      if(i===out){ z=30; ry=0; s=lift; }
-      /* a turned object's side shows to the left of its face, so its face
-         sits right of the slot's centre by half the side */
-      else cx+=sides[i]/2;
-      c.style.setProperty('--x',(cx-c.offsetWidth/2)+'px');
+    things.forEach(function(c,i){
+      var z=0, ry=TURN, s=rest;
+      if(i===out){ z=30; ry=FACE; s=lift; }
+      c.style.setProperty('--x',(xs[i]-c.offsetWidth/2)+'px');
       c.style.setProperty('--z',z+'px');
       c.style.setProperty('--ry',ry+'deg');
       c.style.setProperty('--s',s);
@@ -1082,7 +1163,32 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     });
   }
 
-  cards.forEach(function(c,i){
+  /* hover, held for as long as the pointer stays inside the outline the
+     thing had when the pointer arrived - turning cannot shake it off */
+  var hov=null, held=null;
+  function outline(c){
+    var o={l:1e9,t:1e9,r:-1e9,b:-1e9};
+    [].forEach.call(c.querySelectorAll('.art i'),function(f){
+      var q=f.getBoundingClientRect(); if(!q.width) return;
+      o.l=Math.min(o.l,q.left); o.t=Math.min(o.t,q.top); o.r=Math.max(o.r,q.right); o.b=Math.max(o.b,q.bottom);
+    });
+    return o;
+  }
+  function drop(){ if(hov){ hov.classList.remove('hover'); hov=null; } }
+  things.forEach(function(c){
+    c.addEventListener('mouseenter',function(){
+      if(!fine.matches || hov===c) return;
+      drop(); hov=c; held=outline(c); c.classList.add('hover');
+    });
+  });
+  shelf.addEventListener('mousemove',function(e){
+    if(!hov || hov.contains(e.target)) return;
+    if(e.clientX<held.l||e.clientX>held.r||e.clientY<held.t||e.clientY>held.b) drop();
+  });
+  shelf.addEventListener('mouseleave',drop);
+  addEventListener('scroll',drop,{passive:true});
+
+  things.forEach(function(c,i){
     c.addEventListener('click',function(e){
       if(fine.matches) return;
       /* the one already out: let its link through, or put it back if it has none */
@@ -1091,10 +1197,13 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     });
   });
   document.addEventListener('click',function(e){
-    if(out>=0 && !e.target.closest('.polaroid')){ out=-1; lay(); }
+    if(out>=0 && !e.target.closest('.thing')){ out=-1; lay(); }
   });
-  addEventListener('resize',lay);
-  lay();
+  var queued=0;
+  addEventListener('resize',function(){
+    if(!queued) queued=requestAnimationFrame(function(){ queued=0; settle(); });
+  });
+  settle();
 })();
 
 /* ── github contributions ──────────────────────────────────────────

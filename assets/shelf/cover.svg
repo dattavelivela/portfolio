@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 198">
+  <!-- the notebook cover: the Dribbble ball pressed into the cloth, and the elastic -->
+  <defs>
+    <clipPath id="ball"><circle cx="64" cy="84" r="30"/></clipPath>
+    <linearGradient id="band" x1="0" x2="1"><stop offset="0" stop-color="#9c2257"/><stop offset=".45" stop-color="#c63a76"/><stop offset="1" stop-color="#a1265b"/></linearGradient>
+  </defs>
+  <!-- the press: a light lip below-left, shade above-right -->
+  <g fill="none" stroke-linecap="round">
+    <g transform="translate(-.7 .8)" stroke="#fff" stroke-opacity=".38" stroke-width="2.4">
+      <circle cx="64" cy="84" r="30"/>
+      <g clip-path="url(#ball)"><path d="M41 61c12 13 25 26 34 49M35 99c15-4 38-5 59 4M49 52c15 12 30 29 39 50M38 77c14 0 38-5 52-17"/></g>
+    </g>
+    <g stroke="#8c1a4a" stroke-opacity=".5" stroke-width="2.4">
+      <circle cx="64" cy="84" r="30"/>
+      <g clip-path="url(#ball)"><path d="M41 61c12 13 25 26 34 49M35 99c15-4 38-5 59 4M49 52c15 12 30 29 39 50M38 77c14 0 38-5 52-17"/></g>
+    </g>
+  </g>
+  <!-- the elastic, and the shadow it throws on the cover -->
+  <rect x="115" width="2" height="198" fill="#7a1240" fill-opacity=".35"/>
+  <rect x="117" width="8" height="198" fill="url(#band)"/>
+</svg>
