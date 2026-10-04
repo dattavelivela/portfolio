@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136 104">
+  <!-- an instant camera, face on: lens surround, viewfinder, flash, shutter, the wordmark -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9b55"/><stop offset=".6" stop-color="#f6853f"/><stop offset="1" stop-color="#e57232"/></linearGradient>
+    <radialGradient id="ring" cx=".5" cy=".5" r=".5"><stop offset=".7" stop-color="#fff6ee"/><stop offset=".93" stop-color="#f6e2d2"/><stop offset="1" stop-color="#e2c3ad"/></radialGradient>
+    <linearGradient id="vf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3d47"/><stop offset="1" stop-color="#15161a"/></linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="8"/>
+      <feColorMatrix values="0 0 0 0 .5  0 0 0 0 .2  0 0 0 0 .05  .32 0 0 0 -.14"/>
+    </filter>
+  </defs>
+  <rect width="136" height="104" rx="3" fill="url(#body)"/>
+  <rect width="136" height="104" rx="3" filter="url(#grain)"/>
+  <!-- a moulded seam where the shell meets -->
+  <path d="M0 84.5h136" stroke="#b9561f" stroke-opacity=".35"/>
+  <path d="M0 85.5h136" stroke="#ffd2b0" stroke-opacity=".45"/>
+  <!-- the lens surround; the barrel itself stands off the face in 3D -->
+  <circle cx="62" cy="58" r="32.5" fill="#c4581e" fill-opacity=".35"/>
+  <circle cx="62" cy="58" r="31" fill="url(#ring)"/>
+  <circle cx="62" cy="58" r="25" fill="#26272d"/>
+  <!-- viewfinder -->
+  <rect x="11" y="10" width="17" height="13" rx="3.2" fill="url(#vf)"/>
+  <path d="M14 13.5h6l-4 6h-2z" fill="#fff" fill-opacity=".18"/>
+  <!-- flash -->
+  <rect x="95" y="9" width="31" height="20" rx="3.4" fill="#f3f3f1" stroke="#d58349" stroke-opacity=".5" stroke-width=".6"/>
+  <g stroke="#cfd2d9" stroke-width=".7"><path d="M99 11v16M102 11v16M105 11v16M108 11v16M111 11v16M114 11v16M117 11v16M120 11v16M123 11v16"/></g>
+  <rect x="95" y="9" width="31" height="7" rx="3.4" fill="#fff" fill-opacity=".55"/>
+  <!-- light sensor -->
+  <circle cx="110.5" cy="38" r="2.4" fill="#2a2b31"/>
+  <!-- shutter button -->
+  <circle cx="113" cy="64" r="8.2" fill="#c4581e" fill-opacity=".35"/>
+  <circle cx="113" cy="63.4" r="7.6" fill="#fff4ea"/>
+  <circle cx="113" cy="63.4" r="5" fill="#f3e2d4"/>
+  <!-- wordmark -->
+  <text x="11" y="98" font-family="Georgia,'Times New Roman',serif" font-size="12.5" fill="#fff" fill-opacity=".95">slosh</text>
+</svg>

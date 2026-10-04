@@ -497,8 +497,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 
 /* ── the shelf ─────────────────────────────────────────────────────
    Six things stood on a desk and shot from a little above, the way a
-   product is: a laptop, a résumé folder, a front door, a framed print,
-   a notebook and a letter. Each is built from boxes (.cu) carrying the
+   product is: a laptop, a résumé folder, a front door, an instant
+   camera, a notebook and a letter. Each is built from boxes (.cu) carrying the
    three faces a camera above and to the left can see - front (.f),
    top (.t) and left (.l) - plus loose planes (.pl) for flaps, sheets
    and the like. One light, high and to the right: tops are brightest,
@@ -518,8 +518,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   --linen:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='l' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5 .07' numOctaves='1' seed='2' stitchTiles='stitch' result='a'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.07 1.5' numOctaves='1' seed='5' stitchTiles='stitch' result='b'/%3E%3CfeComposite in='a' in2='b' operator='arithmetic' k2='.5' k3='.5'/%3E%3CfeGaussianBlur stdDeviation='.35'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 -.43'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23l)'/%3E%3C/svg%3E");
   /* brushed metal, for the laptop */
   --brushed:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120'%3E%3Cfilter id='b' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 -.46'/%3E%3C/filter%3E%3Crect width='200' height='120' filter='url(%23b)'/%3E%3C/svg%3E");
-  /* oak, grain running along the rails */
-  --oak:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='120'%3E%3Cfilter id='w' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.01 .32' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .26 0 0 0 0 .1 1.2 0 0 0 -.56'/%3E%3C/filter%3E%3Crect width='240' height='120' filter='url(%23w)'/%3E%3C/svg%3E");
 }
 /* the desk top, running back behind the things so their shadows land on it */
 .shelf::before{
@@ -544,7 +542,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 .cu>.f{inset:0}
 .cu>.t{left:0;bottom:100%;width:100%;height:var(--cd);transform-origin:50% 100%;transform:rotateX(90deg)}
 .cu>.l{right:100%;top:0;width:var(--cd);height:100%;transform-origin:100% 50%;transform:rotateY(-90deg)}
-/* the shadow each thing throws on the desk: soft all round, longer to the back left */
+/* the shadow each thing throws on the desk: soft all round, longer to the back left.
+   It sits inside .art with the faces; outside it, Chrome sorts it in front of them */
 .thing .sh{
   position:absolute;left:0;top:100%;width:100%;height:var(--d);pointer-events:none;
   transform-origin:50% 0;transform:translateZ(calc(var(--d) * -1)) rotateX(90deg);
@@ -678,23 +677,30 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   border-radius:4px;background:rgba(40,24,8,.28);box-shadow:0 0 6px 2px rgba(40,24,8,.24)}
 .door .sh{height:26px;transform:translateZ(-76px) rotateX(90deg)}
 
-/* slosh: a framed print in light oak, a white mat, glass over it */
-.frame{width:172px;height:140px;--d:30px}
-.frame .body{--cw:172px;--ch:136px;--cd:14px;transform-origin:50% 100%;transform:translate3d(0,4px,-8px) rotateX(7deg)}
-/* the rails meet at mitred corners; each catches the light its own way */
-.frame .body .f{
-  border:13px solid;border-color:rgba(255,255,255,.22) rgba(255,255,255,.08) rgba(60,36,10,.16) rgba(60,36,10,.1);
-  background:var(--oak),linear-gradient(135deg,#e3c391,#c99f68);
-  box-shadow:inset 0 0 0 .5px rgba(90,60,20,.4),0 0 0 .5px rgba(90,60,20,.35);
-}
-.frame .board{position:absolute;inset:0;padding:11px;background:#fbfaf6;
-  box-shadow:inset -3px 3px 4px -1px rgba(70,46,14,.3),inset 1px -1px 0 rgba(255,255,255,.9)}
-.frame .board img{width:100%;height:100%;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.06),inset 0 0 2px rgba(0,0,0,.2)}
-.frame .glass{position:absolute;inset:0;background:
-  linear-gradient(118deg,transparent 26%,rgba(255,255,255,.3) 38%,transparent 50%),
-  linear-gradient(118deg,transparent 58%,rgba(255,255,255,.14) 64%,transparent 70%)}
-.frame .body .t{background:var(--oak),linear-gradient(#ecd5ab,#e0c393)}
-.frame .body .l{background:var(--oak),linear-gradient(90deg,#a98352,#bf9864)}
+/* slosh: an instant camera in slosh orange, a fresh print coming out of
+   its top - one of the visuals, a dress on a hanger */
+.camera{width:136px;height:162px;--d:80px}
+.camera .body{--cw:136px;--ch:104px;--cd:64px;transform:translate3d(0,58px,-16px)}
+.camera .body .f{border-radius:3px;background:url(assets/shelf/camera-front.svg) 0 0/100% 100%}
+.camera .body .t{background:url(assets/shelf/camera-top.svg) 0 0/100% 100%}
+.camera .body .l{background:url(assets/shelf/camera-side.svg) 0 0/100% 100%}
+/* the print stands in its slot, leaning back a touch */
+.camera .print{left:37px;top:0;width:62px;height:58px;transform-origin:50% 100%;transform:translateZ(-38px) rotateX(6deg);
+  background:url(assets/shelf/print.svg) 0 0/100% 100%;box-shadow:0 0 0 .5px rgba(60,40,20,.16)}
+/* the lens barrel: rings stacked off the face read as a cylinder, lit on top */
+.camera .ring{left:38px;top:92px;width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(160deg,#5c606b,#2b2d34 45%,#15161a)}
+.camera .r1{transform:translateZ(-14px)}
+.camera .r2{transform:translateZ(-12px)}
+.camera .r3{transform:translateZ(-10px)}
+.camera .r4{transform:translateZ(-8px)}
+.camera .r5{transform:translateZ(-6px)}
+.camera .r6{transform:translateZ(-4px)}
+/* and its face: glass, a steel ring, the rim */
+.camera .lens{transform:translateZ(-2px);background:
+  radial-gradient(circle at 60% 36%,rgba(255,255,255,.9) 0 1.6px,rgba(255,255,255,0) 2.6px),
+  radial-gradient(circle at 42% 60%,rgba(160,180,255,.35) 0 3px,rgba(160,180,255,0) 6px),
+  radial-gradient(circle,#3b3270 0,#1a1636 8px,#08080b 14.5px,#08080b 15px,#d9dde4 15.5px,#f5f6f8 16.8px,#9aa0ab 18.5px,#2a2c33 19px,#1f2026 23.2px,#4a4e58 24px)}
 
 /* Dribbble: a pink cloth notebook, the ball pressed into its cover */
 .book{width:144px;height:198px;--d:26px}
@@ -764,15 +770,16 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   <div class="shelf">
     <figure class="thing laptop">
       <span class="art" aria-hidden="true">
+        <i class="sh"></i>
         <span class="cu lid"><i class="f"><span class="screen"><img loading="lazy" decoding="async" src="assets/agnost.jpg" alt=""></span></i><i class="t"></i><i class="l"></i></span>
         <span class="cu base"><i class="f"></i><i class="t"></i><i class="l"></i></span>
       </span>
       <figcaption>recent design work for @agnostai, YC-backed</figcaption>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
     <figure class="thing folder">
       <a class="thing-link" href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">
         <span class="art" aria-hidden="true">
+          <i class="sh"></i>
           <i class="pl back"><b>RÉSUMÉ</b></i>
           <i class="pl loose"></i>
           <span class="cu papers"><i class="f"></i><i class="t"></i><i class="l"></i></span>
@@ -781,11 +788,11 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         </span>
         <figcaption>Here is my resume</figcaption>
       </a>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
     <figure class="thing door">
       <a class="thing-link" href="https://www.rinsoindia.com/" target="_blank" rel="noopener">
         <span class="art" aria-hidden="true">
+          <i class="sh"></i>
           <span class="cu slab"><i class="f"></i></span>
           <span class="cu jamb jl"><i class="f"></i><i class="l"></i></span>
           <span class="cu jamb jr"><i class="f"></i><i class="l"></i></span>
@@ -798,36 +805,38 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         </span>
         <figcaption>2,000 doors for the first 132 orders</figcaption>
       </a>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
-    <figure class="thing frame">
+    <figure class="thing camera">
       <a class="thing-link" href="https://www.slosh.agency/" target="_blank" rel="noopener">
         <span class="art" aria-hidden="true">
-          <span class="cu body"><i class="f"><span class="board"><img loading="lazy" decoding="async" src="assets/slosh-thumbnail.jpg" alt=""></span><span class="glass"></span></i><i class="t"></i><i class="l"></i></span>
+          <i class="sh"></i>
+          <i class="pl print"></i>
+          <span class="cu body"><i class="f"></i><i class="t"></i><i class="l"></i></span>
+          <i class="pl ring r1"></i><i class="pl ring r2"></i><i class="pl ring r3"></i><i class="pl ring r4"></i><i class="pl ring r5"></i><i class="pl ring r6"></i>
+          <i class="pl ring lens"></i>
         </span>
         <figcaption>700+ AI visuals for 11 brands</figcaption>
       </a>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
     <figure class="thing book">
       <a class="thing-link" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">
         <span class="art" aria-hidden="true">
+          <i class="sh"></i>
           <span class="cu body"><i class="f"></i><i class="t"></i><i class="l"></i></span>
         </span>
         <figcaption>checkout my visual work</figcaption>
       </a>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
     <figure class="thing envelope">
       <a class="thing-link" href="#letter">
         <span class="art" aria-hidden="true">
+          <i class="sh"></i>
           <i class="pl flap"></i>
           <i class="pl sheet"></i>
           <span class="cu body"><i class="f"><span class="to">to whoever is hiring</span></i><i class="t"></i><i class="l"></i></span>
         </span>
         <figcaption>a letter to hiring team</figcaption>
       </a>
-      <i class="sh" aria-hidden="true"></i>
     </figure>
   </div>
 </section>
@@ -1101,7 +1110,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     });
     reach=things.map(function(c){
       var l=1e9, r=-1e9;
-      [].forEach.call(c.querySelectorAll('.art i'),function(f){
+      [].forEach.call(c.querySelectorAll('.art i:not(.sh)'),function(f){
         var b=f.getBoundingClientRect(); if(!b.width) return;
         l=Math.min(l,b.left); r=Math.max(r,b.right);
       });
@@ -1154,7 +1163,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   var hov=null, held=null;
   function outline(c){
     var o={l:1e9,t:1e9,r:-1e9,b:-1e9};
-    [].forEach.call(c.querySelectorAll('.art i'),function(f){
+    [].forEach.call(c.querySelectorAll('.art i:not(.sh)'),function(f){
       var q=f.getBoundingClientRect(); if(!q.width) return;
       o.l=Math.min(o.l,q.left); o.t=Math.min(o.t,q.top); o.r=Math.max(o.r,q.right); o.b=Math.max(o.b,q.bottom);
     });
