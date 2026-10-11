@@ -179,7 +179,8 @@ a{color:inherit}
 .entry.in .media img{transform:rotate(0) scale(1)}
 /* work under NDA: hovering anywhere on the entry veils the screenshot and says why */
 .entry.nda .media{position:relative;overflow:hidden}
-.entry.case{cursor:pointer}
+.entry.case{position:relative;cursor:pointer}
+.entry .case-cover{position:absolute;inset:0;z-index:3}
 .entry .case-link{color:inherit;text-decoration:none}
 .entry .case-link:hover{text-decoration:underline;text-underline-offset:3px}
 .entry.nda .media img{transition:transform .9s cubic-bezier(.2,.7,.25,1),filter .35s ease}
@@ -855,6 +856,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     </div>
     <div class="stack">
       <article class="entry nda case" data-i="0" data-href="work/clara.html">
+        <a class="case-cover" href="work/clara.html" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"></a>
         <h3><b><a class="case-link" href="work/clara.html" target="_blank" rel="noopener">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
@@ -1282,8 +1284,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   [].slice.call(document.querySelectorAll('.entry.nda')).forEach(function(e){
     var m=e.querySelector('.media'), hide;
     e.addEventListener('click',function(ev){
-      /* a case study behind a password opens its lock page instead */
-      if(e.dataset.href){ if(!ev.target.closest('a')) window.open(e.dataset.href,'_blank','noopener'); return; }
+      /* a case study behind a password is a plain link (see .case-cover) */
+      if(e.dataset.href) return;
       buzz();
       e.classList.add('nda-on');
       clearTimeout(hide);
