@@ -212,6 +212,30 @@ a{color:inherit}
   75%{transform:translateX(-3px)} 90%{transform:translateX(2px)}
 }
 .entry.nda .media.shake{animation:nda-shake .5s cubic-bezier(.36,.07,.19,.97)}
+/* a case study behind a password: the pill turns into the password field in place */
+.entry.case .lbl{display:flex;align-items:center;gap:7px}
+.entry.case .nda-tag .lbl-t{font-size:inherit}
+.entry.case .case-form{display:none;flex:1;align-items:center;gap:6px;margin:0}
+.entry.case .case-form input{flex:1;min-width:0;border:0;outline:0;background:none;color:#fff;font:500 15px/1 var(--sans);letter-spacing:.03em;padding:0}
+.entry.case .case-form input::placeholder{color:rgba(255,255,255,.45);letter-spacing:0}
+.entry.case .case-form button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#fff;color:#0e0e10;display:grid;place-items:center;cursor:pointer;padding:0}
+.entry.case .case-form .arr{width:15px;height:15px}
+.entry.case .spin{display:none;width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:case-spin .7s linear infinite}
+.entry.case .case-form.busy .spin{display:block}
+.entry.case .case-form.busy .arr{display:none}
+@keyframes case-spin{to{transform:rotate(360deg)}}
+.entry.nda.case.open .media img{filter:blur(6px) saturate(.8)}
+.entry.nda.case.open .nda-tag{opacity:1;transform:translate(-50%,-50%);pointer-events:auto;z-index:4;cursor:auto;width:min(340px,calc(100% - 40px));padding:5px 5px 5px 16px}
+.entry.case.open .lbl{display:none}
+.entry.case.open .case-form{display:flex}
+.entry.nda.case.done .nda-tag{opacity:1;transform:translate(-50%,-50%);background:#2d8a57;border-color:transparent}
+.entry.nda.case.done .media img{filter:none}
+.entry.case .case-msg{position:absolute;left:50%;top:calc(50% + 32px);z-index:4;transform:translateX(-50%);white-space:nowrap;
+  background:#fff;color:#c0392b;font:500 13px/1 var(--sans);padding:7px 11px;border-radius:999px;box-shadow:0 8px 20px -10px rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .2s}
+.entry.case .case-msg.on{opacity:1}
+.entry.case .nda-tag.shake{animation:case-shake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes case-shake{0%,100%{translate:0}20%{translate:-8px}40%{translate:7px}60%{translate:-5px}80%{translate:3px}}
 
 .says{padding:120px 0 0}
 /* three across, wrapping to a second row - the full recommendations
@@ -861,7 +885,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
           from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><span class="nda-tag"><span aria-hidden="true">🔒</span>Read the case study</span></div>
+        <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><div class="nda-tag"><span class="lbl"><span class="ic" aria-hidden="true">🔒</span><span class="lbl-t">Read the case study</span></span><form class="case-form" novalidate><input type="text" placeholder="Password" aria-label="Case study password" autocomplete="off" autocapitalize="off" spellcheck="false"><button aria-label="Unlock"><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i class="spin"></i></button></form></div><span class="case-msg" role="status"></span></div>
       </article>
       <article class="entry nda" data-i="0">
         <h3><b>AI Demo Platform</b><span class="dot" aria-hidden="true"></span>Procol, R&amp;D</h3>
@@ -1312,6 +1336,63 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   track.addEventListener('scroll',sync,{passive:true});
   addEventListener('resize',sync);
   sync();
+})();
+
+/* ── case study password, typed on this page ──────────────────────
+   The first click turns the pill into a field. The password is checked
+   here; the case study then opens in a new tab with the page handed
+   over, so it shows at once. Once unlocked, the card is a plain link.
+   ------------------------------------------------------------------ */
+(function(){
+  var e=document.querySelector('.entry.case'); if(!e) return;
+  var ENDPOINT='https://auiuyzhptbtxcpqvlnsw.supabase.co/functions/v1/unlock', CASE='clara',
+      KEEP='unlocked:'+CASE, HAND='handoff:'+CASE, URL=e.dataset.href,
+      tag=e.querySelector('.nda-tag'), form=e.querySelector('.case-form'), input=form.querySelector('input'),
+      lblT=e.querySelector('.lbl-t'), ic=e.querySelector('.lbl .ic'), msg=e.querySelector('.case-msg'), warm=false;
+  function get(k){ try{ return localStorage.getItem(k); }catch(x){ return null; } }
+  function set(k,v){ try{ localStorage.setItem(k,v); }catch(x){} }
+  function mark(){ if(get(KEEP)){ ic.textContent='🔓'; } }
+  mark();
+  function say(t){ msg.textContent=t; msg.classList.toggle('on',!!t); }
+  function open(){
+    if(!warm){ warm=true; fetch(ENDPOINT).catch(function(){}); }
+    e.classList.add('open'); say('');
+    setTimeout(function(){ input.focus(); },60);
+  }
+  function close(){ if(form.classList.contains('busy')) return; e.classList.remove('open'); input.value=''; say(''); }
+  e.addEventListener('mouseenter',function(){ if(!warm && !get(KEEP)){ warm=true; fetch(ENDPOINT).catch(function(){}); } });
+  [].slice.call(e.querySelectorAll('.case-cover,.case-link')).forEach(function(a){
+    a.addEventListener('click',function(ev){
+      if(get(KEEP)) return;              /* already unlocked: let the link open it */
+      ev.preventDefault(); open();
+    });
+  });
+  tag.addEventListener('click',function(ev){ ev.stopPropagation(); });
+  document.addEventListener('click',function(ev){ if(e.classList.contains('open') && !e.contains(ev.target)) close(); });
+  input.addEventListener('keydown',function(ev){ if(ev.key==='Escape') close(); });
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var pw=input.value.trim(); if(!pw){ input.focus(); return; }
+    form.classList.add('busy'); say('');
+    fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
+      .then(function(r){ if(r.status===401) throw new Error('password'); if(!r.ok) throw new Error('server'); return r.json(); })
+      .then(function(j){
+        set(KEEP,pw); set(HAND,JSON.stringify({t:Date.now(),html:j.html}));
+        form.classList.remove('busy'); e.classList.remove('open'); e.classList.add('done');
+        ic.textContent='🔓'; lblT.textContent='Unlocked · opening…';
+        var w=window.open(URL,'_blank');
+        if(!w){ location.href=URL; return; }   /* pop-up blocked: open it here instead */
+        try{ w.opener=null; }catch(x){}
+        setTimeout(function(){ e.classList.remove('done'); lblT.textContent='Read the case study'; input.value=''; },1600);
+      })
+      .catch(function(err){
+        form.classList.remove('busy');
+        say(err.message==='password'?'Not quite. Try again.':'Couldn’t connect. Try again.');
+        tag.classList.remove('shake'); void tag.offsetWidth; tag.classList.add('shake');
+        input.select();
+      });
+  });
+  tag.addEventListener('animationend',function(){ tag.classList.remove('shake'); });
 })();
 
 /* ── time spent here ───────────────────────────────────────────────

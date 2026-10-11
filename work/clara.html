@@ -60,7 +60,7 @@ form.busy .spin{display:block}
   <p class="lede">This case study shares customer names and revenue figures, so it&rsquo;s behind a password.</p>
   <form autocomplete="off" novalidate>
     <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-    <input id="pw" type="password" placeholder="Enter password" aria-label="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input id="pw" type="text" placeholder="Enter password" aria-label="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
     <button type="submit"><span class="label">Unlock</span><span class="spin" aria-hidden="true"></span></button>
   </form>
   <p class="msg" role="status" aria-live="polite"></p>
@@ -97,12 +97,12 @@ form.busy .spin{display:block}
   function go(pw,remembered){
     busy(true); say(remembered?'Opening the case study…':'Checking…');
     unlock(pw).then(function(j){
-      try{ sessionStorage.setItem(KEEP,pw); }catch(e){}
+      try{ sessionStorage.setItem(KEEP,pw); localStorage.setItem(KEEP,pw); }catch(e){}
       say('Opening the case study…');
       reveal(j.html);
     }).catch(function(err){
       busy(false);
-      if(remembered){ try{ sessionStorage.removeItem(KEEP); }catch(e){} say(''); input.focus(); return; }
+      if(remembered){ try{ sessionStorage.removeItem(KEEP); localStorage.removeItem(KEEP); }catch(e){} say(''); input.focus(); return; }
       if(err.message==='password'){
         say('That password isn’t right. Try again.',true);
         form.classList.remove('bad'); void form.offsetWidth; form.classList.add('bad');
@@ -111,7 +111,16 @@ form.busy .spin{display:block}
     });
   }
 
-  var kept=null; try{ kept=sessionStorage.getItem(KEEP); }catch(e){}
+  /* unlocked on the front page: the page comes handed over, fresh */
+  var hand=null; try{ hand=JSON.parse(localStorage.getItem('handoff:'+CASE)); localStorage.removeItem('handoff:'+CASE); }catch(e){}
+  if(hand && hand.html && Date.now()-hand.t<120000){
+    /* replacing the page mid-parse would only insert into it, so wait for the parse to end */
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ reveal(hand.html); });
+    else reveal(hand.html);
+    return;
+  }
+
+  var kept=null; try{ kept=localStorage.getItem(KEEP)||sessionStorage.getItem(KEEP); }catch(e){}
   if(kept) go(kept,true); else input.focus();
 
   form.addEventListener('submit',function(e){
