@@ -880,8 +880,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     </div>
     <div class="stack">
       <article class="entry nda case" data-i="0" data-href="work/clara.html">
-        <a class="case-cover" href="work/clara.html" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"></a>
-        <h3><b><a class="case-link" href="work/clara.html" target="_blank" rel="noopener">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
+        <a class="case-cover" href="work/clara.html" aria-hidden="true" tabindex="-1"></a>
+        <h3><b><a class="case-link" href="work/clara.html">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
           from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
@@ -1340,7 +1340,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 
 /* ── case study password, typed on this page ──────────────────────
    The first click turns the pill into a field. The password is checked
-   here; the case study then opens in a new tab with the page handed
+   here; the case study then opens in this tab with the page handed
    over, so it shows at once. Once unlocked, the card is a plain link.
    ------------------------------------------------------------------ */
 (function(){
@@ -1380,10 +1380,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         set(KEEP,pw); set(HAND,JSON.stringify({t:Date.now(),html:j.html}));
         form.classList.remove('busy'); e.classList.remove('open'); e.classList.add('done');
         ic.textContent='🔓'; lblT.textContent='Unlocked · opening…';
-        var w=window.open(URL,'_blank');
-        if(!w){ location.href=URL; return; }   /* pop-up blocked: open it here instead */
-        try{ w.opener=null; }catch(x){}
-        setTimeout(function(){ e.classList.remove('done'); lblT.textContent='Read the case study'; input.value=''; },1600);
+        setTimeout(function(){ location.href=URL; },350);
       })
       .catch(function(err){
         form.classList.remove('busy');
