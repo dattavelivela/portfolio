@@ -1390,6 +1390,11 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       });
   });
   tag.addEventListener('animationend',function(){ tag.classList.remove('shake'); });
+  /* sent back from the case study link without a password: open the field here */
+  if(new URLSearchParams(location.search).get('unlock')===CASE){
+    history.replaceState(null,'',location.pathname+location.hash);
+    e.scrollIntoView({block:'center'}); open();
+  }
 })();
 
 /* ── time spent here ───────────────────────────────────────────────

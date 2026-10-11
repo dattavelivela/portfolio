@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -9,127 +9,48 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://auiuyzhptbtxcpqvlnsw.supabase.co" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono&display=swap" rel="stylesheet">
 <style>
-/* Layout: the case study's own cover - same gradient, eyebrow and title -
-   with one password field under it and a blurred glimpse of the work below. */
-:root{--ink:#2f3557;--body:rgba(47,53,87,.68);--faint:rgba(47,53,87,.45);--line:rgba(47,53,87,.14);--accent:#5b3fc4;--bad:#b4443c;--sans:"Inter",-apple-system,system-ui,sans-serif;--mono:"Space Mono",ui-monospace,monospace}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{min-height:100vh;background:linear-gradient(180deg,#e6effb 0,#eef0fa 240px,#fbeff4 520px,#fff 820px) no-repeat,#fff;color:var(--ink);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased;padding:0 16px 64px;overflow-x:hidden}
-a{color:inherit}
-.top{max-width:1040px;margin:0 auto;padding:22px 0}
-.back{font-size:13px;color:var(--faint);text-decoration:none}
-.back:hover{color:var(--ink)}
-.cover{max-width:520px;margin:clamp(40px,10vh,96px) auto 0}
-.eyebrow{margin:0 0 14px;font:11px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
-h1{margin:0 0 14px;font-size:clamp(28px,5vw,38px);line-height:1.15;font-weight:600;letter-spacing:-.025em;text-wrap:balance}
-.lede{margin:0 0 28px;color:var(--body);max-width:44ch}
-form{position:relative;display:flex;align-items:center;height:54px;padding:0 6px 0 46px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px -18px rgba(47,53,87,.35);transition:border-color .2s,box-shadow .2s}
-form:focus-within{border-color:rgba(91,63,196,.55);box-shadow:0 0 0 4px rgba(91,63,196,.12),0 10px 30px -18px rgba(47,53,87,.35)}
-form.bad{border-color:rgba(180,68,60,.6);animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
-.lock{position:absolute;left:16px;top:50%;width:18px;height:18px;margin-top:-9px;color:var(--faint)}
-input{flex:1;min-width:0;height:100%;border:0;background:none;font:15px var(--sans);color:var(--ink);letter-spacing:.02em}
-input:focus{outline:none}
-input::placeholder{color:var(--faint);letter-spacing:0}
-button{flex:none;display:grid;place-items:center;height:42px;padding:0 18px;border:0;border-radius:10px;background:var(--ink);color:#fff;font:500 14px var(--sans);cursor:pointer;transition:opacity .2s}
-button:hover{opacity:.88}
-button:disabled{cursor:default;opacity:.75}
-.spin{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-form.busy .label{display:none}
-form.busy .spin{display:block}
-.msg{min-height:22px;margin:10px 2px 0;font-size:13px;color:var(--faint)}
-.msg.bad{color:var(--bad)}
-.ask{margin:18px 2px 0;font-size:13px;color:var(--faint)}
-.ask a{color:var(--ink);text-underline-offset:3px}
-.peek{position:relative;max-width:640px;margin:56px auto 0;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px -30px rgba(47,53,87,.5);-webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent)}
-.peek img{display:block;width:100%;filter:blur(9px) saturate(.9);transform:scale(1.06);opacity:.85}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes shake{20%,80%{transform:translateX(3px)}40%,60%{transform:translateX(-6px)}}
-@media (prefers-reduced-motion:reduce){form.bad{animation:none}.spin{animation-duration:1.6s}}
+/* no page of its own: a quiet spinner while the case study loads */
+html,body{margin:0;height:100%;background:linear-gradient(180deg,#e6effb 0,#eef0fa 220px,#fbeff4 460px,#fff 700px) no-repeat,#fff}
+.wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(47,53,87,.18);border-top-color:rgba(47,53,87,.6);animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="top"><a class="back" href="../index.html">&larr; Datta&rsquo;s portfolio</a></div>
-
-<main class="cover">
-  <p class="eyebrow">Procol &middot; AI product &middot; Oct &ndash; Dec 2025</p>
-  <h1>A 0→1 AI agent for enterprise procurement</h1>
-  <p class="lede">This case study shares customer names and revenue figures, so it&rsquo;s behind a password.</p>
-  <form autocomplete="off" novalidate>
-    <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-    <input id="pw" type="text" placeholder="Enter password" aria-label="Password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <button type="submit"><span class="label">Unlock</span><span class="spin" aria-hidden="true"></span></button>
-  </form>
-  <p class="msg" role="status" aria-live="polite"></p>
-  <p class="ask">Don&rsquo;t have it? <a href="mailto:withgurudatta@gmail.com?subject=Clara%20case%20study%20password">Ask me for the password</a></p>
-</main>
-
-<div class="peek" aria-hidden="true"><img src="../assets/agentic-s2p.jpg" alt=""></div>
-
+<div class="wait" role="status" aria-label="Loading the case study"></div>
 <script>
+/* The password is entered on the front page. This page only shows the
+   case study: from the page handed over on unlock, or from a password
+   this browser already used. Anyone else goes back to the front page,
+   where the card opens its password field. */
 (function(){
   var ENDPOINT='https://auiuyzhptbtxcpqvlnsw.supabase.co/functions/v1/unlock',
-      CASE='clara', KEEP='unlocked:'+CASE,
-      form=document.querySelector('form'), input=form.querySelector('input'),
-      btn=form.querySelector('button'), msg=document.querySelector('.msg');
+      CASE='clara', KEEP='unlocked:'+CASE, HAND='handoff:'+CASE, HOME='../?unlock='+CASE;
 
-  /* wake the function now, so it is ready by the time a password is typed */
-  fetch(ENDPOINT).catch(function(){});
-
-  function say(t,bad){ msg.textContent=t; msg.classList.toggle('bad',!!bad); }
-  function busy(on){ form.classList.toggle('busy',on); btn.disabled=on; input.disabled=on; }
-
-  function unlock(pw){
-    return fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
-      .then(function(r){ if(r.status===401) throw new Error('password'); if(!r.ok) throw new Error('server'); return r.json(); });
-  }
+  function get(k){ try{ return localStorage.getItem(k)||sessionStorage.getItem(k); }catch(e){ return null; } }
+  function drop(k){ try{ localStorage.removeItem(k); sessionStorage.removeItem(k); }catch(e){} }
+  function home(){ location.replace(HOME); }
 
   /* the case study is a whole page, so it replaces this one */
   function reveal(html){
     var hash=location.hash;
-    document.open(); document.write(html); document.close();
-    if(hash) setTimeout(function(){ var t=document.getElementById(hash.slice(1)); if(t) t.scrollIntoView(); },300);
-  }
-
-  function go(pw,remembered){
-    busy(true); say(remembered?'Opening the case study…':'Checking…');
-    unlock(pw).then(function(j){
-      try{ sessionStorage.setItem(KEEP,pw); localStorage.setItem(KEEP,pw); }catch(e){}
-      say('Opening the case study…');
-      reveal(j.html);
-    }).catch(function(err){
-      busy(false);
-      if(remembered){ try{ sessionStorage.removeItem(KEEP); localStorage.removeItem(KEEP); }catch(e){} say(''); input.focus(); return; }
-      if(err.message==='password'){
-        say('That password isn’t right. Try again.',true);
-        form.classList.remove('bad'); void form.offsetWidth; form.classList.add('bad');
-        input.select();
-      } else say('Couldn’t reach the server. Try again in a moment.',true);
-    });
-  }
-
-  /* unlocked on the front page: the page comes handed over, fresh */
-  var hand=null; try{ hand=JSON.parse(localStorage.getItem('handoff:'+CASE)); localStorage.removeItem('handoff:'+CASE); }catch(e){}
-  if(hand && hand.html && Date.now()-hand.t<120000){
+    function go(){
+      document.open(); document.write(html); document.close();
+      if(hash) setTimeout(function(){ var t=document.getElementById(hash.slice(1)); if(t) t.scrollIntoView(); },300);
+    }
     /* replacing the page mid-parse would only insert into it, so wait for the parse to end */
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ reveal(hand.html); });
-    else reveal(hand.html);
-    return;
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go();
   }
 
-  var kept=null; try{ kept=localStorage.getItem(KEEP)||sessionStorage.getItem(KEEP); }catch(e){}
-  if(kept) go(kept,true); else input.focus();
+  var hand=null; try{ hand=JSON.parse(localStorage.getItem(HAND)); localStorage.removeItem(HAND); }catch(e){}
+  if(hand && hand.html && Date.now()-hand.t<120000){ reveal(hand.html); return; }
 
-  form.addEventListener('submit',function(e){
-    e.preventDefault();
-    var pw=input.value.trim();
-    if(!pw){ input.focus(); return; }
-    go(pw,false);
-  });
-  form.addEventListener('animationend',function(){ form.classList.remove('bad'); });
+  var pw=get(KEEP);
+  if(!pw){ home(); return; }
+  fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
+    .then(function(r){ if(r.status===401){ drop(KEEP); throw 0; } if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){ reveal(j.html); })
+    .catch(home);
 })();
 </script>
 </body>
