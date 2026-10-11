@@ -7,7 +7,9 @@
  * The unlock function signs those links after the password checks out.
  * Re-run it after every edit to the page.
  */
-import { readFile } from 'node:fs/promises';
+import { readFile, stat, mkdtemp } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { dirname, resolve, extname, posix } from 'node:path';
 import { homedir } from 'node:os';
 
@@ -27,9 +29,9 @@ async function ensureBucket() {
   if (!r.ok && r.status !== 409 && !(await r.text()).includes('already exists')) throw new Error(`bucket: ${r.status}`);
 }
 
-async function put(path, body, type) {
+async function put(path, body, type, age = 86400) {
   const r = await fetch(`${URL_}/storage/v1/object/${BUCKET}/${path}`, { method: 'POST',
-    headers: { ...auth, 'content-type': type, 'x-upsert': 'true', 'cache-control': 'max-age=60' }, body });
+    headers: { ...auth, 'content-type': type, 'x-upsert': 'true', 'cache-control': `max-age=${age}` }, body });
   if (!r.ok) throw new Error(`${path}: ${r.status} ${await r.text()}`);
 }
 
@@ -37,6 +39,18 @@ await ensureBucket();
 const root = dirname(page);
 let html = await readFile(page, 'utf8');
 const refs = new Set();
+/* screenshots saved as PNG over 250 KB go up as JPEG; same look, a fraction of the weight */
+const big = new Set();
+for (const m of html.matchAll(/(?:src|poster)="([^"#?:]+\.png)"/gi)) {
+  const f = resolve(root, m[1]);
+  try { if ((await stat(f)).size > 250_000) big.add(f); } catch {}
+}
+const tmp = await mkdtemp(`${tmpdir()}/clara-`);
+const shrink = (f) => {
+  const out = `${tmp}/${Math.random().toString(36).slice(2)}.jpg`;
+  execFileSync('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '82', f, '--out', out], { stdio: 'ignore' });
+  return out;
+};
 /* src/href/poster attributes and css url() that point at local files */
 html = html.replace(/((?:src|href|poster)=")([^"]+)(")|(url\(['"]?)([^)'"]+)(['"]?\))/g, (m, a1, p1, a3, b1, p2, b3) => {
   const raw = p1 ?? p2;
@@ -44,7 +58,8 @@ html = html.replace(/((?:src|href|poster)=")([^"]+)(")|(url\(['"]?)([^)'"]+)(['"
   const cut = raw.search(/[?#]/);
   const clean = cut < 0 ? raw : raw.slice(0, cut), tail = cut < 0 ? '' : raw.slice(cut);
   if (!extname(clean) || extname(clean) === '.html') return m;
-  const key = posix.normalize(clean).replace(/^(\.\.\/)+/, '');
+  let key = posix.normalize(clean).replace(/^(\.\.\/)+/, '');
+  if (big.has(resolve(root, clean))) key = key.replace(/\.png$/i, '.jpg');
   refs.add(JSON.stringify([key, resolve(root, clean)]));
   const out = `__ASSET__/${key}${tail}`;
   return p1 !== undefined ? a1 + out + a3 : b1 + out + b3;
@@ -52,8 +67,9 @@ html = html.replace(/((?:src|href|poster)=")([^"]+)(")|(url\(['"]?)([^)'"]+)(['"
 
 for (const r of refs) {
   const [key, file] = JSON.parse(r);
-  await put(key, await readFile(file), types[extname(file).toLowerCase()] || 'application/octet-stream');
+  const src = big.has(file) ? shrink(file) : file;
+  await put(key, await readFile(src), types[extname(key).toLowerCase()] || 'application/octet-stream');
   console.log('up', key);
 }
-await put('index.html', html, types['.html']);
+await put('index.html', html, types['.html'], 60);
 console.log(`done: index.html + ${refs.size} assets in bucket "${BUCKET}"`);

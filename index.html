@@ -855,7 +855,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     </div>
     <div class="stack">
       <article class="entry nda case" data-i="0" data-href="work/clara.html">
-        <h3><b><a class="case-link" href="work/clara.html">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
+        <h3><b><a class="case-link" href="work/clara.html" target="_blank" rel="noopener">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
           from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
@@ -1283,7 +1283,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     var m=e.querySelector('.media'), hide;
     e.addEventListener('click',function(ev){
       /* a case study behind a password opens its lock page instead */
-      if(e.dataset.href){ if(!ev.target.closest('a')) location.href=e.dataset.href; return; }
+      if(e.dataset.href){ if(!ev.target.closest('a')) window.open(e.dataset.href,'_blank','noopener'); return; }
       buzz();
       e.classList.add('nda-on');
       clearTimeout(hide);
