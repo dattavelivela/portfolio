@@ -179,6 +179,9 @@ a{color:inherit}
 .entry.in .media img{transform:rotate(0) scale(1)}
 /* work under NDA: hovering anywhere on the entry veils the screenshot and says why */
 .entry.nda .media{position:relative;overflow:hidden}
+.entry.case{cursor:pointer}
+.entry .case-link{color:inherit;text-decoration:none}
+.entry .case-link:hover{text-decoration:underline;text-underline-offset:3px}
 .entry.nda .media img{transition:transform .9s cubic-bezier(.2,.7,.25,1),filter .35s ease}
 .entry.nda:hover .media img{filter:blur(6px) saturate(.8)}
 .nda-tag span{font-size:13px;line-height:1}
@@ -851,12 +854,12 @@ a.co:hover{border-bottom-color:var(--ink-40)}
       </div>
     </div>
     <div class="stack">
-      <article class="entry nda" data-i="0">
-        <h3><b>Agentic source-to-pay platform</b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
+      <article class="entry nda case" data-i="0" data-href="work/clara.html">
+        <h3><b><a class="case-link" href="work/clara.html">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
         <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
           product solutioning with the PM. Worked closely with three engineers on system design and took these products
           from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
-        <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><span class="nda-tag"><span aria-hidden="true">🔒</span>Under NDA</span></div>
+        <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><span class="nda-tag"><span aria-hidden="true">🔒</span>Read the case study</span></div>
       </article>
       <article class="entry nda" data-i="0">
         <h3><b>AI Demo Platform</b><span class="dot" aria-hidden="true"></span>Procol, R&amp;D</h3>
@@ -1278,7 +1281,9 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   }
   [].slice.call(document.querySelectorAll('.entry.nda')).forEach(function(e){
     var m=e.querySelector('.media'), hide;
-    e.addEventListener('click',function(){
+    e.addEventListener('click',function(ev){
+      /* a case study behind a password opens its lock page instead */
+      if(e.dataset.href){ if(!ev.target.closest('a')) location.href=e.dataset.href; return; }
       buzz();
       e.classList.add('nda-on');
       clearTimeout(hide);

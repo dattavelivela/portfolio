@@ -3,3 +3,5 @@
 output/
 reference-source.html
 .vercel/
+work/src/
+supabase/.temp/
