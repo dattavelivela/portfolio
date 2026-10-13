@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Intake AI &mdash; Gurudatta Velivela</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Intake AI, a case study on Procol's AI demo platform. Password protected.">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://auiuyzhptbtxcpqvlnsw.supabase.co" crossorigin>
+<style>
+/* no page of its own: a quiet spinner while the case study loads */
+html,body{margin:0;height:100%;background:linear-gradient(180deg,#e6effb 0,#eef0fa 220px,#fbeff4 460px,#fff 700px) no-repeat,#fff}
+.wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(47,53,87,.18);border-top-color:rgba(47,53,87,.6);animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wait" role="status" aria-label="Loading the case study"></div>
+<script>
+/* The password is entered on the front page. This page only shows the
+   case study: from the page handed over on unlock, or from a password
+   this browser already used. Anyone else goes back to the front page,
+   where the card opens its password field. */
+(function(){
+  var ENDPOINT='https://auiuyzhptbtxcpqvlnsw.supabase.co/functions/v1/unlock',
+      CASE='intake', KEEP='unlocked:'+CASE, HAND='handoff:'+CASE, HOME='../?unlock='+CASE;
+
+  function get(k){ try{ return localStorage.getItem(k)||sessionStorage.getItem(k); }catch(e){ return null; } }
+  function drop(k){ try{ localStorage.removeItem(k); sessionStorage.removeItem(k); }catch(e){} }
+  function home(){ location.replace(HOME); }
+
+  /* the case study is a whole page, so it replaces this one */
+  function reveal(html){
+    var hash=location.hash;
+    function go(){
+      document.open(); document.write(html); document.close();
+      if(hash) setTimeout(function(){ var t=document.getElementById(hash.slice(1)); if(t) t.scrollIntoView(); },300);
+    }
+    /* replacing the page mid-parse would only insert into it, so wait for the parse to end */
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go();
+  }
+
+  var hand=null; try{ hand=JSON.parse(localStorage.getItem(HAND)); localStorage.removeItem(HAND); }catch(e){}
+  if(hand && hand.html && Date.now()-hand.t<120000){ reveal(hand.html); return; }
+
+  var pw=get(KEEP);
+  if(!pw){ home(); return; }
+  fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
+    .then(function(r){ if(r.status===401){ drop(KEEP); throw 0; } if(!r.ok) throw 0; return r.json(); })
+    .then(function(j){ reveal(j.html); })
+    .catch(home);
+})();
+</script>
+</body>
+</html>

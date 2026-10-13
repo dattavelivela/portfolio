@@ -1,6 +1,7 @@
-/* Uploads the Clara case study to its private Supabase bucket.
+/* Uploads a case study to its private Supabase bucket (Clara by default).
  *
  *   SUPABASE_SERVICE_ROLE_KEY=… node work/clara-upload.mjs [path/to/clara.html]
+ *   CASE=intake SUPABASE_SERVICE_ROLE_KEY=… node work/clara-upload.mjs path/to/intake.html
  *
  * Every local asset the page points at (img/, video/, ../assets/, ../fonts/)
  * is uploaded next to it, and its link is rewritten to __ASSET__/<path>.
@@ -14,7 +15,7 @@ import { dirname, resolve, extname, posix } from 'node:path';
 import { homedir } from 'node:os';
 
 const URL_ = 'https://auiuyzhptbtxcpqvlnsw.supabase.co';
-const BUCKET = 'clara';
+const BUCKET = process.env.CASE || 'clara';
 const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const page = resolve(process.argv[2] || `${homedir()}/Downloads/amperos-cfo-slides/site/clara.html`);
 if (!KEY) { console.error('set SUPABASE_SERVICE_ROLE_KEY'); process.exit(1); }

@@ -8,10 +8,11 @@
  * Uploaded pages carry __ASSET__/<path> placeholders (see work/clara-upload.mjs);
  * each one is swapped for a signed URL here, so nothing is ever public.
  * Passwords live in function secrets: PASSWORD_<CASE>, e.g. PASSWORD_CLARA.
+ * A case without its own secret shares Clara's password.
  */
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 
-const CASES = ["clara"];
+const CASES = ["clara", "intake"];
 const TTL = 60 * 60 * 2; // signed links last two hours
 
 const cors = {
@@ -43,7 +44,7 @@ Deno.serve(async (req) => {
   const name = String(body.case || "");
   if (!CASES.includes(name)) return json({ error: "case" }, 404);
 
-  const expected = Deno.env.get(`PASSWORD_${name.toUpperCase()}`);
+  const expected = Deno.env.get(`PASSWORD_${name.toUpperCase()}`) ?? Deno.env.get("PASSWORD_CLARA");
   if (!expected) return json({ error: "not set up" }, 500);
   if (!(await same(String(body.password || ""), expected))) {
     await new Promise((r) => setTimeout(r, 600)); // slow down guessing
