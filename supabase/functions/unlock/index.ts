@@ -12,7 +12,7 @@
  */
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
 
-const CASES = ["clara", "intake"];
+const CASES = ["clara", "intake", "implementation"];
 const TTL = 60 * 60 * 2; // signed links last two hours
 
 const cors = {
