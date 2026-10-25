@@ -304,37 +304,6 @@ a{color:inherit}
 .shots-nav svg{width:16px;height:16px}
 @media (prefers-reduced-motion:reduce){.shot img{transition:none}}
 
-/* ── the letter ───────────────────────────────────────────────────
-   A large statement heading over a narrow measure, so the letter
-   reads like a letter rather than a column of marketing copy.
-   ---------------------------------------------------------------- */
-.letter{padding:130px 0 0}
-.letter-stage{position:relative;width:min(620px,100%);margin:52px auto 0}
-.letter-sheet{
-  position:relative;background-color:#f8f1d5;color:var(--ink);
-  width:min(580px,100%);margin:0 auto;
-  padding:56px 58px 52px;
-  /* uncoated stock: a fine grain rather than a flat fill */
-  background-image:
-    radial-gradient(rgba(122,100,38,.07) 1px, transparent 1px),
-    radial-gradient(rgba(122,100,38,.045) 1px, transparent 1px);
-  background-size:7px 7px, 11px 11px;
-  background-position:0 0, 3px 4px;
-  box-shadow:0 1px 1px rgba(90,74,30,.10),
-             0 14px 30px -12px rgba(90,74,30,.18),
-             0 44px 76px -30px rgba(90,74,30,.24);
-}
-.letter-sheet p{
-  margin:0 0 21px;font-family:var(--mono);font-size:12.5px;line-height:25px;
-  letter-spacing:.005em;color:rgba(47,53,87,.82);
-}
-.letter-sheet p:last-of-type{margin-bottom:0}
-/* highlighter blocks do not belong on letterpress - mark the phrase with a rule */
-.letter-sheet .hl-green{
-  background:none;padding:0;margin:0;font-weight:400;color:var(--ink);
-  border-bottom:1px solid var(--ink-40);
-}
-
 /* ── close ────────────────────────────────────────────────────── */
 .close{padding:130px 0 110px;text-align:center}
 .clock{
@@ -486,8 +455,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   .says-grid .tcard:nth-child(odd){margin-left:0}
   .says-grid .tcard:nth-child(-n+2){margin-top:0}
   .says-grid .tcard:nth-child(3){margin-top:-1px}
-  .letter-sheet{padding:44px 26px 36px}
-  .letter-stage{padding:0}
   .work-row{display:block}
   .rail{position:static;width:min(600px,100%);margin:0 auto 34px}
   .stack{width:min(600px,100%);margin:0 auto}
@@ -745,18 +712,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   linear-gradient(90deg,#b8346f 0 3px,transparent 3px calc(100% - 2px),rgba(90,20,46,.4) calc(100% - 2px)),
   repeating-linear-gradient(#faf6ee 0 .9px,#e3dac8 .9px 1.5px)}
 
-/* the letter: an airmail envelope, the letter half out of it */
-.envelope{width:170px;height:178px;--d:12px}
-.envelope .body{--cw:170px;--ch:110px;--cd:6px;transform:translate3d(0,68px,-3px)}
-.envelope .body .f{background:url(assets/shelf/envelope.svg) 0 0/100% 100%}
-.envelope .body .t{background:linear-gradient(#e9e0cc 0 1px,#3d3424 1px calc(100% - 1.5px),#f8f3e6 calc(100% - 1.5px))}
-.envelope .body .l{background:linear-gradient(90deg,#d7cdb7,#e4dbc7)}
-.envelope .to{position:absolute;left:44px;top:56px;font:30px/1 var(--script);color:#262b4d;white-space:nowrap;transform:rotate(-3deg)}
-.envelope .sheet{left:13px;top:12px;width:144px;height:152px;transform:translateZ(-6px) rotateZ(-3deg);
-  background:url(assets/shelf/letter-sheet.svg) 0 0/100% 100%;box-shadow:0 0 0 .5px rgba(60,50,30,.14)}
-/* the flap, opened up behind the letter: its tissue lining shows */
-.envelope .flap{left:0;top:8px;width:170px;height:60px;transform-origin:50% 100%;transform:translateZ(-9px) rotateX(16deg);
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 60' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cpattern id='p' width='4' height='4' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'%3E%3Crect width='4' height='4' fill='%23e2e8f4'/%3E%3Crect width='2' height='4' fill='%23c8d3ea'/%3E%3C/pattern%3E%3C/defs%3E%3Cpath d='M0 60L78 3.5Q85-1 92 3.5L170 60Z' fill='url(%23p)'/%3E%3C/svg%3E") 0 0/100% 100%}
 
 @media screen and (max-width:1000px){
   .shelf{height:350px;--floor:86px}
@@ -855,17 +810,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         <figcaption>checkout my visual work</figcaption>
       </a>
     </figure>
-    <figure class="thing envelope">
-      <a class="thing-link" href="#letter">
-        <span class="art" aria-hidden="true">
-          <i class="sh"></i>
-          <i class="pl flap"></i>
-          <i class="pl sheet"></i>
-          <span class="cu body"><i class="f"><span class="to">to whoever is hiring</span></i><i class="t"></i><i class="l"></i></span>
-        </span>
-        <figcaption>a letter to hiring team</figcaption>
-      </a>
-    </figure>
   </div>
 </section>
 
@@ -911,45 +855,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   </div>
 </section>
 
-<!-- 3 · a letter -->
-<section class="wrap letter" id="letter">
-  <p class="label"><b>a letter</b><span class="sep"></span><b>to whoever is hiring</b></p>
-
-
-  <div class="letter-stage">
-
-    <div class="letter-sheet">
-    <p>Hi. I'm Datta, 24, still figuring out life.</p>
-
-    <p>If you're reading this as a recruiter, I'm a stubborn kid with a never-giving-up attitude.
-      You might want me for design - sorry, <span class="hl-green">I do more than design</span>. At
-      Dukaan I was PM, design and support in a team of 15. At Procol it's been product, solutioning,
-      pre-sales, graphics, and pushing PRs to production with Claude Code.</p>
-
-    <p>While building Rinso, my co-founder and I knocked on more than 2,000 doors handing out
-      posters. That got us 132 orders. I picked up and delivered more than 50 of them myself.</p>
-
-    <p>Then I went through Google Maps and one thing stopped me: boutiques and womenswear brands
-      were all selling with visuals so bad the clothes looked fake. I pitched 25 businesses in
-      Gurgaon, won the first by showing them what their catalog could look like, and we built AI
-      workflows to make visuals in bulk. More brands followed. Best part - our CAC is petrol money.
-      It has made us around ₹73,000.</p>
-
-    <p>I have ideas and I want to work on them. I'm not here to make a name; I want to make
-      something that changes people.</p>
-
-    <p>Some days you'll want to rip the perfectionism out of me. I want you to do it. Some days
-      you'll want to push me more. I want you to do it. I don't want to be ordinary.</p>
-
-    <p>I want to work with you - that's why you're reading this. This site doesn't go to everybody;
-      I apply where I believe I should be, for the problem or the people already there. That's the
-      truth about me.</p>
-
-    <p>Thank you for making it till here. Hope you have a great day.</p>
-  </div>
-  </div>
-
-</section>
 
 <!-- 4 · what people say -->
 <section class="wrap says">
