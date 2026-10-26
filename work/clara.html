@@ -9,49 +9,73 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://auiuyzhptbtxcpqvlnsw.supabase.co" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
 <style>
-/* no page of its own: a quiet spinner while the case study loads */
-html,body{margin:0;height:100%;background:linear-gradient(180deg,#e6effb 0,#eef0fa 220px,#fbeff4 460px,#fff 700px) no-repeat,#fff}
-.wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(47,53,87,.18);border-top-color:rgba(47,53,87,.6);animation:r .8s linear infinite}
+/* a quiet spinner while the case study loads; the lock page only shows without a password */
+html,body{margin:0;height:100%;background:#f8f8f8}
+.wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(60,56,48,.15);border-top-color:rgba(60,56,48,.55);animation:r .8s linear infinite}
+.locked .wait{display:none}
 @keyframes r{to{transform:rotate(360deg)}}
+
+#lock{position:fixed;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;padding-top:clamp(56px,12vh,120px);box-sizing:border-box;overflow:hidden;
+  background:#f8f8f8;
+  color:#444447;font:400 17px/1.5 "Geist",-apple-system,system-ui,sans-serif}
+#lock[hidden]{display:none}
+.lk-box{padding-left:clamp(24px,12vw,240px);max-width:460px;opacity:0;transform:translateY(6px);animation:in .6s .1s ease forwards}
+.lk-back{display:inline-block;margin:0 0 18px;color:#6b6c6e;text-decoration:none;font-size:15px}
+.lk-back:hover{color:#0a0a0a}
+.lk-box p{margin:0 0 24px;font-size:17px;line-height:1.55}
+.lk-box form{display:flex;gap:8px;align-items:center}
+.lk-box .bx{width:38px;height:44px;padding:0;border:1px solid #e4e4e4;border-radius:8px;background:#fff;color:#0a0a0a;text-align:center;box-sizing:border-box;
+  font:400 19px/1 "Geist",-apple-system,system-ui,sans-serif;text-transform:none;outline:none;caret-color:#3279f2;transition:border-color .2s,box-shadow .2s}
+.lk-box .bx:focus{border-color:#3279f2;box-shadow:0 0 0 3px rgba(50,121,242,.15)}
+.lk-box .dash{width:16px;text-align:center;color:#a1a1a4;font-size:18px}
+.lk-box .spin{display:none;margin-left:8px;width:15px;height:15px;border-radius:50%;border:2px solid #3279f2;border-right-color:transparent;animation:r .7s linear infinite}
+.lk-box form.busy .spin{display:block}
+.lk-box form.busy .bx{opacity:.6}
+.lk-box form.bad{animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
+.lk-msg{position:absolute;margin:8px 0 0!important;font-size:14px!important;color:#ef4b54}
+.lk-box{position:relative}
+.lk-help{margin:30px 0 0!important;font:400 13px/1.4 "Geist Mono",ui-monospace,monospace!important;letter-spacing:.06em;text-transform:uppercase;color:#6b6c6e}
+.lk-help a{color:#0a0a0a;text-underline-offset:4px}
+/* desk background: the objects frame the page edges, lit like a desk by a window (top right) */
+#lock{background:radial-gradient(120% 90% at 78% 0%,#fff 0%,#f8f8f8 45%,#f1f1f1 100%)}
+#lock::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(118deg,transparent 58%,rgba(40,36,30,.035) 64%,transparent 70%,transparent 74%,rgba(40,36,30,.03) 80%,transparent 86%)}
+.lk-box{z-index:2}
+.lk-art{display:block;position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1s .1s}
+.lk-art.ready{opacity:1}
+.lk-art canvas{display:block;pointer-events:auto;touch-action:none}
+@media (max-width:760px){.lk-art{display:none}}
+.rd{transform:scaleX(0);animation:redact .45s var(--d) cubic-bezier(.6,0,.2,1) forwards}
+@keyframes redact{to{transform:scaleX(1)}}
+@keyframes in{to{opacity:1;transform:none}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@media (max-width:760px){
+  #lock{grid-template-columns:1fr;align-items:start;padding-top:22vh}
+  .lk-box{padding:0 24px}
+}
+@media (prefers-reduced-motion:reduce){.lk-box,.lk-art{animation:none;opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div class="wait" role="status" aria-label="Loading the case study"></div>
-<script>
-/* The password is entered on the front page. This page only shows the
-   case study: from the page handed over on unlock, or from a password
-   this browser already used. Anyone else goes back to the front page,
-   where the card opens its password field. */
-(function(){
-  var ENDPOINT='https://auiuyzhptbtxcpqvlnsw.supabase.co/functions/v1/unlock',
-      CASE='clara', KEEP='unlocked:'+CASE, HAND='handoff:'+CASE, HOME='../?unlock='+CASE;
-
-  function get(k){ try{ return localStorage.getItem(k)||sessionStorage.getItem(k); }catch(e){ return null; } }
-  function drop(k){ try{ localStorage.removeItem(k); sessionStorage.removeItem(k); }catch(e){} }
-  function home(){ location.replace(HOME); }
-
-  /* the case study is a whole page, so it replaces this one */
-  function reveal(html){
-    var hash=location.hash;
-    function go(){
-      document.open(); document.write(html); document.close();
-      if(hash) setTimeout(function(){ var t=document.getElementById(hash.slice(1)); if(t) t.scrollIntoView(); },300);
-    }
-    /* replacing the page mid-parse would only insert into it, so wait for the parse to end */
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',go); else go();
-  }
-
-  var hand=null; try{ hand=JSON.parse(localStorage.getItem(HAND)); localStorage.removeItem(HAND); }catch(e){}
-  if(hand && hand.html && Date.now()-hand.t<120000){ reveal(hand.html); return; }
-
-  var pw=get(KEEP);
-  if(!pw){ home(); return; }
-  fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
-    .then(function(r){ if(r.status===401){ drop(KEEP); throw 0; } if(!r.ok) throw 0; return r.json(); })
-    .then(function(j){ reveal(j.html); })
-    .catch(home);
-})();
-</script>
+<main id="lock" hidden>
+  <div class="lk-box">
+    <a class="lk-back" href="../" aria-label="Back to the portfolio">&larr;</a>
+    <p>This project is under NDA.<br>Please enter password:</p>
+    <form novalidate>
+      <input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 1 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 2 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 3 of 6"><span class="dash" aria-hidden="true">-</span><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 4 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 5 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 6 of 6"><span class="spin" aria-hidden="true"></span>
+    </form>
+    <p class="lk-msg" role="alert"></p>
+    <p class="lk-help">No password? <a href="mailto:withgurudatta@gmail.com?subject=Password%20for%20the%20Clara%20case%20study">Email me</a></p>
+  </div>
+  <div class="lk-art" aria-hidden="true"></div>
+</main>
+<script>window.LOCK={case:'clara',local:'http://localhost:4331/clara-ncs.html'};</script>
+<script src="lock.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+<script type="module" src="lock-desk.js"></script>
 </body>
 </html>
