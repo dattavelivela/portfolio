@@ -13,31 +13,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
 <style>
 /* a quiet spinner while the case study loads; the lock page only shows without a password */
-html,body{margin:0;height:100%;background:#f8f8f8}
+html,body{margin:0;height:100%;background:#f8f8f8;overflow-x:hidden}
 .wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(60,56,48,.15);border-top-color:rgba(60,56,48,.55);animation:r .8s linear infinite}
 .locked .wait{display:none}
 @keyframes r{to{transform:rotate(360deg)}}
 
-#lock{position:fixed;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;padding-top:clamp(56px,12vh,120px);box-sizing:border-box;overflow:hidden;
+#lock{position:fixed;inset:0;display:grid;grid-template-columns:1fr;justify-items:center;align-items:start;padding-top:clamp(56px,12vh,120px);box-sizing:border-box;overflow:hidden;
   background:#f8f8f8;
   color:#444447;font:400 17px/1.5 "Geist",-apple-system,system-ui,sans-serif}
 #lock[hidden]{display:none}
-.lk-box{padding-left:clamp(24px,12vw,240px);max-width:460px;opacity:0;transform:translateY(6px);animation:in .6s .1s ease forwards}
+.lk-box{padding:0 24px;max-width:460px;text-align:center;opacity:0;transform:translateY(6px);animation:in .6s .1s ease forwards}
 .lk-back{display:inline-block;margin:0 0 18px;color:#6b6c6e;text-decoration:none;font-size:15px}
 .lk-back:hover{color:#0a0a0a}
-.lk-box p{margin:0 0 24px;font-size:17px;line-height:1.55}
-.lk-box form{display:flex;gap:8px;align-items:center}
+.lk-box p{margin:0 0 8px;font-size:17px;line-height:1.55}
+.lk-box form{display:flex;gap:8px;align-items:center;justify-content:center}
 .lk-box .bx{width:38px;height:44px;padding:0;border:1px solid #e4e4e4;border-radius:8px;background:#fff;color:#0a0a0a;text-align:center;box-sizing:border-box;
   font:400 19px/1 "Geist",-apple-system,system-ui,sans-serif;text-transform:none;outline:none;caret-color:#3279f2;transition:border-color .2s,box-shadow .2s}
 .lk-box .bx:focus{border-color:#3279f2;box-shadow:0 0 0 3px rgba(50,121,242,.15)}
 .lk-box .dash{width:16px;text-align:center;color:#a1a1a4;font-size:18px}
 .lk-box .spin{display:none;margin-left:8px;width:15px;height:15px;border-radius:50%;border:2px solid #3279f2;border-right-color:transparent;animation:r .7s linear infinite}
-.lk-box form.busy .spin{display:block}
+.lk-box form.busy .spin{display:none}
 .lk-box form.busy .bx{opacity:.6}
 .lk-box form.bad{animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
-.lk-msg{position:absolute;margin:8px 0 0!important;font-size:14px!important;color:#ef4b54}
+.lk-box form.bad .bx{border-color:#ef4b54;caret-color:#ef4b54}
+.lk-box form.bad .bx:focus{border-color:#ef4b54;box-shadow:0 0 0 3px rgba(239,75,84,.18)}
+.lk-msg{position:absolute;left:0;right:0;text-align:center;margin:8px 0 0!important;font-size:14px!important;color:#ef4b54}
 .lk-box{position:relative}
-.lk-help{margin:30px 0 0!important;font:400 13px/1.4 "Geist Mono",ui-monospace,monospace!important;letter-spacing:.06em;text-transform:uppercase;color:#6b6c6e}
+.lk-help{margin:0 0 28px!important;font:400 13px/1.4 "Geist Mono",ui-monospace,monospace!important;letter-spacing:.06em;text-transform:uppercase;color:#6b6c6e;overflow-wrap:anywhere}
 .lk-help a{color:#0a0a0a;text-underline-offset:4px}
 /* desk background: the objects frame the page edges, lit like a desk by a window (top right) */
 #lock{background:radial-gradient(120% 90% at 78% 0%,#fff 0%,#f8f8f8 45%,#f1f1f1 100%)}
@@ -53,8 +55,14 @@ html,body{margin:0;height:100%;background:#f8f8f8}
 @keyframes in{to{opacity:1;transform:none}}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 @media (max-width:760px){
-  #lock{grid-template-columns:1fr;align-items:start;padding-top:22vh}
+  #lock{align-items:start;padding-top:22vh}
   .lk-box{padding:0 24px}
+}
+@media (max-width:400px){
+  .lk-box{padding:0 20px}
+  .lk-box form{gap:6px}
+  .lk-box .bx{width:34px;height:42px;font-size:18px}
+  .lk-box .dash{width:12px}
 }
 @media (prefers-reduced-motion:reduce){.lk-box,.lk-art{animation:none;opacity:1;transform:none}}
 </style>
@@ -63,17 +71,16 @@ html,body{margin:0;height:100%;background:#f8f8f8}
 <div class="wait" role="status" aria-label="Loading the case study"></div>
 <main id="lock" hidden>
   <div class="lk-box">
-    <a class="lk-back" href="../" aria-label="Back to the portfolio">&larr;</a>
-    <p>This project is under NDA.<br>Please enter password:</p>
+    <p>This work is for professional viewing only.</p>
+    <p class="lk-help">The password is at the top of my resume. Or email <a href="mailto:withgurudatta@gmail.com?subject=Password%20for%20the%20Intake%20AI%20case%20study">withgurudatta@gmail.com</a>.</p>
     <form novalidate>
       <input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 1 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 2 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 3 of 6"><span class="dash" aria-hidden="true">-</span><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 4 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 5 of 6"><input class="bx" maxlength="1" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Character 6 of 6"><span class="spin" aria-hidden="true"></span>
     </form>
     <p class="lk-msg" role="alert"></p>
-    <p class="lk-help">No password? <a href="mailto:withgurudatta@gmail.com?subject=Password%20for%20the%20Intake%20AI%20case%20study">Email me</a></p>
   </div>
   <div class="lk-art" aria-hidden="true"></div>
 </main>
-<script>window.LOCK={case:'intake',local:'http://localhost:4331/intake-intent-ncs.html'};</script>
+<script>window.LOCK={case:'intake',local:'http://localhost:4331/intake-intent-ncs.html',date:'2025-06-27'};</script>
 <script src="lock.js"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
 <script type="module" src="lock-desk.js"></script>

@@ -39,20 +39,41 @@
       setTimeout(function(){ bx[0].focus(); },200);
       function value(){ return bx.map(function(i){ return i.value; }).join(''); }
       function fill(text,from){ for(var i=0;i<text.length && from+i<bx.length;i++) bx[from+i].value=text[i]; var n=Math.min(from+text.length,bx.length-1); bx[n].focus(); }
+      var AC;
+      function buzz(){
+        try{ if(navigator.vibrate) navigator.vibrate([90,40,90]); }catch(e){}
+        try{
+          AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+          if(AC.state==='suspended') AC.resume();
+          /* harsh low error buzzer: two detuned sawtooths per pulse, two pulses */
+          [0,0.16].forEach(function(at){
+            [138,142].forEach(function(f){
+              var o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime+at;
+              o.type='sawtooth'; o.frequency.setValueAtTime(f,t);
+              g.gain.setValueAtTime(0.0001,t);
+              g.gain.exponentialRampToValueAtTime(0.08,t+0.008);
+              g.gain.setValueAtTime(0.08,t+0.1);
+              g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
+              o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+0.15);
+            });
+          });
+        }catch(e){}
+      }
       function submit(){
         var pw=value(); if(pw.length<bx.length) return;
         form.classList.add('busy'); msg.textContent='';
-        check(pw).then(function(j){ set(KEEP,pw); root.classList.add('unlocking'); setTimeout(function(){ reveal(j.html); },1100); })
+        check(pw).then(function(j){ set(KEEP,pw); root.classList.add('unlocking'); setTimeout(function(){ reveal(j.html); },2000); })
           .catch(function(err){
             form.classList.remove('busy');
-            msg.textContent=err.message==='password'?'Not quite. Try again.':'Couldn’t connect. Try again.';
+            msg.textContent=err.message==='password'?'':'Couldn’t connect. Try again.';
+            if(err.message==='password') buzz();
             form.classList.remove('bad'); void form.offsetWidth; form.classList.add('bad');
             bx.forEach(function(i){ i.value=''; }); bx[0].focus();
           });
       }
       bx.forEach(function(inp,i){
         inp.addEventListener('input',function(){
-          msg.textContent='';
+          msg.textContent=''; form.classList.remove('bad');
           var v=inp.value; if(v.length>1){ inp.value=''; fill(v,i); } else if(v && i<bx.length-1) bx[i+1].focus();
           submit();
         });
