@@ -39,25 +39,9 @@
       setTimeout(function(){ bx[0].focus(); },200);
       function value(){ return bx.map(function(i){ return i.value; }).join(''); }
       function fill(text,from){ for(var i=0;i<text.length && from+i<bx.length;i++) bx[from+i].value=text[i]; var n=Math.min(from+text.length,bx.length-1); bx[n].focus(); }
-      var AC;
       function buzz(){
+        /* haptic only; no error sound */
         try{ if(navigator.vibrate) navigator.vibrate([90,40,90]); }catch(e){}
-        try{
-          AC=AC||new (window.AudioContext||window.webkitAudioContext)();
-          if(AC.state==='suspended') AC.resume();
-          /* harsh low error buzzer: two detuned sawtooths per pulse, two pulses */
-          [0,0.16].forEach(function(at){
-            [138,142].forEach(function(f){
-              var o=AC.createOscillator(), g=AC.createGain(), t=AC.currentTime+at;
-              o.type='sawtooth'; o.frequency.setValueAtTime(f,t);
-              g.gain.setValueAtTime(0.0001,t);
-              g.gain.exponentialRampToValueAtTime(0.08,t+0.008);
-              g.gain.setValueAtTime(0.08,t+0.1);
-              g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
-              o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+0.15);
-            });
-          });
-        }catch(e){}
       }
       function submit(){
         var pw=value(); if(pw.length<bx.length) return;
