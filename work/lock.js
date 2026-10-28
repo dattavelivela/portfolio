@@ -62,7 +62,7 @@
       function submit(){
         var pw=value(); if(pw.length<bx.length) return;
         form.classList.add('busy'); msg.textContent='';
-        check(pw).then(function(j){ set(KEEP,pw); root.classList.add('unlocking'); setTimeout(function(){ reveal(j.html); },2000); })
+        check(pw).then(function(j){ root.classList.add('unlocking'); setTimeout(function(){ reveal(j.html); },2000); })
           .catch(function(err){
             form.classList.remove('busy');
             msg.textContent=err.message==='password'?'':'Couldn’t connect. Try again.';
@@ -97,8 +97,6 @@
   /* ── start ─────────────────────────────────────────────────────── */
   var hand=null; try{ hand=JSON.parse(localStorage.getItem(HAND)); localStorage.removeItem(HAND); }catch(e){}
   if(hand && hand.html && Date.now()-hand.t<120000){ reveal(hand.html); return; }
-  var pw=get(KEEP);
-  if(!pw){ lock(); return; }
-  check(pw).then(function(j){ reveal(j.html); })
-    .catch(function(err){ if(err.message==='password') drop(KEEP); lock(); });
+  drop(KEEP);          /* never remember an unlock: every fresh visit asks for the password again */
+  lock();
 })();

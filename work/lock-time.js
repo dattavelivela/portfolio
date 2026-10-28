@@ -14,7 +14,9 @@ let w,h,R,cx,cy,dpr;
 function size(){
   dpr=Math.min(devicePixelRatio||1,2); w=innerWidth; h=innerHeight;
   cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
-  R=Math.max(520,h*.62); cx=w/2; cy=h+(R-h*.26);  /* centre sits below the viewport, so the apex rides the lower third */
+  cx=w/2;
+  if(w<760){ R=Math.max(300,w*.95); cy=h*.78+R; }  /* portrait: a smaller dome, low on the screen */
+  else { R=Math.max(520,h*.62); cy=h+(R-h*.26); }  /* wide: centre below the viewport, apex rides the lower third */
 }
 size(); addEventListener('resize',size);
 
@@ -92,8 +94,6 @@ function draw(t){
   } else {
     x.fillStyle='#9a9a9d'; x.textBaseline='alphabetic'; x.font='400 22px "Newsreader", Georgia, serif';
     x.fillText(fmtDate(read),cx,ty);
-    x.fillStyle='#a1a1a4'; x.font='400 11px "Geist Mono", monospace';
-    x.fillText(landing?'WINDING BACK':(winding?'CHECKING…':(Math.abs(offset)>.02?'SPINNING BACK TO NOW':'GURGAON, NOW')),cx,ty+22);
   }
   x.textAlign='left';
 }

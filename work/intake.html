@@ -49,7 +49,7 @@ html,body{margin:0;height:100%;background:#f8f8f8;overflow-x:hidden}
 .lk-art{display:block;position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1s .1s}
 .lk-art.ready{opacity:1}
 .lk-art canvas{display:block;pointer-events:auto;touch-action:none}
-@media (max-width:760px){.lk-art{display:none}}
+@media (max-width:760px){.lk-art{display:block}}
 .rd{transform:scaleX(0);animation:redact .45s var(--d) cubic-bezier(.6,0,.2,1) forwards}
 @keyframes redact{to{transform:scaleX(1)}}
 @keyframes in{to{opacity:1;transform:none}}
