@@ -40,7 +40,7 @@ function near(e){
   let da=angleAt(e)-APEX; while(da>Math.PI)da-=2*Math.PI; while(da<-Math.PI)da+=2*Math.PI;
   return d>R-80 && d<R+50 && Math.abs(da)<.6;
 }
-cv.addEventListener('pointerdown',e=>{ if(landing||!near(e)) return; dragging=true; lastA=angleAt(e); spin=0; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; });
+cv.addEventListener('pointerdown',e=>{ if(landing||!near(e)) return; dragging=true; lastA=angleAt(e); spin=0; lastTick=Math.round(offset/DEG); audioOn(); cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; });
 cv.addEventListener('pointermove',e=>{
   if(!dragging){ cv.style.cursor=near(e)?'grab':''; return; }
   let a=angleAt(e), d=a-lastA; if(d>Math.PI)d-=2*Math.PI; if(d<-Math.PI)d+=2*Math.PI; lastA=a;
@@ -49,7 +49,24 @@ cv.addEventListener('pointermove',e=>{
 function up(){ dragging=false; cv.style.cursor=''; }
 cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
 
+let AC=null, lastTick=0;
+function audioOn(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); }catch(e){ AC=null; } }
+function clack(gain){
+  if(!AC) return;
+  const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain(), bp=AC.createBiquadFilter();
+  bp.type='bandpass'; bp.frequency.value=2000+Math.random()*700; bp.Q.value=7;
+  o.type='square'; o.frequency.value=170+Math.random()*70;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(gain,t+.002); g.gain.exponentialRampToValueAtTime(.0001,t+.05);
+  o.connect(bp); bp.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+.06);
+}
+/* one metallic click per day-tick the dial crosses - dragging or winding ratchets like a chain */
+function tickSound(){
+  if(still||!AC) return;
+  const cur=Math.round(offset/DEG);
+  if(cur!==lastTick){ for(let i=0,n=Math.min(Math.abs(cur-lastTick),3);i<n;i++) clack(.06); lastTick=cur; }
+}
 function makeLanding(){
+  if(!still) audioOn();
   if(!CFG.date){ spin=-11; return {target:null,start:performance.now(),label:''}; }  /* no project date: just spin on */
   const p=String(CFG.date).split('-').map(Number);                                  /* YYYY-MM-DD */
   const target=new Date(p[0],(p[1]||1)-1,p[2]||1);
@@ -111,5 +128,6 @@ let prev=performance.now();
     offset+=spin*dt; spin*=Math.pow(.04,dt);                       /* coast */
     if(Math.abs(spin)<.4) offset+=(0-offset)*Math.min(1,dt*2.2);   /* a wrong password lets it ease home to today */
   }
+  tickSound();
   draw(t); requestAnimationFrame(loop);
 })(prev);
