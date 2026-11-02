@@ -1,0 +1,160 @@
+<!-- v11 idea: what's in Datta's bag; each typed box drops one personal item onto the bag (matter-js, top-down), wrong sweeps them off, right flips his ID badge face up. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v11 · What's in my bag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{user-select:none;-webkit-user-select:none;touch-action:none;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#art.grab{cursor:grabbing}
+/* the bag, seen from above: canvas lining with a stitched edge */
+.bag{position:absolute;border-radius:28px;background:#efe8dc;box-shadow:inset 0 2px 0 rgba(255,255,255,.6),inset 0 -30px 60px -40px rgba(120,90,50,.18),0 1px 0 #fff}
+.bag::before{content:"";position:absolute;inset:12px;border-radius:20px;border:1.5px dashed #d6c8b2}
+.bag::after{content:"";position:absolute;inset:0;border-radius:28px;background:var(--grain);opacity:.22;mix-blend-mode:multiply}
+.it{position:absolute;left:0;top:0;will-change:transform;cursor:grab;filter:drop-shadow(0 calc(2px + var(--z,0)*16px) calc(3px + var(--z,0)*14px) rgba(60,40,20,.2))}
+.it .rot{position:absolute;inset:0;transform-origin:50% 50%}
+.it svg{display:block;width:100%;height:100%;overflow:visible}
+/* ID badge, two faces */
+.i-badge .face{position:absolute;inset:0;border-radius:.8em;overflow:hidden}
+.i-badge .back{background:#e9ecf1;border:1px solid #d7dbe2}
+.i-badge .back::before{content:"";position:absolute;left:50%;top:.7em;width:2.4em;height:.5em;margin-left:-1.2em;border-radius:1em;background:#c9ced7}
+.i-badge .back b{position:absolute;left:1em;right:1em;bottom:1.2em;height:2.4em;background:repeating-linear-gradient(90deg,#3b3f47 0 .14em,transparent .14em .3em,#3b3f47 .3em .36em,transparent .36em .55em)}
+.i-badge .back i{position:absolute;left:1.4em;top:3em;font:400 .7em/1.4 var(--mono);color:#8a8f99;font-style:normal;letter-spacing:.08em}
+.i-badge .front{background:#fff;border:1px solid #e1e3e7;display:none}
+.i-badge.up .front{display:block}.i-badge.up .back{display:none}
+.i-badge .band{height:2.5em;background:var(--blue);position:relative}
+.i-badge .band::before{content:"";position:absolute;left:50%;top:.75em;width:2.4em;height:.5em;margin-left:-1.2em;border-radius:1em;background:rgba(255,255,255,.55)}
+.i-badge .pic{position:relative;width:6.4em;height:6.4em;margin:1em auto .8em;border-radius:.4em;overflow:hidden;background:#cdd5c8}
+.i-badge .pic img{width:100%;height:100%;object-fit:cover;display:block;filter:blur(.3px) saturate(.9) contrast(.95)}
+.i-badge .pic::after{content:"";position:absolute;inset:0;background:var(--grain);mix-blend-mode:overlay;opacity:.5}
+.i-badge .nm{text-align:center;font:600 1.35em/1 var(--sans);color:var(--ink);letter-spacing:-.01em;white-space:nowrap}
+.i-badge .nm span{font:500 1.1em/1 var(--hand);color:var(--blue)}
+.i-badge .role{text-align:center;margin-top:.7em;font:400 .6em/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.note{position:absolute;inset:0;background:#ffe27a;display:flex;align-items:center;justify-content:center;font:500 2.3em/1 var(--hand);color:#3a3320;box-shadow:inset 0 -.6em .8em -.6em rgba(150,110,0,.25)}
+.say{position:absolute;left:0;right:0;text-align:center;font:500 38px/1 var(--hand);color:#2b2b30;transform:rotate(-2deg);transition:opacity .25s,transform .35s;pointer-events:none;z-index:200}
+.say.out{opacity:0;transform:translateY(6px) rotate(0)}
+.say.bad{color:var(--red)}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div class="bag" id="bag"></div>
+  <div class="say" id="say">hi, it's me</div>
+</div>
+<script src="base.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+<script type="module">
+const PHOTO='../../assets/datta.jpg';
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// headless review (?demo) gets no rAF under virtual time, so drive frames with timers there
+const DEMO=new URLSearchParams(location.search).has('demo'), frame=DEMO?f=>setTimeout(()=>f(performance.now()),16):requestAnimationFrame.bind(window), unframe=DEMO?clearTimeout:cancelAnimationFrame;
+const {Engine,Bodies,Body,Composite,Mouse,MouseConstraint,Events}=Matter;
+const art=document.getElementById('art'), bagEl=document.getElementById('bag'), sayEl=document.getElementById('say');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+let sayT;function say(t,bad){clearTimeout(sayT);sayEl.classList.add('out');sayT=setTimeout(()=>{sayEl.textContent=t;sayEl.classList.toggle('bad',!!bad);sayEl.classList.remove('out')},RM?0:180)}
+
+// the six things, in the order they drop (sizes in em; 1em = K*10px)
+const ITEMS=[
+ {id:'badge',w:11,h:15.5,html:`<div class="face back"><i>ID 0024<br>PRODUCT<br>DESIGN</i><b></b></div>
+   <div class="face front"><div class="band"></div><div class="pic"><img alt="" draggable="false"></div><div class="nm">Datta · <span>come in</span></div><div class="role">product designer</div></div>`},
+ {id:'pass',w:19,h:8,html:`<svg viewBox="0 0 190 80"><rect x=".5" y=".5" width="189" height="79" rx="5" fill="#fbfaf7" stroke="#e3ddd2"/><path d="M.5 15V5.5a5 5 0 0 1 5-5h179a5 5 0 0 1 5 5V15z" fill="#3279f2"/>
+   <text x="10" y="11" font-family="Space Mono" font-size="7" fill="#fff" letter-spacing="1">BOARDING PASS</text>
+   <text x="10" y="44" font-family="Instrument Sans" font-weight="600" font-size="20" fill="#0a0a0a">BLR</text><path d="M58 38h22m-5-4 5 4-5 4" stroke="#6b6c6e" stroke-width="1.4" fill="none"/><text x="86" y="44" font-family="Instrument Sans" font-weight="600" font-size="20" fill="#0a0a0a">AMS</text>
+   <text x="10" y="64" font-family="Space Mono" font-size="6.5" fill="#6b6c6e">VELIVELA/DATTA  SEAT 24A</text>
+   <path d="M142 18v58" stroke="#cfc6b6" stroke-dasharray="2 3"/><g fill="#3b3f47"><rect x="150" y="26" width="2" height="36"/><rect x="154" y="26" width="1" height="36"/><rect x="157" y="26" width="3" height="36"/><rect x="162" y="26" width="1" height="36"/><rect x="165" y="26" width="2" height="36"/><rect x="169" y="26" width="1" height="36"/><rect x="172" y="26" width="3" height="36"/><rect x="177" y="26" width="1" height="36"/></g></svg>`},
+ {id:'buds',w:13,h:10,html:`<svg viewBox="0 0 130 100"><path d="M34 34C40 70 70 86 88 60s28-30 10-34" fill="none" stroke="#d9dce2" stroke-width="4.4" stroke-linecap="round"/><path d="M34 34C40 70 70 86 88 60s28-30 10-34" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+   <g><ellipse cx="28" cy="26" rx="15" ry="13" fill="#fff" stroke="#d9dce2"/><ellipse cx="25" cy="23" rx="6" ry="5" fill="#eef0f4"/><rect x="25" y="34" width="9" height="14" rx="4" fill="#fff" stroke="#d9dce2" transform="rotate(-20 29 40)"/></g>
+   <g><ellipse cx="102" cy="22" rx="15" ry="13" fill="#fff" stroke="#d9dce2"/><ellipse cx="99" cy="19" rx="6" ry="5" fill="#eef0f4"/><rect x="94" y="30" width="9" height="12" rx="4" fill="#fff" stroke="#d9dce2" transform="rotate(30 98 36)"/></g></svg>`},
+ {id:'note',w:9.5,h:9.5,html:`<div class="note">ship it</div>`},
+ {id:'lid',w:8.6,h:8.6,round:true,html:`<svg viewBox="0 0 86 86"><circle cx="43" cy="43" r="42" fill="#fdfcf9" stroke="#e1dbd0"/><circle cx="43" cy="43" r="34" fill="#f6f2ea" stroke="#e7e0d3"/><circle cx="43" cy="43" r="26" fill="none" stroke="#ece5d8"/><rect x="34" y="12" width="18" height="7" rx="3.5" fill="#6d4b2e" opacity=".85"/><path d="M28 60c8 6 22 6 30 0" stroke="#c99a6b" stroke-width="2" fill="none" opacity=".55" stroke-linecap="round"/><circle cx="43" cy="43" r="4" fill="none" stroke="#e1d8c7"/></svg>`},
+ {id:'cable',w:14,h:10,html:`<svg viewBox="0 0 140 100"><g fill="none" stroke="#2f3238" stroke-width="3.2" stroke-linecap="round"><path d="M18 52c0-22 30-30 48-22s26 30 8 40-44 6-46-14 26-30 46-22 26 20 14 30"/><path d="M88 64c10 6 24 6 32 0"/><path d="M14 54c-2 10 2 20 10 26"/></g>
+   <rect x="116" y="56" width="16" height="10" rx="3" fill="#3a3d44"/><rect x="130" y="58.5" width="7" height="5" rx="2.5" fill="#b9bec8"/><g transform="rotate(-25 23 86)"><rect x="18" y="78" width="10" height="16" rx="3" fill="#3a3d44"/><rect x="20.5" y="92" width="5" height="7" rx="2" fill="#b9bec8"/></g></svg>`}];
+
+const engine=Engine.create();engine.gravity.y=0;   // seen from above: things slide, they do not fall
+let W=0,H=0,K=1,bag={x:0,y:0,w:0,h:0},walls=[],items=[],gone=[],mode='idle',badge=null,lifted=false,zTop=10;
+function layout(){
+  W=art.clientWidth;H=art.clientHeight;K=cl(Math.min(W/700,H/820),.6,1.15);
+  const m=Math.max(24,W*.06),top=Math.max(90,H*.16);bag={x:m,y:top,w:W-2*m,h:H-top-Math.max(28,H*.06)};
+  Object.assign(bagEl.style,{left:bag.x+'px',top:bag.y+'px',width:bag.w+'px',height:bag.h+'px'});
+  sayEl.style.top=Math.max(24,bag.y-64)+'px';
+  items.forEach(it=>{it.el.style.fontSize=(10*K)+'px'});
+  buildWalls(mode==='wrong');
+}
+function buildWalls(open){
+  Composite.remove(engine.world,walls);const T=400,i=10,o={isStatic:true,restitution:.4};
+  walls=[Bodies.rectangle(bag.x+bag.w/2,bag.y+i-T/2,bag.w+2*T,T,o),Bodies.rectangle(bag.x+bag.w/2,bag.y+bag.h-i+T/2,bag.w+2*T,T,o),Bodies.rectangle(bag.x+i-T/2,bag.y+bag.h/2,T,bag.h+2*T,o)];
+  if(!open)walls.push(Bodies.rectangle(bag.x+bag.w-i+T/2,bag.y+bag.h/2,T,bag.h+2*T,o));
+  Composite.add(engine.world,walls);
+}
+function drop(i){
+  const d=ITEMS[i],el=document.createElement('div');el.className='it i-'+d.id;el.style.fontSize=(10*K)+'px';el.style.width=d.w+'em';el.style.height=d.h+'em';el.style.zIndex=++zTop;
+  el.innerHTML=`<div class="rot">${d.html}</div>`;const im=el.querySelector('.pic img');if(im)im.src=PHOTO;art.insertBefore(el,sayEl);
+  const w=d.w*10*K,h=d.h*10*K,x=bag.x+bag.w*(.3+Math.random()*.4),y=bag.y+bag.h*(.3+Math.random()*.4);
+  const o={frictionAir:.09,restitution:.35,density:.002};
+  const b=d.round?Bodies.circle(x,y,w/2,o):Bodies.rectangle(x,y,w*.96,h*.96,{...o,chamfer:{radius:4*K}});
+  Body.setAngle(b,(Math.random()-.5)*1.4);Body.setVelocity(b,{x:(Math.random()-.5)*6,y:(Math.random()-.5)*6});Body.setAngularVelocity(b,(Math.random()-.5)*.12);
+  Composite.add(engine.world,b);const it={b,el,w,h,z:1,d};items.push(it);if(d.id==='badge')badge=it;return it;
+}
+function removeLast(){const it=items.pop();if(it===badge)badge=null;Composite.remove(engine.world,it.b);it.el.style.transition='opacity .2s';it.el.style.opacity=0;setTimeout(()=>it.el.remove(),220)}
+function sweep(){buildWalls(true);items.forEach(it=>{Body.setVelocity(it.b,{x:24+Math.random()*14,y:(Math.random()-.5)*8});Body.setAngularVelocity(it.b,(Math.random()-.5)*.4);it.b.frictionAir=.012});gone.push(...items);items=[];badge=null}
+
+const mouse=Mouse.create(art);['mousewheel','DOMMouseScroll'].forEach(e=>art.removeEventListener(e,mouse.mousewheel));
+const mc=MouseConstraint.create(engine,{mouse,constraint:{stiffness:.2,damping:.1,render:{visible:false}}});Composite.add(engine.world,mc);
+Events.on(mc,'startdrag',e=>{art.classList.add('grab');const it=items.find(i=>i.b===e.body);if(it){it.z=.5;it.el.style.zIndex=++zTop}});
+Events.on(mc,'enddrag',()=>art.classList.remove('grab'));
+
+function step(dt){
+  Engine.update(engine,dt);
+  items.forEach(it=>it.z=Math.max(0,it.z-dt/320));
+  for(let i=gone.length-1;i>=0;i--){const g=gone[i];if(g.b.position.x>W+200||g.b.position.y>H+200||g.b.position.y<-200){Composite.remove(engine.world,g.b);g.el.remove();gone.splice(i,1)}}
+}
+function place(it,x,y,a,z,s=1,sx=1){it.el.style.setProperty('--z',z.toFixed(3));it.el.style.transform=`translate(${(x-it.w/2).toFixed(1)}px,${(y-it.h/2).toFixed(1)}px) scale(${(s*(1+z*.3)).toFixed(4)})`;it.el.firstChild.style.transform=`rotate(${a.toFixed(4)}rad) scaleX(${sx.toFixed(3)})`}
+function render(){for(const it of items.concat(gone))if(!(it===badge&&lifted))place(it,it.b.position.x,it.b.position.y,it.b.angle,it.z)}
+function settleNow(n=300){for(let i=0;i<n;i++)step(1000/60);render()}
+
+// right: the badge rises to the top of the pile and flips face up
+function flip(){
+  if(!badge)badge=drop(0);
+  const it=badge;lifted=true;Composite.remove(engine.world,it.b);it.el.style.zIndex=150;it.el.style.cursor='default';
+  const from={x:it.b.position.x,y:it.b.position.y,a:it.b.angle},to={x:bag.x+bag.w/2,y:bag.y+bag.h/2,a:-.06},S=cl(bag.h*.6/it.h,1,1.45);
+  const t0=performance.now(),D=RM?0:1300;
+  (function anim(now){
+    const t=D?cl((now-t0)/D):1,e=1-Math.pow(1-t,3),z=t<1?Math.sin(Math.min(1,t*1.15)*Math.PI)*.9:0,f=Math.cos(cl((t-.2)/.55)*Math.PI);
+    if(f<0)it.el.classList.add('up');
+    place(it,from.x+(to.x-from.x)*e,from.y+(to.y-from.y)*e,from.a+(to.a-from.a)*e,z,1+(S-1)*e,t<1?Math.max(.02,Math.abs(f)):1);
+    if(t<1)frame(anim);
+  })(t0);
+}
+
+lk.on('type',n=>{
+  if(mode==='right')return;
+  if(mode==='wrong'){if(n)return;mode='idle';buildWalls(false);say("hi, it's me")}
+  while(items.length<n)drop(items.length);
+  while(items.length>n)removeLast();
+  if(RM)settleNow();
+});
+lk.on('wrong',()=>{mode='wrong';say('close, try again',true);sweep();if(RM)settleNow(200)});
+lk.on('right',()=>{mode='right';say('');if(RM){settleNow();flip();return}setTimeout(flip,350)});
+
+let raf=0,last=0,acc=0;
+function tick(now){acc+=Math.min(120,now-last);last=now;while(acc>=1000/60){step(1000/60);acc-=1000/60}render();raf=frame(tick)}
+function start(){if(!raf&&!RM){last=performance.now();raf=frame(tick)}}
+function stop(){unframe(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+addEventListener('resize',()=>{layout();render()});
+layout();start();
+
+// ?demo=N | wrong | right : replay typing for review
+const q=new URLSearchParams(location.search).get('demo');
+if(q){const full=q==='wrong'||q==='right',k=full?6:Math.min(6,parseInt(q)||0);
+  for(let i=1;i<=k;i++)setTimeout(()=>{lk.count=i;lk.emit('type',i)},200+i*220);
+  if(full)setTimeout(()=>{lk.state=q;lk.emit(q);if(q==='wrong')setTimeout(()=>{lk.count=0;lk.state='idle';lk.emit('type',0)},700)},200+7*220+600);}
+</script>
+</body>
+</html>

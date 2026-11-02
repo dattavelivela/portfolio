@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unlock Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one reading column of four working copies of the front-page card, each with a different unlock interaction. Demo password: demo */
+:root{
+  --ground:#fff;--ink:#2f3557;--ink-70:rgba(47,53,87,.7);--ink-55:rgba(47,53,87,.55);--ink-40:rgba(47,53,87,.4);
+  --ink-20:rgba(47,53,87,.2);--ink-10:rgba(47,53,87,.1);--ink-05:rgba(47,53,87,.05);
+  --night:#0e0e10;--ok:#2d8a57;--bad:#c0392b;
+  --sans:"Instrument Sans",-apple-system,system-ui,sans-serif;--mono:"Space Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink-70);font:16px/26px var(--sans);padding:64px 16px 120px}
+.wrap{max-width:620px;margin:0 auto}
+.k{font:400 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-40)}
+h1{margin:10px 0 8px;font-size:28px;line-height:1.2;font-weight:500;color:var(--ink);letter-spacing:-.015em}
+.lede{margin:0 0 12px}
+.lede code{font:13px var(--mono);background:var(--ink-05);padding:2px 6px;border-radius:5px;color:var(--ink)}
+.opt{margin-top:88px}
+.opt-head{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+.opt-head h2{margin:0;font-size:20px;font-weight:500;color:var(--ink)}
+.opt-note{margin:0 0 28px;font-size:15px;line-height:24px}
+.opt-note b{font-weight:500;color:var(--ink)}
+.reset{margin-left:auto;font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-40);background:none;border:0;cursor:pointer;padding:4px}
+.reset:hover{color:var(--ink)}
+
+/* the card, as on the front page */
+.entry h3{margin:0 0 6px;font-size:17px;line-height:27px;font-weight:400;color:var(--ink-40)}
+.entry h3 b{font-weight:400;color:var(--ink)}
+.entry h3 .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--ink-20);vertical-align:middle;margin:0 9px}
+.entry>p{margin:0;color:var(--ink-70)}
+.media{position:relative;margin-top:26px;background:var(--ink-05);border-radius:11px;padding:10px;overflow:hidden;cursor:pointer}
+.media img{display:block;width:100%;border-radius:6px;box-shadow:0 14px 30px -14px rgba(47,53,87,.28);transition:filter .45s ease,transform .6s cubic-bezier(.2,.7,.25,1)}
+.entry:hover .media img,.entry.open .media img{filter:blur(6px) saturate(.8)}
+.entry.done .media img{filter:none!important}
+
+/* black pill */
+.pill{position:absolute;top:50%;left:50%;z-index:2;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;white-space:nowrap;
+  background:var(--night);color:#fff;border:1px solid rgba(255,255,255,.13);font:500 14px/1 var(--sans);padding:10px 16px 10px 13px;border-radius:999px;
+  box-shadow:0 14px 30px -12px rgba(0,0,0,.45);opacity:0;transition:opacity .3s,transform .3s cubic-bezier(.3,0,.2,1)}
+.entry:hover .pill{opacity:1}
+.ic{width:15px;height:15px;flex:none}
+
+/* shared field bits */
+.field{display:flex;align-items:center;gap:8px}
+.field input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:500 15px/1 var(--sans);color:inherit;letter-spacing:.02em}
+.go{flex:none;width:32px;height:32px;border-radius:50%;border:0;display:grid;place-items:center;cursor:pointer;transition:background .2s,transform .2s}
+.go:active{transform:scale(.94)}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:r .7s linear infinite;display:none}
+.busy .spin{display:block}.busy .arrow{display:none}
+@keyframes r{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{translate:0}20%{translate:-8px}40%{translate:7px}60%{translate:-5px}80%{translate:3px}}
+.shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+.msg{font-size:13px;line-height:18px;min-height:18px}
+.msg.bad{color:var(--bad)}.msg.ok{color:var(--ok)}
+
+/* A: the pill grows into the field */
+.A .pill{transition:opacity .3s,width .45s cubic-bezier(.3,0,.2,1),padding .45s,gap .3s}
+.A.open .pill{opacity:1;width:min(340px,calc(100% - 40px));padding:5px 5px 5px 16px;cursor:auto}
+.A .pill .lbl{display:flex;align-items:center;gap:7px}
+.A .pill form{display:none;gap:6px}
+.A.open .pill .lbl{display:none}
+.A.open .pill form{display:flex;flex:1}
+.A .pill input{color:#fff}
+.A .pill input::placeholder{color:rgba(255,255,255,.45)}
+.A .pill .go{background:#fff;color:var(--night)}
+.A .under{position:absolute;left:50%;top:calc(50% + 30px);z-index:2;transform:translateX(-50%);white-space:nowrap;font-weight:500}
+.A .under.bad{background:#fff;color:var(--bad);padding:4px 10px;border-radius:999px;box-shadow:0 6px 16px -8px rgba(0,0,0,.3)}
+.A .under.ok{display:none}
+.A.done .pill{opacity:1;background:var(--ok);border-color:transparent}
+
+/* B: popover under the pill */
+.B .media{overflow:visible}
+.B .pop{position:absolute;top:calc(50% - 8px);left:50%;z-index:3;width:min(320px,calc(100% - 32px));transform:translate(-50%,8px);opacity:0;pointer-events:none;
+  background:#fff;border-radius:14px;padding:16px;box-shadow:0 24px 50px -16px rgba(14,14,16,.45),0 0 0 1px var(--ink-10);transition:opacity .25s,transform .25s cubic-bezier(.3,0,.2,1)}
+.B .pop::before{content:"";position:absolute;bottom:100%;left:50%;margin-left:-7px;border:7px solid transparent;border-bottom-color:#fff;border-top:0}
+.B.open .pop{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.B.open .pill{opacity:1;transform:translate(-50%,calc(-50% - 44px))}
+.B .pop p{margin:0 0 10px;font-size:14px;line-height:20px;color:var(--ink)}
+.B .pop .field{border:1px solid var(--ink-20);border-radius:10px;padding:4px 4px 4px 12px;color:var(--ink);transition:border-color .2s}
+.B .pop .field:focus-within{border-color:var(--ink)}
+.B .pop .go{background:var(--ink);color:#fff;width:30px;height:30px;border-radius:7px}
+.B .pop .msg{margin-top:8px}
+.B.done .pop .go{background:var(--ok)}
+
+/* C: the screenshot flips over */
+.C .media{perspective:1400px;background:none;padding:0}
+.C .flip{position:relative;transition:transform .7s cubic-bezier(.3,.1,.2,1);transform-style:preserve-3d}
+.C.open .flip{transform:rotateY(180deg)}
+.C.done .flip{transform:rotateY(360deg)}
+.C .face{backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--ink-05);border-radius:11px;padding:10px}
+.C .back{position:absolute;inset:0;transform:rotateY(180deg);background:var(--night);color:#fff;display:grid;place-items:center;padding:24px;text-align:center}
+.C .back h4{margin:0 0 6px;font-size:19px;font-weight:500}
+.C .back p{margin:0 0 18px;font-size:14px;line-height:21px;color:rgba(255,255,255,.6)}
+.C .back .field{width:min(320px,100%);margin:0 auto;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 4px 4px 18px}
+.C .back input{color:#fff}.C .back input::placeholder{color:rgba(255,255,255,.4)}
+.C .back .go{background:#fff;color:var(--night)}
+.C .back .msg{margin-top:10px}.C .back .msg.bad{color:#ffb4aa}
+.C.open .pill,.C.done .pill{opacity:0!important}
+.C .back .x{position:absolute;top:14px;right:16px;background:none;border:0;color:rgba(255,255,255,.5);font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+
+/* D: a drawer slides out under the card */
+.D.open .media img{filter:none}.D.open .pill{opacity:0}
+.D .drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s cubic-bezier(.3,0,.2,1)}
+.D.open .drawer{grid-template-rows:1fr}
+.D .drawer>div{overflow:hidden}
+.D .tray{margin-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 14px 14px 18px;border-radius:11px;background:var(--ink-05)}
+.D .tray p{margin:0;flex:1 1 200px;font-size:14px;line-height:20px;color:var(--ink)}
+.D .tray p span{display:block;color:var(--ink-55)}
+.D .tray .field{flex:1 1 220px;background:#fff;border-radius:999px;padding:4px 4px 4px 16px;box-shadow:0 0 0 1px var(--ink-10);color:var(--ink)}
+.D .tray .go{background:var(--ink);color:#fff}
+.D .tray .msg{flex-basis:100%;margin-top:-4px}
+.D.done .tray .go{background:var(--ok)}
+
+/* E: the shareable link */
+.E .linkbox{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:11px;background:var(--ink-05);font:13px/1.4 var(--mono);color:var(--ink);overflow:hidden}
+.E .linkbox span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.E .linkbox i{font-style:normal;color:var(--ok)}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;background:var(--night);color:#fff;font:500 14px/1 var(--sans);padding:12px 16px;border-radius:999px;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="k">Front page · unlock options</p>
+  <h1>Enter the password without leaving the page</h1>
+  <p class="lede">Each card below works. Click it, type <code>demo</code> to see it unlock, or anything else to see the error. When unlocked, the real version would open the case study in a new tab.</p>
+
+  <!-- A -->
+  <section class="opt">
+    <div class="opt-head"><span class="k">A</span><h2>The pill becomes the field</h2><button class="reset" data-reset="A">Reset</button></div>
+    <p class="opt-note"><b>Recommended.</b> The black “Read the case study” pill stretches into a password field in place. Nothing new appears; the thing you clicked is the thing you type into. On success it turns green, the blur clears, and the case study opens.</p>
+    <article class="entry A" id="A">
+      <h3><b>Agentic source-to-pay platform</b><span class="dot"></span>Procol.in → Procol.ai</h3>
+      <p>Solely owned design for Procol’s agentic products across source-to-pay and analytics, while leading product solutioning with the PM.</p>
+      <div class="media">
+        <img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform">
+        <div class="pill">
+          <span class="lbl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Read the case study</span>
+          <form class="field"><input type="password" placeholder="Password" aria-label="Password"><button class="go" aria-label="Unlock"><svg class="ic arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span class="spin"></span></button></form>
+        </div>
+        <div class="under msg"></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- B -->
+  <section class="opt">
+    <div class="opt-head"><span class="k">B</span><h2>A popover under the pill</h2><button class="reset" data-reset="B">Reset</button></div>
+    <p class="opt-note">The pill stays, and a small white card drops out under it with one line of context and the field. Familiar, like a tooltip. A little more “form-like” than A.</p>
+    <article class="entry B" id="B">
+      <h3><b>Agentic source-to-pay platform</b><span class="dot"></span>Procol.in → Procol.ai</h3>
+      <p>Solely owned design for Procol’s agentic products across source-to-pay and analytics, while leading product solutioning with the PM.</p>
+      <div class="media">
+        <img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform">
+        <div class="pill"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Read the case study</div>
+        <div class="pop">
+          <p>This one’s under NDA. Enter the password I shared.</p>
+          <form class="field"><input type="password" placeholder="Password" aria-label="Password"><button class="go" aria-label="Unlock"><svg class="ic arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span class="spin"></span></button></form>
+          <div class="msg"></div>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- C -->
+  <section class="opt">
+    <div class="opt-head"><span class="k">C</span><h2>The screenshot flips over</h2><button class="reset" data-reset="C">Reset</button></div>
+    <p class="opt-note">Click and the screenshot turns like a card. The back is dark, with a title and the field. On success it flips the rest of the way, back to the image, unblurred. The most playful option; best if you want the moment to feel like a reveal.</p>
+    <article class="entry C" id="C">
+      <h3><b>Agentic source-to-pay platform</b><span class="dot"></span>Procol.in → Procol.ai</h3>
+      <p>Solely owned design for Procol’s agentic products across source-to-pay and analytics, while leading product solutioning with the PM.</p>
+      <div class="media">
+        <div class="flip">
+          <div class="face"><img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"></div>
+          <div class="face back">
+            <button class="x" type="button">Close</button>
+            <div style="width:100%">
+              <h4>The full story is under NDA</h4>
+              <p>Enter the password to read how Clara went from 0 to 1.</p>
+              <form class="field"><input type="password" placeholder="Password" aria-label="Password"><button class="go" aria-label="Unlock"><svg class="ic arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span class="spin"></span></button></form>
+              <div class="msg"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pill" style="pointer-events:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Read the case study</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- D -->
+  <section class="opt">
+    <div class="opt-head"><span class="k">D</span><h2>A drawer opens under the card</h2><button class="reset" data-reset="D">Reset</button></div>
+    <p class="opt-note">The image stays untouched; a tray slides open beneath it with the field. Quietest of the four, and the easiest to use on a phone because the keyboard never covers it.</p>
+    <article class="entry D" id="D">
+      <h3><b>Agentic source-to-pay platform</b><span class="dot"></span>Procol.in → Procol.ai</h3>
+      <p>Solely owned design for Procol’s agentic products across source-to-pay and analytics, while leading product solutioning with the PM.</p>
+      <div class="media">
+        <img src="../assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform">
+        <div class="pill"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Read the case study</div>
+      </div>
+      <div class="drawer"><div>
+        <div class="tray">
+          <p>Under NDA<span>Enter the password to open it.</span></p>
+          <form class="field"><input type="password" placeholder="Password" aria-label="Password"><button class="go" aria-label="Unlock"><svg class="ic arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span class="spin"></span></button></form>
+          <div class="msg"></div>
+        </div>
+      </div></div>
+    </article>
+  </section>
+
+  <!-- E -->
+  <section class="opt E">
+    <div class="opt-head"><span class="k">+</span><h2>Plus: a link that skips the password</h2></div>
+    <p class="opt-note">Works with any option above. You send recruiters a link with a key in it. It opens the case study already unlocked, and the front-page card shows “Unlocked” for them from then on. The key sits after <code style="font:13px var(--mono)">#</code>, so it never reaches the server logs.</p>
+    <div class="linkbox"><i>●</i><span>dattavelivela.xyz/work/clara.html#k=7Qm2xA</span></div>
+  </section>
+</div>
+<div class="toast" id="toast">Unlocked · opening the case study in a new tab</div>
+
+<script>
+const PASS = "demo";
+const toast = document.getElementById("toast");
+function say(t){ toast.textContent = t; toast.classList.add("on"); clearTimeout(say.t); say.t = setTimeout(() => toast.classList.remove("on"), 2200); }
+
+function wire(card, { onOpen, msgEl }) {
+  const form = card.querySelector("form");
+  const input = form.querySelector("input");
+  const msg = msgEl || card.querySelector(".msg");
+  card.querySelector(".media").addEventListener("click", e => {
+    if (card.classList.contains("open") || card.classList.contains("done")) return;
+    e.preventDefault();
+    card.classList.add("open"); onOpen && onOpen();
+    setTimeout(() => input.focus(), 250);
+  });
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (form.classList.contains("busy")) return;
+    form.classList.add("busy"); msg.className = msg.className.replace(/\b(bad|ok)\b/g, "").trim(); msg.textContent = "";
+    setTimeout(() => {
+      form.classList.remove("busy");
+      if (input.value === PASS) {
+        card.classList.remove("open"); card.classList.add("done");
+        msg.classList.add("ok"); msg.textContent = "Unlocked";
+        say("Unlocked · opening the case study in a new tab");
+      } else {
+        msg.classList.add("bad"); msg.textContent = "Not quite. Try again.";
+        const target = card.classList.contains("A") ? card.querySelector(".pill") : form;
+        target.classList.remove("shake"); void target.offsetWidth; target.classList.add("shake");
+        input.select();
+      }
+    }, 700);
+  });
+  input.addEventListener("keydown", e => { if (e.key === "Escape") reset(card); });
+}
+function reset(card) {
+  card.classList.remove("open", "done");
+  const input = card.querySelector("input"); input.value = "";
+  card.querySelectorAll(".msg").forEach(m => { m.textContent = ""; m.classList.remove("bad", "ok"); });
+}
+
+["A","B","C","D"].forEach(id => wire(document.getElementById(id), {}));
+document.querySelector("#C .x").addEventListener("click", e => { e.stopPropagation(); reset(document.getElementById("C")); });
+// A: success swaps the field back to a label
+const A = document.getElementById("A");
+new MutationObserver(() => {
+  const lbl = A.querySelector(".lbl");
+  if (A.classList.contains("done")) lbl.lastChild.textContent = "Unlocked · opening…";
+  else lbl.lastChild.textContent = "Read the case study";
+}).observe(A, { attributes: true, attributeFilter: ["class"] });
+document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => reset(document.getElementById(b.dataset.reset))));
+// clicking away closes an open card (not C, which has its own close)
+document.addEventListener("click", e => {
+  ["A","B","D"].forEach(id => { const c = document.getElementById(id); if (c.classList.contains("open") && !c.contains(e.target)) reset(c); });
+});
+</script>
+</body>
+</html>

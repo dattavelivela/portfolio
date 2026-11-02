@@ -1,0 +1,74 @@
+<!-- v22 idea: Datta's photo as a coarse ink-on-cream dither that sharpens one step per typed box; the right password resolves it fully and says hi. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v22 · Resolving</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:#efe5d2;display:flex;align-items:center;justify-content:center;color:#3b2516}
+.fig{position:relative;width:min(64%,460px);margin:0}
+.fig canvas{display:block;width:100%;aspect-ratio:1}
+.top,.bot{display:flex;justify-content:space-between;font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8a6a4c}
+.top{margin:0 0 14px}.bot{margin:14px 0 0}
+.cap{position:absolute;left:0;right:0;bottom:-74px;text-align:center;font:italic 300 30px/1 "Newsreader",serif;letter-spacing:-.01em;color:#3b2516;opacity:0;transform:translateY(8px);transition:opacity .9s,transform .9s}
+.cap.on{opacity:1;transform:none}
+.corner{position:absolute;font:400 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#a58867}
+.corner.tl{top:28px;left:32px}.corner.tr{top:28px;right:32px}.corner.br{bottom:28px;right:32px}
+html.demo .cap{transition:none}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <span class="corner tl">Datta Velivela</span><span class="corner tr">Bengaluru</span><span class="corner br" id="res">resolution 6%</span>
+  <figure class="fig">
+    <div class="top"><span>fig. 1</span><span id="step">step 0 / 6</span></div>
+    <canvas id="cv"></canvas>
+    <div class="bot"><span>150 × 150 px</span><span>ink on cream</span></div>
+    <div class="cap" id="cap">hi, it's Datta</div>
+  </figure>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, wireDemo, RM, lerp } from './dither.js';
+const $ = id => document.getElementById(id);
+const img = new Image(); img.src = '../../assets/datta.jpg';
+const CELLS = [30, 22, 16, 11.5, 8.5, 6, 4.5, 3];          // per box, last = right
+let drift = 0;
+const d = dither($('cv'), {
+  palette: ['#efe5d2', '#d2ab7f', '#8f5c38', '#3b2516'], invert: true, grain: .07, dotMin: .32, dotMax: .96, noise: .55, sparse: .7,
+  source(ctx, w, h, t) {
+    if (!img.naturalWidth) return;
+    // crop to the face (left third of the photo), with a slow drift
+    const k = 104 + 4 * Math.sin(t * .13), cx = 52 + Math.sin(t * .11) * 3, cy = 74 + Math.cos(t * .09) * 3;
+    ctx.filter = 'contrast(1.3) brightness(.86)';
+    ctx.drawImage(img, cx - k / 2, cy - k / 2, k, k, 0, 0, w, h); ctx.filter = 'none';
+  },
+  frame(dt, t, api) { api.p.cell = cell.x; api.p.resolve = res.x; }
+});
+const cell = d.ease(CELLS[0], 3.2), res = d.ease(.35, 3.2);
+let wrongAt = -1e9, done = false;
+function show(n) {
+  cell.to(CELLS[n]); res.to(lerp(.35, .96, n / 6));
+  $('step').textContent = 'step ' + n + ' / 6';
+  $('res').textContent = 'resolution ' + Math.round(lerp(6, 92, n / 6)) + '%';
+}
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) show(0); }, 900); return; }
+  show(n);
+});
+lk.on('wrong', () => { wrongAt = performance.now(); cell.to(40); res.to(0); $('step').textContent = 'lost it'; $('res').textContent = 'resolution 0%'; });
+lk.on('right', () => {
+  done = true; cell.to(CELLS[7]); res.to(1); $('step').textContent = 'resolved'; $('res').textContent = 'resolution 100%';
+  $('cap').classList.add('on');
+});
+show(0);
+wireDemo(() => d.settle());
+</script>
+</body>
+</html>

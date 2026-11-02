@@ -1,0 +1,196 @@
+<!-- v05 idea: a sheet of paper on the desk takes one real fold per typed box (6 folds make a dart); wrong unfolds it flat, right launches it into a loop with simple lift and drag, gliding off-screen. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v05 · Paper plane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+<style>
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:9%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--ink);opacity:0;transform:translateY(6px) rotate(-2deg);transition:opacity .45s,transform .45s;pointer-events:none}
+#art .cap.in{opacity:.82;transform:none}
+#art .cap.bad{color:var(--red)}
+/* static fallback when WebGL or the CDN is unavailable */
+#art .fb{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%)}
+#art .fb b{display:block;margin-top:18px;text-align:center;font:500 30px/1 var(--hand);color:var(--ink);opacity:.8}
+#art.gl .fb{display:none}
+
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"><div class="fb"><svg width="220" height="140" viewBox="0 0 220 140"><path d="M10 80 210 20 90 100Z" fill="#fff" stroke="#c9c9cc"/><path d="M90 100 210 20 110 130Z" fill="#eeeeec" stroke="#c9c9cc"/></svg><b>hi, it's me</b></div><p class="cap"></p></div>
+<script src="base.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const art=document.getElementById('art'), capEl=art.querySelector('.cap');
+let capT=0;
+function say(t,bad,ms){ clearTimeout(capT); capEl.classList.remove('in'); setTimeout(()=>{ capEl.textContent=t; capEl.classList.toggle('bad',!!bad); capEl.classList.add('in'); },180);
+  if(ms) capT=setTimeout(()=>say(IDLE),ms); }
+const IDLE="hi, it's me";
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function grain(x,w,h,amt){ const d=x.getImageData(0,0,w,h),a=d.data; for(let i=0;i<a.length;i+=4){ const n=(Math.random()-.5)*amt; a[i]+=n;a[i+1]+=n;a[i+2]+=n; } x.putImageData(d,0,0); }
+function canvasTex(w,h,draw){ const c=document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'),w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t; }
+function svgTex(url,w,h){ const t=canvasTex(w,h,()=>{}); const im=new Image(); im.onload=()=>{ t.image.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url; return t; }
+
+/* ---------- a light studio: transparent renderer over the page bg, soft shadows, resize, pause when hidden ---------- */
+let renderer=null;
+try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }catch(e){}
+function stage({eye,look,fov=30,shadow=3,sunPos=[-2.5,6,4.5],shadowOpacity=.14}){
+  art.classList.add('gl'); art.prepend(renderer.domElement);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0xf8f8f8,0);
+  renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
+  const scene=new THREE.Scene();
+  const pm=new THREE.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+  const sun=new THREE.DirectionalLight(0xffffff,1.5); sun.position.set(...sunPos); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048); sun.shadow.radius=7; sun.shadow.blurSamples=20; sun.shadow.bias=-.0005; sun.shadow.normalBias=.02;
+  Object.assign(sun.shadow.camera,{left:-shadow,right:shadow,top:shadow,bottom:-shadow,near:.5,far:25}); scene.add(sun);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity:shadowOpacity})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+  const view=new THREE.PerspectiveCamera(fov,1,.05,80);
+  const S={scene,view,sun,floor,eye:new THREE.Vector3(...eye),look:new THREE.Vector3(...look),frames:[],mouse:{x:0,y:0},clock:0,camEase:1.2,parallax:[.5,.3]};
+  S.eyeTo=S.eye.clone(); S.lookTo=S.look.clone();
+  addEventListener('pointermove',e=>{ S.mouse.x=e.clientX/innerWidth-.5; S.mouse.y=e.clientY/innerHeight-.5; });
+  S.ndc=(e)=>{ const r=renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); };
+  function size(){ const r=art.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); view.aspect=r.width/Math.max(1,r.height); view.fov=view.aspect<.9?fov:fov*.82; view.updateProjectionMatrix(); }
+  new ResizeObserver(size).observe(art); size();
+  let last=performance.now(),raf=0;
+  function frame(now){ raf=requestAnimationFrame(frame); const dt=Math.min(.033,(now-last)/1000); last=now; S.clock+=dt;
+    for(const f of S.frames) f(dt,S.clock);
+    S.eye.lerp(S.eyeTo,Math.min(1,dt*S.camEase)); S.look.lerp(S.lookTo,Math.min(1,dt*S.camEase*1.3));
+    view.position.set(S.eye.x+S.mouse.x*S.parallax[0],S.eye.y-S.mouse.y*S.parallax[1],S.eye.z); view.lookAt(S.look);
+    renderer.render(scene,view); }
+  function go(){ if(!raf&&!document.hidden){ last=performance.now(); raf=requestAnimationFrame(frame); } }
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ cancelAnimationFrame(raf); raf=0; } else go(); });
+  go(); say(IDLE); return S;
+}
+if(renderer) start();
+function start(){
+  const S=stage({eye:[.2,2.1,2.9],look:[.05,.12,-.05],fov:30,shadow:2.6,sunPos:[-2,6,3]});
+  const {scene}=S;
+  const W=.9, L=1.27;     // A4 proportions; paper coords: x across [-W/2,W/2], y along [0,L], nose at y=L
+
+  /* ---------- the folds, as lines in the paper's state just before each fold ---------- */
+  const t22=Math.tan(Math.PI/8);
+  const FOLDS=[
+    {a:[0,L],u:[-1,-1],ref:[-W/2,L],ang:Math.PI},                   // 1  left corner to the centre
+    {a:[0,L],u:[1,-1],ref:[W/2,L],ang:Math.PI},                     // 2  right corner
+    {a:[0,L],u:[-t22,-1],ref:[-W/2,.5],ang:Math.PI},                // 3  left edge to the centre again
+    {a:[0,L],u:[t22,-1],ref:[W/2,.5],ang:Math.PI},                  // 4  right edge
+    {keel:true,ang:1.36},                                           // 5  in half: both halves lift into a V
+    {wing:.1,ang:1.36},                                             // 6  wings fold back out flat
+  ];
+  FOLDS.forEach(f=>{ if(f.u){ const n=Math.hypot(...f.u); f.u=[f.u[0]/n,f.u[1]/n]; } });
+  const side=(f,p)=>{ const dx=p[0]-f.a[0], dy=p[1]-f.a[1]; return f.u[0]*dy-f.u[1]*dx; };   // sign of cross(u, p-a)
+  const reflect=(f,p)=>{ const dx=p[0]-f.a[0], dy=p[1]-f.a[1], d=dx*f.u[0]+dy*f.u[1]; return [f.a[0]+2*d*f.u[0]-dx, f.a[1]+2*d*f.u[1]-dy]; };
+  function split(poly,fn){ const A=[],B=[]; for(let i=0;i<poly.length;i++){ const p=poly[i], q=poly[(i+1)%poly.length], sp=fn(p), sq=fn(q);
+      if(Math.abs(sp)<1e-9){ A.push(p); B.push(p); } else (sp>0?A:B).push(p); if((sp>1e-9&&sq<-1e-9)||(sp<-1e-9&&sq>1e-9)){ const t=sp/(sp-sq); const m=[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]; A.push(m); B.push(m); } }
+    return [A.length>2?A:null,B.length>2?B:null]; }
+  // facets: convex pieces of paper, each remembering which folds carry it; worked out once in 2D
+  let facets=[{poly:[[-W/2,0],[W/2,0],[W/2,L],[-W/2,L]],moves:[],z:0}];
+  const toFolded=(fc,p)=>fc.moves.reduce((q,k)=>k<4?reflect(FOLDS[k],q):q,p);
+  const toPaper=(fc,p)=>fc.moves.slice().reverse().reduce((q,k)=>k<4?reflect(FOLDS[k],q):q,p);
+  FOLDS.forEach((f,k)=>{
+    const out=[]; let zMaxAll=Math.max(...facets.map(x=>x.z)), moving=[];
+    for(const fc of facets){
+      const world=fc.poly.map(p=>toFolded(fc,p));
+      const fn=f.u?(p=>side(f,p)*Math.sign(side(f,f.ref))):f.keel?(p=>-p[0]):(p=>Math.abs(p[0])-f.wing);
+      const lines=f.keel?[fn]:f.wing?[p=>-p[0]-f.wing,p=>p[0]-f.wing]:[fn];
+      let pieces=[{w:world,m:false,s:0}];
+      if(f.wing){ pieces=[]; const [l,rest]=split(world,lines[0]); if(l) pieces.push({w:l,m:true,s:1}); if(rest){ const [r,mid]=split(rest,lines[1]); if(r) pieces.push({w:r,m:true,s:-1}); if(mid) pieces.push({w:mid,m:false}); } }
+      else if(f.keel){ const [l,r]=split(world,fn); if(l) pieces=[{w:l,m:true,s:1}].concat(r?[{w:r,m:true,s:-1}]:[]); else pieces=[{w:r,m:true,s:-1}]; }
+      else { const [mv,st]=split(world,fn); pieces=[]; if(mv) pieces.push({w:mv,m:true}); if(st) pieces.push({w:st,m:false}); }
+      for(const pc of pieces){ const n={poly:pc.w.map(p=>toPaper(fc,p)),moves:fc.moves.slice(),signs:Object.assign({},fc.signs),z:fc.z};
+        if(pc.m){ n.moves.push(k); n.signs[k]=pc.s; if(f.u) moving.push(n); } out.push(n); }
+    }
+    if(f.u){ const zm=Math.max(...moving.map(x=>x.z)); moving.forEach(x=>x.z=zMaxAll+(zm-x.z)+1); }
+    facets=out;
+  });
+
+  /* ---------- 3D: each facet is its own mesh, re-posed every frame from the fold progress ---------- */
+  const paperTex=canvasTex(512,724,(x,w,h)=>{ x.fillStyle='#fdfdfb'; x.fillRect(0,0,w,h); grain(x,w,h,5);
+    x.strokeStyle='rgba(50,121,242,.28)'; x.lineWidth=1.5; for(let y=70;y<h;y+=26){ x.beginPath(); x.moveTo(0,y); x.lineTo(w,y); x.stroke(); }
+    x.strokeStyle='rgba(239,75,84,.35)'; x.beginPath(); x.moveTo(60,0); x.lineTo(60,h); x.stroke();
+    x.fillStyle='rgba(10,10,10,.62)'; x.font='500 46px Caveat, cursive'; x.save(); x.translate(w/2,h*.62); x.rotate(-.05); x.textAlign='center'; x.fillText('fly me in',0,0); x.restore();
+    x.font='500 30px Caveat, cursive'; x.fillText('~ D',w*.62,h*.62+44); });
+  const group=new THREE.Group(); scene.add(group);
+  const paperG=new THREE.Group(); paperG.position.y=-L*.45; group.add(paperG);   // pivot near the plane's balance point
+  const meshes=facets.map(fc=>{
+    const shape=new THREE.Shape(fc.poly.map(p=>new THREE.Vector2(p[0],p[1]))); const g=new THREE.ShapeGeometry(shape);
+    const uv=g.attributes.uv, pos=g.attributes.position; for(let i=0;i<uv.count;i++) uv.setXY(i,(pos.getX(i)+W/2)/W,pos.getY(i)/L);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({map:paperTex,color:0xeeece6,side:THREE.DoubleSide,roughness:.9,polygonOffset:true,polygonOffsetFactor:-fc.z*1.5,polygonOffsetUnits:-fc.z*2}));
+    m.castShadow=m.receiveShadow=true; m.matrixAutoUpdate=false; paperG.add(m); return m; });
+  // folds 1-4 lift their flap up through +z; pick each rotation's sign once
+  const axes=FOLDS.map(f=>{ if(!f.u) return null; const ax=new THREE.Vector3(f.u[0],f.u[1],0);
+    const r=new THREE.Vector3(f.ref[0]-f.a[0],f.ref[1]-f.a[1],0).applyAxisAngle(ax,Math.PI/2); return {ax,s:r.z>0?1:-1,a:new THREE.Vector3(f.a[0],f.a[1],0)}; });
+  const M=new THREE.Matrix4(), R=new THREE.Matrix4(), T1=new THREE.Matrix4(), T2=new THREE.Matrix4(), Y=new THREE.Vector3(0,1,0);
+  function rotAbout(point,axis,ang){ return T2.makeTranslation(point.x,point.y,point.z).multiply(R.makeRotationAxis(axis,ang)).multiply(T1.makeTranslation(-point.x,-point.y,-point.z)); }
+  function pose(p){
+    const th=k=>FOLDS[k].ang*clamp(p-k,0,1);
+    facets.forEach((fc,i)=>{ M.identity();
+      for(const k of fc.moves){
+        if(k<4){ M.premultiply(rotAbout(axes[k].a,axes[k].ax,th(k)*axes[k].s).clone()); }
+      }
+      // wing fold happens in the flat frame, the keel fold carries it up with the half
+      if(fc.moves.includes(5)){ const s=fc.signs[5]; M.premultiply(rotAbout(new THREE.Vector3(-s*FOLDS[5].wing,0,0),Y,-s*th(5)).clone()); }
+      if(fc.moves.includes(4)){ const s=fc.signs[4]; M.premultiply(R.makeRotationAxis(Y,s*th(4)).clone()); }
+      meshes[i].matrix.copy(M); });
+  }
+
+  /* ---------- on the desk ---------- */
+  const H=new THREE.Vector3(.62,0,-.78).normalize();                 // heading: off to the right and away
+  const basis=new THREE.Matrix4(), f=new THREE.Vector3(), u=new THREE.Vector3(), r=new THREE.Vector3();
+  function orient(fw,up,pos){ r.crossVectors(fw,up).normalize(); basis.makeBasis(r,fw,up); group.quaternion.setFromRotationMatrix(basis); group.position.copy(pos); }
+  const deskPos=new THREE.Vector3(.12,.004,.15);
+  orient(H,Y,deskPos);
+
+  /* ---------- events ---------- */
+  let prog={x:0,v:0}, target=0, phase='desk', t0=0, said=false;
+  lk.on('type',n=>{ if(phase==='desk') target=n; });
+  lk.on('wrong',()=>{ if(phase!=='desk') return; target=0; say('close, try again',true,2200); });
+  lk.on('right',()=>{ if(phase!=='desk') return; target=6; phase='ready'; t0=S.clock; S.camEase=.9; S.eyeTo.set(.9,2.2,6.2); S.lookTo.set(.4,.68,-.35); });
+
+  // flight: a point mass in the vertical plane of the heading; lift is perpendicular to the path, drag along it
+  const fl={s:0,y:0,vs:0,vy:0,turn:0,cL:1.6,origin:new THREE.Vector3(),h:H.clone()};
+  S.frames.push((dt,t)=>{
+    if(phase!=='flight'){
+      prog.v+=(70*(target-prog.x)-13*prog.v)*dt; prog.x=clamp(prog.x+prog.v*dt,0,6);
+      pose(prog.x);
+      // the sheet lifts a little off the desk as it becomes a plane, so the keel sits on the desk
+      orient(H,Y,deskPos);
+      if(phase==='ready'&&prog.x>5.95&&t-t0>.9){ phase='flight'; t0=t; fl.origin.copy(group.position).add(new THREE.Vector3(0,.02,0)); fl.pos=fl.origin.clone();
+        fl.vs=6*Math.cos(.15); fl.vy=6*Math.sin(.15); say('come in'); }
+      return;
+    }
+    const sub=4, h=dt/sub;
+    for(let i=0;i<sub;i++){
+      if(!fl.glide){
+        const v=Math.hypot(fl.vs,fl.vy)||1e-4, ds=fl.vs/v, dy=fl.vy/v;
+        const lift=fl.cL*v*v, drag=.035*v*v;
+        fl.vs+=(-dy*lift-ds*drag)*h; fl.vy+=(ds*lift-dy*drag-9.8)*h;
+        const g2=Math.atan2(fl.vy,fl.vs); if(fl.g!==undefined){ let d=g2-fl.g; if(d<-Math.PI) d+=Math.PI*2; if(d>Math.PI) d-=Math.PI*2; fl.turn+=d; } fl.g=g2;
+        if(fl.turn>Math.PI*2-.15&&fl.vs>0) fl.glide=true;               // one full loop, then settle into a glide
+      } else {
+        // trimmed glide: speed and sink rate ease to a steady state
+        fl.vs+=(3.6-fl.vs)*h*.9; fl.vy+=((fl.y<.4?.3:-.18)-fl.vy)*h*2.5;
+      }
+      fl.s+=fl.vs*h; fl.y+=fl.vy*h; fl.pos.addScaledVector(fl.h,fl.vs*h).addScaledVector(Y,fl.vy*h);
+    }
+    const v=Math.hypot(fl.vs,fl.vy), ds=fl.vs/v, dy=fl.vy/v;
+    f.copy(fl.h).multiplyScalar(ds).addScaledVector(Y,dy).normalize();
+    u.copy(fl.h).multiplyScalar(-dy).addScaledVector(Y,ds).normalize();
+    orient(f,u,fl.pos);
+    if(group.position.length()>40) group.visible=false;
+  });
+}
+
+</script>
+</body>
+</html>

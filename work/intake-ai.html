@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" class="locked">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protected &mdash; Gurudatta Velivela</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="A protected case study. It needs a password.">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="case.css">
+</head>
+<body>
+
+<!-- the lock. everything past it arrives encrypted from intake-ai.enc.json -->
+<div class="gate">
+  <div class="gate-card">
+    <svg class="gate-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="4" y="10.5" width="16" height="10.5" rx="2.5"></rect>
+      <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path>
+      <circle cx="12" cy="15.75" r="1.1" fill="currentColor" stroke="none"></circle>
+    </svg>
+    <h1>Intake AI</h1>
+    <p>A case study on what I researched, designed and built at Procol. It covers customer work and commercial figures, so it is not public. If you are hiring and I sent you here, you have the password.</p>
+    <form autocomplete="off">
+      <input id="pw" type="password" name="pw" placeholder="password" aria-label="Password"
+             autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button type="submit">Unlock</button>
+    </form>
+    <p class="gate-msg" role="status" aria-live="polite"></p>
+    <a class="gate-back" href="../index.html">&larr; back to the portfolio</a>
+  </div>
+</div>
+
+<main class="paper" data-src="intake-ai.enc.json" data-title="Intake AI &mdash; Gurudatta Velivela"></main>
+
+<script src="gate.js"></script>
+</body>
+</html>

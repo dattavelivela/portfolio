@@ -1,0 +1,107 @@
+<!-- v18 idea: a light terminal where Datta built the lock in Claude Code; every typed box prints a masked key and a log line, and the right password opens an ASCII door. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v18 · Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{display:flex;align-items:center;justify-content:center;--green:#1f9d55}
+.term{width:min(520px,calc(100% - 64px));height:480px;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 24px 60px -30px rgba(0,0,0,.18)}
+.bar{position:relative;display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-bottom:1px solid var(--line);background:#fbfbfb}
+.bar i{width:11px;height:11px;border-radius:50%;background:#e2e2e3}
+.bar span{position:absolute;left:0;right:0;text-align:center;font:400 12px/38px var(--mono);color:var(--muted);pointer-events:none}
+.body{flex:1;padding:18px 20px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;font:400 13px/1.7 var(--mono);color:var(--ink);white-space:pre}
+.ln{min-height:1.7em}
+.dim{color:var(--faint)}.mut{color:var(--muted)}.p{color:var(--blue)}.ok{color:var(--green)}.no{color:var(--red)}
+.key{letter-spacing:.12em}
+.cur{display:inline-block;width:.6em;height:1.15em;vertical-align:-.2em;background:var(--ink);animation:cur 1.05s steps(1) infinite}
+.door{color:var(--ink);line-height:1.05;margin:4px 0}
+.door .lit{color:#e0a43a}
+a.mail{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+@keyframes cur{50%{opacity:0}}
+html.demo .cur{animation:none}
+@media (prefers-reduced-motion:reduce){.cur{animation:none}}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div class="term">
+    <div class="bar"><i></i><i></i><i></i><span>datta@procol: ~/portfolio</span></div>
+    <div class="body" id="out"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script type="module">
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MAIL='mailto:withgurudatta@gmail.com';
+const out=document.getElementById('out');
+const SPIN='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏';
+const LOGS=['checking key','reading NDA','looking you up','asking Datta','warming up the door'];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+function line(html,cls=''){const d=document.createElement('div');d.className='ln '+cls;d.innerHTML=html;out.appendChild(d);
+  fit();return d}
+function fit(){while(out.children.length>3&&out.scrollHeight>out.clientHeight+1)out.firstChild.remove()}
+// the static header
+line('<span class="dim">╭ lock built with Claude Code · v1.0</span>');
+line('<span class="dim">╰ case study: under NDA</span>');
+line('');
+let prompt, keyEl, logs=[], spinT=null, done=false;
+function newPrompt(){
+  prompt=line('<span class="p">datta@procol</span> <span class="mut">~</span> unlock case-study');
+  keyEl=line('');logs=[];paintKey(0)}
+function paintKey(n){keyEl.innerHTML='<span class="mut">  key</span> <span class="key">'+'*'.repeat(n)+'<span class="dim">'+'·'.repeat(6-n)+'</span></span>'+(done?'':' <span class="cur"></span>')}
+newPrompt();
+
+// spinner: every running log line animates until it resolves
+function startLog(i){const d=document.createElement('div');d.className='ln';out.appendChild(d);
+  const L={el:d,text:LOGS[i],f:0,state:'run'};logs.push(L);draw(L);fit();
+  setTimeout(()=>{if(L.state==='run'){L.state='done';draw(L)}},RM?0:420+Math.random()*260);return L}
+function draw(L){L.el.innerHTML=L.state==='run'?`<span class="p">  ${SPIN[L.f%SPIN.length]}</span> <span class="mut">${L.text}…</span>`:`<span class="ok">  ·</span> <span class="dim">${L.text}</span>`}
+setInterval(()=>{logs.forEach(L=>{if(L.state==='run'){L.f++;draw(L)}})},80);
+
+lk.on('type',n=>{if(done)return;
+  if(n===0&&logs.length===0){paintKey(0);return}
+  if(n===0){paintKey(0);logs.forEach(L=>L.el.remove());logs=[];return}
+  paintKey(n);
+  while(logs.length>n&&logs.length)logs.pop().el.remove();
+  while(logs.length<Math.min(n,5))startLog(logs.length)});
+
+lk.on('wrong',()=>{logs.forEach(L=>{L.state='done';draw(L)});
+  keyEl.innerHTML='<span class="mut">  key</span> <span class="key">******</span>';
+  line('<span class="no">✗ wrong key, try again</span>');
+  line(`<span class="dim">  hint: no key? </span><a class="mail" href="${MAIL}">email Datta</a><span class="dim"> for one</span>`);
+  line('');logs=[];
+  setTimeout(()=>{if(!done)newPrompt()},RM?0:700)});
+
+// ASCII door: the panel swings open column by column, light spills through
+function door(w){const W=11, rows=['  +'+'-'.repeat(W)+'+'], MSG=' come in ';
+  for(let r=0;r<5;r++){const knob=r===2&&w>2, panel='#'.repeat(Math.max(0,w-(knob?2:0)))+(knob?'o#':''), gap=W-w;
+    let light='.'.repeat(gap);
+    if(r===2&&gap>=MSG.length+1){const a=Math.floor((gap-MSG.length)/2);light='.'.repeat(a)+'</span><span class="ok">'+MSG+'</span><span class="lit">'+'.'.repeat(gap-a-MSG.length)}
+    rows.push('  |'+panel+'<span class="lit">'+light+'</span>|'+(w===0?'<span class="dim">#</span>':''))}
+  rows.push('  +'+'-'.repeat(W)+'+');return rows.join('\n')}
+lk.on('right',()=>{done=true;logs.forEach(L=>{L.state='done';draw(L)});paintKey(6);
+  line('<span class="ok">✓ access granted</span>');
+  const d=line('','door');d.innerHTML=door(11);
+  const frames=[11,9,7,5,3,1,0];let i=0;
+  const step=()=>{d.innerHTML=door(frames[i]);fit();if(++i<frames.length)setTimeout(step,110);else{line('<span class="p">datta@procol</span> <span class="mut">~</span> <span class="cur"></span>')}};
+  if(RM){i=frames.length-1;step()}else setTimeout(step,300)});
+
+// ?demo=N | right | wrong : fire the handlers as if typed (for screenshots)
+const q=new URLSearchParams(location.search).get('demo');
+if(q)document.documentElement.classList.add('demo');
+if(q)setTimeout(async()=>{const bx=[...document.querySelectorAll('#lk .bx')], wait=ms=>new Promise(r=>setTimeout(r,ms));
+  if(q==='wrong'){for(let i=0;i<5;i++){bx[i].value='12345'[i];lk.count=i+1;lk.emit('type',i+1);await wait(300)}
+    bx[5].value='9';lk.count=6;lk.state='wrong';document.querySelector('#lk .msg').textContent='Not quite. Try again.';lk.emit('type',6);lk.emit('wrong');return}
+  const n=q==='right'?6:Math.max(0,Math.min(5,+q||0));
+  for(let i=0;i<n;i++){bx[i].value='123456'[i];bx[i].dispatchEvent(new Event('input'));await wait(300)}},300);
+</script>
+</body>
+</html>

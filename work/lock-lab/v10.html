@@ -1,0 +1,265 @@
+<!-- v10 idea: a taped parcel on the doorstep of door 132; each typed box adds a stroke of Datta's signature to the delivery slip, wrong tears the slip off, right rips the tape and the flaps spring open. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v10 · Signed for</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+/* variant styles: only #art and what lives inside it */
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:8%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--body);
+  pointer-events:none;z-index:2;transition:opacity .2s,transform .2s,color .6s}
+#art .cap.swap{opacity:0;transform:translateY(5px)}
+#art .cap.wrong{color:var(--red)}
+#art .cap.right{color:var(--blue)}
+/* no-WebGL fallback */
+#art .fb{position:absolute;inset:0;display:grid;place-items:center}
+
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"></div>
+<script src="base.js"></script>
+<script>
+// shared by the 3D scene and the CSS fallback
+const PHOTO='../../assets/datta.jpg';
+const CAPS={idle:"hi, it's me",wrong:'close, try again',right:'come in'};
+const ART=document.getElementById('art');
+const cap=document.createElement('p'); cap.className='cap'; cap.dataset.k='idle'; cap.textContent=CAPS.idle; ART.appendChild(cap);
+function say(k){ if(cap.dataset.k===k) return; cap.dataset.k=k; cap.classList.add('swap');
+  clearTimeout(say.t); say.t=setTimeout(function(){ cap.textContent=CAPS[k]; cap.className='cap '+k; },200); }
+lk.on('wrong',function(){ say('wrong'); setTimeout(function(){ if(lk.state==='idle'&&!lk.count) say('idle'); },2600); });
+lk.on('right',function(){ say('right'); });
+lk.on('type',function(n){ if(lk.state==='idle'&&n>0) say('idle'); });
+function lkFallback(){
+  if(ART.querySelector('.fb')||ART.querySelector('canvas')) return;
+  var d=document.createElement('div'); d.className='fb'; d.innerHTML=`<img src="../../assets/signed/parcel-open.webp" alt="" style="width:86%;height:auto">`; ART.prepend(d);
+}
+// if the module (CDN) never starts, still show the static fallback
+setTimeout(function(){ if(!ART.querySelector('canvas')) lkFallback(); },6000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+/* ---------- shared 3D kit (same in v06 to v10) ---------- */
+const TAU=Math.PI*2;
+const clamp01=t=>Math.max(0,Math.min(1,t));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const damp=(a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt));
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+function glOK(){ try{ const c=document.createElement('canvas'); return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl'))); }catch(e){ return false; } }
+
+// canvas textures that redraw once the web fonts are in
+const FONTS=Promise.all(['600 64px "Instrument Sans"','400 40px "Space Mono"','500 64px Caveat'].map(f=>document.fonts.load(f).catch(()=>{}))).catch(()=>{});
+function canvasTex(w,h,draw,{srgb=true}={}){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  const t=new THREE.CanvasTexture(c); if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  t.redraw=()=>{ g.clearRect(0,0,w,h); draw(g,w,h); t.needsUpdate=true; };
+  t.redraw(); FONTS.then(()=>t.redraw()); t.canvas=c; t.ctx=g; return t;
+}
+function svgTex(url,w,h){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  const im=new Image(); im.onload=()=>{ c.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url;
+  return t;
+}
+function noise(g,w,h,amt){ const d=g.getImageData(0,0,w,h),p=d.data; for(let i=0;i<p.length;i+=4){ const n=(Math.random()-.5)*amt; p[i]+=n; p[i+1]+=n; p[i+2]+=n; } g.putImageData(d,0,0); }
+function makeStage({bg='#f8f8f8',fov=35}={}){
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  ART.querySelector('.fb')?.remove();
+  ART.prepend(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(bg);
+  const camera=new THREE.PerspectiveCamera(fov,1,.1,100);
+  const st={renderer,scene,camera,tick:null,onResize:null};
+  const size=()=>{ const w=ART.clientWidth||1,h=ART.clientHeight||1; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); st.onResize&&st.onResize(w,h); };
+  new ResizeObserver(size).observe(ART); size();
+  let raf=0,last=0;
+  const loop=now=>{ raf=requestAnimationFrame(loop); const dt=Math.max(0,Math.min((now-last)/1000,1/30)); last=now; st.tick&&st.tick(dt,now/1000); renderer.render(scene,camera); };
+  st.start=()=>{ if(raf) return; last=performance.now(); raf=requestAnimationFrame(loop); };
+  st.stop=()=>{ cancelAnimationFrame(raf); raf=0; };
+  document.addEventListener('visibilitychange',()=>document.hidden?st.stop():st.start());
+  return st;
+}
+function ndc(e,el){ const r=el.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); }
+function shadowFloor(y,opacity=.14){ const m=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity})); m.rotation.x=-Math.PI/2; m.position.y=y; m.receiveShadow=true; return m; }
+function softLights(scene,{pos=[-2.5,7,5],key=2.2,hemi=1.9,box=4,map=1024}={}){
+  const h=new THREE.HemisphereLight(0xffffff,0xe8e4dc,hemi); scene.add(h);
+  const d=new THREE.DirectionalLight(0xfffaf2,key); d.position.set(...pos); d.castShadow=true;
+  d.shadow.mapSize.set(map,map); const c=d.shadow.camera; c.left=c.bottom=-box; c.right=c.top=box; c.near=.5; c.far=40;
+  d.shadow.bias=-.0005; d.shadow.normalBias=.02; d.shadow.radius=4;
+  scene.add(d); scene.add(d.target); return {hemi:h,key:d};
+}
+/* ---------- variant ---------- */
+
+if(!glOK()) lkFallback(); else main();
+function main(){
+const st=makeStage({fov:32}),{scene,camera,renderer}=st;
+const look=new THREE.Vector3(-.1,1.25,0);
+camera.position.set(2.2,2.9,7.6); camera.lookAt(look);
+const L=softLights(scene,{pos:[-3.5,7,6],key:2.3,hemi:1.8,box:4});
+scene.add(shadowFloor(0,.13));
+
+// doorstep, wall and door 132
+const step=new THREE.Mesh(new THREE.BoxGeometry(4.4,.2,2.6),new THREE.MeshStandardMaterial({color:'#e6e3dd',roughness:.85})); step.position.set(0,.1,.1); step.castShadow=step.receiveShadow=true; scene.add(step);
+const wall=new THREE.Mesh(new THREE.PlaneGeometry(30,12),new THREE.MeshStandardMaterial({color:'#efede9',roughness:.95})); wall.position.set(0,6,-1.25); wall.receiveShadow=true; scene.add(wall);
+const DW=1.55,DH=DW*224/104;
+const doorTex=svgTex('../../assets/shelf/door.svg',416,896);
+const frameM=new THREE.MeshStandardMaterial({color:'#5b3a22',roughness:.7});
+const door=new THREE.Mesh(new THREE.BoxGeometry(DW,DH,.08),[frameM,frameM,frameM,frameM,new THREE.MeshStandardMaterial({map:doorTex,roughness:.7}),frameM]);
+door.position.set(-.35,.2+DH/2,-1.18); door.castShadow=door.receiveShadow=true; scene.add(door);
+const jamb=(w,h,x,y)=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,.14),new THREE.MeshStandardMaterial({color:'#f7f5f1',roughness:.8})); m.position.set(x,y,-1.18); m.castShadow=m.receiveShadow=true; scene.add(m); };
+jamb(.14,DH+.14,door.position.x-DW/2-.07,.2+(DH+.14)/2); jamb(.14,DH+.14,door.position.x+DW/2+.07,.2+(DH+.14)/2); jamb(DW+.28,.14,door.position.x,.2+DH+.07);
+
+// the parcel (Rinso box), open top with an inside, two lid flaps
+const W=1.6,H=1.0,D=1.15,TOP=.2;
+const parcel=new THREE.Group(); parcel.position.set(.25,TOP+H/2,.35); parcel.rotation.y=-.22; scene.add(parcel);
+const front=svgTex('../../assets/shelf/parcel-front.svg',640,400),side=svgTex('../../assets/shelf/parcel-side.svg',460,400);
+const kraft=new THREE.MeshStandardMaterial({color:'#c9a170',roughness:.9});
+const hide=new THREE.MeshBasicMaterial({visible:false});
+const sideM=new THREE.MeshStandardMaterial({map:side,roughness:.8}),frontM=new THREE.MeshStandardMaterial({map:front,roughness:.8});
+const box=new THREE.Mesh(new THREE.BoxGeometry(W,H,D),[sideM,sideM,hide,kraft,frontM,frontM]); box.castShadow=box.receiveShadow=true; parcel.add(box);
+const inner=new THREE.Mesh(new THREE.BoxGeometry(W-.03,H-.02,D-.03),[kraft,kraft,hide,kraft,kraft,kraft].map(m=>m===hide?m:new THREE.MeshStandardMaterial({color:'#b88c58',roughness:.95,side:THREE.BackSide})));
+inner.position.y=.01; inner.receiveShadow=true; parcel.add(inner);
+const glow=new THREE.PointLight(0xffd9a0,0,2.4,1.5); glow.position.set(0,.1,0); parcel.add(glow);
+// lid: front and back halves of the top artwork
+const topTex=(off)=>{ const t=svgTex('../../assets/shelf/parcel-top.svg',640,460); t.repeat.set(1,.5); t.offset.set(0,off); return t; };
+const blueEdge=new THREE.MeshStandardMaterial({color:'#2b6fd6',roughness:.8});
+function flap(off,hingeZ,dir){
+  const piv=new THREE.Group(); piv.position.set(0,H/2,hingeZ); parcel.add(piv);
+  const m=new THREE.Mesh(new THREE.BoxGeometry(W,.014,D/2),[blueEdge,blueEdge,new THREE.MeshStandardMaterial({map:topTex(off),roughness:.8}),kraft,blueEdge,blueEdge]);
+  m.position.set(0,.007,-dir*D/4); m.castShadow=m.receiveShadow=true; piv.add(m);
+  return {piv,dir,a:0,w:0,on:false};
+}
+const flaps=[flap(0,D/2,1),flap(.5,-D/2,-1)];
+
+// packing tape across the seam and down both sides
+const tapeTex=canvasTex(256,64,(g,w,h)=>{ g.fillStyle='rgba(246,208,60,.9)'; g.fillRect(0,0,w,h); g.fillStyle='rgba(229,57,43,.75)';
+  for(let y=6;y<h;y+=14) for(let x=6+(y/14%2)*7;x<w;x+=14){ g.beginPath(); g.arc(x,y,3.6,0,TAU); g.fill(); }
+  g.fillStyle='rgba(255,255,255,.35)'; g.fillRect(0,0,w,3); });
+const tapeM=new THREE.MeshStandardMaterial({map:tapeTex,roughness:.35,transparent:true});
+const tapes=[];
+[-1,1].forEach(s=>{ // two halves that rip apart at the middle
+  const g=new THREE.Group(); parcel.add(g);
+  const top=new THREE.Mesh(new THREE.BoxGeometry(W/2+.01,.006,.24),tapeM); top.position.set(s*(W/4+.005),H/2+.017,0);
+  const tail=new THREE.Mesh(new THREE.BoxGeometry(.006,.32,.24),tapeM); tail.position.set(s*(W/2+.004),H/2-.15,0);
+  top.castShadow=true; g.add(top,tail); tapes.push({g,s,v:new THREE.Vector3(),w:new THREE.Vector3(),on:false});
+});
+
+// the delivery slip: a canvas we sign on, stroke by stroke
+const SW=.86,SH=SW*346/512;
+const STROKES=[ // a quick "Datta" in six moves (slip pixels)
+  [[60,232],[56,262],[54,290],[58,312]],
+  [[44,240],[120,206],[168,292],[58,312]],
+  [[150,270],[128,250],[104,286],[126,294],[144,298],[150,276],[152,266],[150,286],[156,300],[172,292]],
+  [[188,226],[184,262],[182,290],[194,300],[202,302],[208,292],[214,282],[218,222],[214,262],[214,290],[226,300],[234,302],[242,292],[246,284]],
+  [[178,254],[204,250],[232,250],[254,252],[300,272],[278,250],[252,286],[276,294],[292,298],[298,276],[300,266],[298,288],[306,302],[326,292]],
+  [[48,326],[150,318],[300,318],[460,304]],
+];
+let signed=0,anim=[];
+const slipTex=canvasTex(512,346,(g,w,h)=>drawSlip(g,w,h));
+function drawSlip(g,w,h){
+  g.fillStyle='#fbfbf8'; g.fillRect(0,0,w,h);
+  g.fillStyle='#14336b'; g.fillRect(0,0,w,46);
+  g.fillStyle='#ffffff'; g.font='400 25px "Space Mono"'; g.textBaseline='middle'; g.fillText('SIGNED FOR',52,24); g.textAlign='right'; g.fillText('RN0132SR',w-18,24); g.textAlign='left';
+  g.fillStyle='#22252f'; g.font='400 21px "Space Mono"';
+  g.fillText('TO    you',18,78); g.fillText('FROM  datta, door 132',18,108); g.fillText('ITEM  everything i built',18,138);
+  g.fillStyle='rgba(34,37,47,.25)'; g.fillRect(18,160,w-36,1.5); g.fillRect(36,322,w-72,1.5);
+  g.fillStyle='rgba(34,37,47,.45)'; g.font='400 16px "Space Mono"'; g.fillText('RECEIVED BY, SIGN HERE',36,184);
+  g.strokeStyle='#23408e'; g.lineWidth=5; g.lineCap=g.lineJoin='round';
+  for(let i=0;i<STROKES.length;i++){ const prog=i<signed?1:(anim[i]||0); if(prog>0) drawStroke(g,STROKES[i],prog); }
+}
+function drawStroke(g,pts,prog){
+  // smooth through the points with quadratic midpoints, cut at prog
+  const n=Math.max(2,Math.ceil(pts.length*prog)); g.beginPath(); g.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<n-1;i++){ const mx=(pts[i][0]+pts[i+1][0])/2,my=(pts[i][1]+pts[i+1][1])/2; g.quadraticCurveTo(pts[i][0],pts[i][1],mx,my); }
+  const a=pts[n-2],b=pts[n-1],f=prog>=1?1:(pts.length*prog)%1||1; g.lineTo(a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f); g.stroke();
+}
+const slipM=new THREE.MeshStandardMaterial({map:slipTex,roughness:.9,transparent:true});
+const slip=new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),slipM); slip.castShadow=true;
+const SLIP_P=new THREE.Vector3(-.3,-.1,D/2+.004);
+slip.position.copy(SLIP_P); slip.rotation.z=.035; parcel.add(slip);
+const cornerTape=new THREE.Mesh(new THREE.PlaneGeometry(.2,.07),new THREE.MeshStandardMaterial({color:'#f6e7a8',transparent:true,opacity:.7,roughness:.4}));
+const ct1=cornerTape.clone(); ct1.position.set(-SW/2+.04,SH/2-.01,.002); ct1.rotation.z=.6; slip.add(ct1);
+const ct2=cornerTape.clone(); ct2.position.set(SW/2-.04,SH/2-.01,.002); ct2.rotation.z=-.6; slip.add(ct2);
+let slipIn=1;
+
+// torn pieces flutter down to the step
+const pieces=[];
+function tearSlip(){
+  const src=slipTex.canvas,w=src.width,h=src.height,cut=[]; for(let y=0;y<=h;y+=18) cut.push([w*.5+(Math.random()-.5)*44,y]);
+  [0,1].forEach(k=>{
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+    g.beginPath(); if(k===0){ g.moveTo(0,0); cut.forEach(p=>g.lineTo(...p)); g.lineTo(0,h); } else { g.moveTo(w,0); cut.forEach(p=>g.lineTo(...p)); g.lineTo(w,h); }
+    g.closePath(); g.clip(); g.drawImage(src,0,0);
+    const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(SW,SH),new THREE.MeshStandardMaterial({map:t,transparent:true,side:THREE.DoubleSide,roughness:.9}));
+    m.castShadow=true; slip.updateWorldMatrix(true,false); slip.matrixWorld.decompose(m.position,m.quaternion,m.scale); scene.add(m);
+    const s=k?1:-1; pieces.push({m,v:new THREE.Vector3(s*.5,.7,.9),w:new THREE.Vector3(Math.random()*2,s*1.5,s*2),t:0});
+  });
+  slip.visible=false; signed=0; anim=[];
+}
+function newSlip(){ if(slip.visible) return; slipTex.redraw(); slip.visible=true; slipIn=0; }
+
+let state='idle',rt=0,last=0;
+lk.on('type',n=>{
+  if(state==='right') return;
+  if(state==='torn'&&n>0) newSlip();
+  if(state!=='torn'||n>0) state='idle';
+  if(n>last){ for(let i=last;i<n;i++) anim[i]=0.001; }
+  else { signed=Math.min(signed,n); for(let i=n;i<6;i++) anim[i]=0; }
+  last=n; slipTex.redraw();
+});
+lk.on('wrong',()=>{ if(state==='right') return; state='torn'; setTimeout(()=>{ tearSlip(); setTimeout(()=>{ if(state==='torn'){ newSlip(); } },2200); },260); });
+lk.on('right',()=>{ state='right'; rt=0; });
+
+// pointer: the parcel turns a little toward you
+let yawT=-.22;
+renderer.domElement.addEventListener('pointermove',e=>{ const p=ndc(e,renderer.domElement); yawT=-.22+p.x*.18; });
+
+const g=new THREE.Vector3(0,-6,0);
+st.tick=(dt,t)=>{
+  // signature strokes draw on
+  let dirty=false;
+  for(let i=0;i<6;i++){ if(anim[i]>0&&anim[i]<1){ anim[i]=Math.min(1,anim[i]+dt/.38); dirty=true; if(anim[i]>=1) signed=Math.max(signed,i+1); } }
+  if(dirty) slipTex.redraw();
+  if(slipIn<1){ slipIn=Math.min(1,slipIn+dt*2.2); const e=easeOut(slipIn); slip.position.set(SLIP_P.x,SLIP_P.y-(1-e)*.25,SLIP_P.z); slip.rotation.z=.035+(1-e)*.3; slipM.opacity=e; }
+  for(let i=pieces.length-1;i>=0;i--){ const p=pieces[i]; p.t+=dt;
+    if(p.m.position.y>TOP+.02){ p.v.addScaledVector(g,dt*.35); p.v.multiplyScalar(Math.exp(-dt*1.2)); p.v.x+=Math.sin(p.t*7)*dt*1.5;
+      p.m.position.addScaledVector(p.v,dt); p.m.rotation.x+=p.w.x*dt; p.m.rotation.y+=p.w.y*dt*.5; p.m.rotation.z+=p.w.z*dt; }
+    else { p.m.position.y=TOP+.01; p.m.rotation.x=damp(p.m.rotation.x,-Math.PI/2,6,dt); p.m.rotation.y=damp(p.m.rotation.y,0,6,dt); }
+    if(p.t>2.4){ p.m.material.opacity=Math.max(0,1-(p.t-2.4)*1.5); if(p.t>3.1){ scene.remove(p.m); pieces.splice(i,1); } } }
+  parcel.rotation.y=damp(parcel.rotation.y,yawT,2,dt);
+  if(state==='right'){
+    rt+=dt;
+    // the tape rips: both halves peel up and fly off
+    tapes.forEach(tp=>{
+      if(!tp.on&&rt>.25){ tp.on=true; tp.v.set(tp.s*1.4,3.2,.6+Math.random()*.4); tp.w.set(Math.random()*3,0,-tp.s*5); }
+      if(tp.on){ tp.v.y-=9.8*dt*.5; tp.g.position.addScaledVector(tp.v,dt); tp.g.rotation.x+=tp.w.x*dt; tp.g.rotation.z+=tp.w.z*dt;
+        tp.g.children.forEach(c=>{ c.material=c.material===tapeM?tapeM.clone():c.material; c.material.opacity=Math.max(0,1-(rt-.25)*.9); }); }
+    });
+    // flaps: cardboard spring + a hard stop where they meet the box side
+    flaps.forEach((f,i)=>{
+      if(!f.on&&rt>.55+i*.08){ f.on=true; f.w=11+Math.random()*2; }
+      if(!f.on) return;
+      for(let s=0;s<4;s++){ const h=dt/4; f.w+=(26*(2.45-f.a)-2.6*f.w)*h; f.a+=f.w*h; if(f.a>2.9){ f.a=2.9; f.w*=-.35; } }
+      f.piv.rotation.x=f.dir*f.a;
+    });
+    glow.intensity=damp(glow.intensity,rt>.7?3:0,2,dt);
+    look.lerp(new THREE.Vector3(.1,1.05,.2),1-Math.exp(-dt*1.3)); camera.position.lerp(new THREE.Vector3(1.8,3.6,6.6),1-Math.exp(-dt*1.1));
+  }
+  camera.lookAt(look);
+};
+st.start();
+}
+</script>
+</body>
+</html>

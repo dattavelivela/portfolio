@@ -1,0 +1,113 @@
+<!-- v24 idea: the window seat on the way into Bengaluru at dusk; each box descends through the cloud deck until the city lights show, and the right password lines up the runway: BLR · LANDED. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v24 · Window seat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:linear-gradient(180deg,#e9e4da,#ddd6ca);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;color:#4a4339}
+.wall{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,.018) 0 1px,transparent 1px 7px);pointer-events:none}
+.frame{position:relative;width:min(300px,52%);aspect-ratio:300/430;border-radius:46%/34%;padding:18px;background:linear-gradient(160deg,#f6f2ea,#d8d0c2);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.7),inset 0 -6px 14px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.6),0 18px 40px -18px rgba(60,48,30,.35)}
+.pane{position:relative;width:100%;height:100%;border-radius:44%/33%;overflow:hidden;background:#1b1631;
+  box-shadow:inset 0 0 0 3px #cfc6b6,inset 0 6px 18px rgba(0,0,0,.45)}
+.pane canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pane::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,.14),rgba(255,255,255,0) 38%);pointer-events:none}
+.row{display:flex;justify-content:space-between;width:min(300px,52%);font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#8b8172}
+.row b{font-weight:400;color:#4a4339}
+.line{position:absolute;left:40px;top:34px;margin:0;font:italic 300 26px/1.2 "Newsreader",serif;letter-spacing:-.01em;color:#3c352c}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#8b8172}
+.tr{right:40px;top:44px}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div class="wall"></div>
+  <p class="line" id="line">Window seat, always.</p>
+  <span class="mono tr">6E 2131 · AMS → BLR</span>
+  <div class="row"><span>seat 14A</span><b id="alt">FL 320</b></div>
+  <div class="frame"><div class="pane"><canvas id="cv"></canvas></div></div>
+  <div class="row"><span id="where">on approach</span><b id="lbl">BLR</b></div>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, fbm, hash, clamp, lerp, sstep, wireDemo } from './dither.js';
+const $ = id => document.getElementById(id);
+let prog, landed, burst;
+
+const scene = shade((x, y, w, h, t) => {
+  let u = x / w - .5, v = y / h - .5;
+  const bank = lerp(-.14, 0, prog.x) * (1 - landed.x);                       // a gentle bank that levels out
+  const cs = Math.cos(bank), sn = Math.sin(bank);
+  [u, v] = [u * cs - v * sn * h / w, u * sn * w / h + v * cs];
+  u += .5; v += .5;
+  const hz = lerp(.4, .36, prog.x);                                             // horizon
+  if (v < hz) {                                                                 // dusk sky, brightest at the horizon
+    const k = (hz - v) / hz;
+    let s = lerp(.7, .16, Math.pow(k, .6)) + .25 * Math.exp(-Math.pow((u - .72) * 3, 2) - k * 9);
+    const high = fbm(u * 3 + t * .01, v * 14, 3);                              // high cirrus streaks
+    s += sstep(.55, .75, high) * .12 * (1 - k);
+    return s;
+  }
+  const H = lerp(1.1, .45, prog.x), z = H / (v - hz + 1e-4);                    // ground in perspective
+  const X = (u - .5) * z, Z = z + t * lerp(.35, 1.1, prog.x);
+  let s = .04 + .16 * Math.exp(-(v - hz) * 30);                                // dark ground, haze at the horizon
+  // city lights: points on a street grid, projected; more of them switch on as we come down
+  const asp = w / h, px = 1 / h;                                                // one cell, in v units
+  const gi = Math.round(X * 5), gj = Math.round(Z * 3);
+  const lx = gi / 5, lz = gj / 3 - t * lerp(.35, 1.1, prog.x);              // that light's world position (camera space)
+  let city = 0;
+  if (lz > 0 && hash(gi, gj) < lerp(.12, .5, prog.x) * (.4 + 1.2 * fbm(gi * .15, gj * .2, 2))) {
+    const lu = .5 + lx / lz * 1, lv = hz + H / lz;
+    const dd = Math.hypot((u - lu) * asp, v - lv), rad = px * lerp(.6, 2.2, Math.min(1, 3 / lz));
+    city = dd < rad ? lerp(.55, 1, Math.min(1, 4 / lz)) : 0;
+  }
+  const street = .1 + .22 * sstep(.45, .8, fbm(X * .8, Z * .5, 3));   // faint road glow
+  s = Math.max(s, city, street * sstep(.3, 1, prog.x) * Math.min(1, 6 / z));
+  // runway: two rows of edge lights and a centreline chase, on the right password
+  if (landed.x > 0) {
+    const k = Math.max(1, Math.round(z * 2.5)) / 2.5, rv = hz + H / k, rad = px * lerp(.7, 2.4, Math.min(1, 2 / k));
+    let rw = 0;
+    for (const side of [-1, 1]) if (Math.hypot((u - (.5 + side * .3 / k)) * asp, v - rv) < rad) rw = 1;
+    const phase = ((k * 2.5 - t * 6) % 12 + 12) % 12;
+    if (Math.hypot((u - .5) * asp, v - rv) < rad * .8) rw = Math.max(rw, phase < 1.2 ? 1 : .5);
+    if (k > 24) rw = 0;
+    s = lerp(s, Math.max(s * .6, rw), landed.x);
+  }
+  // cloud deck sliding past, thinner as we descend
+  const cn = fbm(X * .9 + 3, Z * .45, 4), thr = lerp(.4, .66, prog.x) + landed.x * .2 - burst.x * .4;
+  const c = sstep(thr, thr + .14, cn) * sstep(hz, hz + .05, v);
+  const top = .46 + .3 * Math.exp(-Math.pow((u - .72) * 2.4, 2)) + (cn - thr) * .5;   // lit by the low sun
+  return lerp(s, top, c * .95);
+});
+
+const d = dither($('cv'), {
+  source: scene, palette: ['#1b1631', '#58386c', '#d6765b', '#ffdba6'], grain: .07, dotMin: .3, dotMax: .96, noise: .5, sparse: .65, bayer: 4,
+  frame(dt, t, api) {
+    api.p.cell = lerp(12, 4, prog.x) - landed.x * .5 + burst.x * 6;
+    api.p.resolve = clamp(lerp(.35, .95, prog.x) + landed.x - burst.x);
+  }
+});
+prog = d.ease(0, 1.8); landed = d.ease(0, 1.2); burst = d.ease(0, 5);
+
+let wrongAt = -1e9, done = false;
+const alt = n => { const fl = Math.round(lerp(320, 30, n / 6) / 10) * 10; $('alt').textContent = fl >= 100 ? 'FL ' + fl : fl * 100 + ' ft'; };
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) { burst.to(0); prog.to(0); alt(0); $('where').textContent = 'on approach'; } }, 900); return; }
+  burst.to(0); prog.to(n / 6); alt(n); $('where').textContent = n < 6 ? 'descending' : 'final approach';
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('where').textContent = 'turbulence'; $('alt').textContent = 'go around'; });
+lk.on('right', () => {
+  done = true; prog.to(1); landed.to(1); burst.to(0);
+  $('where').textContent = 'welcome home'; $('lbl').textContent = 'BLR · LANDED'; $('alt').textContent = 'on ground'; $('line').textContent = 'Landed. Come in.';
+});
+wireDemo(() => d.settle());
+</script>
+</body>
+</html>

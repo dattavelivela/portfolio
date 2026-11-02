@@ -1,0 +1,191 @@
+<!-- v01 idea: Datta's orange slosh camera in 3D prints a polaroid one step per typed box; wrong = black print pulled back in, right = it ejects, drops on the desk and develops. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v01 · Slosh prints you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+<style>
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#art .cap{position:absolute;left:0;right:0;bottom:9%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--ink);opacity:0;transform:translateY(6px) rotate(-2deg);transition:opacity .45s,transform .45s;pointer-events:none}
+#art .cap.in{opacity:.82;transform:none}
+#art .cap.bad{color:var(--red)}
+/* static fallback polaroid when WebGL or the CDN is unavailable */
+#art .fb{position:absolute;left:50%;top:46%;width:240px;padding:14px 14px 58px;background:#fbfaf6;box-shadow:0 1px 2px rgba(0,0,0,.08),0 18px 40px rgba(0,0,0,.10);transform:translate(-50%,-50%) rotate(-3deg)}
+#art .fb i{display:block;aspect-ratio:1;background:#cfd2cb center/cover;filter:blur(.4px) saturate(.9) sepia(.12)}
+#art .fb b{position:absolute;left:0;right:0;bottom:14px;text-align:center;font:500 28px/1 var(--hand);color:var(--ink);opacity:.8}
+#art.gl .fb{display:none}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"><div class="fb"><i></i><b>hi, it's me</b></div><p class="cap"></p></div>
+<script src="base.js"></script>
+<script>
+const PHOTO='../../assets/datta.jpg';
+document.querySelector('#art .fb i').style.backgroundImage='url('+PHOTO+')';
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import * as CANNON from 'cannon-es';
+
+const art=document.getElementById('art'), capEl=art.querySelector('.cap');
+let capT=0;
+function say(t,bad,ms){ clearTimeout(capT); capEl.classList.remove('in'); setTimeout(()=>{ capEl.textContent=t; capEl.classList.toggle('bad',!!bad); capEl.classList.add('in'); },180);
+  if(ms) capT=setTimeout(()=>say("hi, it's me"),ms); }
+
+/* ---------- WebGL or fallback ---------- */
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }catch(e){ renderer=null; }
+if(renderer) start();
+
+function loadImg(src){ return new Promise(r=>{ const i=new Image(); i.onload=()=>r(i); i.onerror=()=>r(null); i.src=src; }); }
+function grain(x,w,h,amt){ const d=x.getImageData(0,0,w,h),a=d.data; for(let i=0;i<a.length;i+=4){ const n=(Math.random()-.5)*amt; a[i]+=n;a[i+1]+=n;a[i+2]+=n; } x.putImageData(d,0,0); }
+/* the 150px photo, softened, warmed and grained so it reads as an instant print */
+function instant(img,S=512){
+  const c=document.createElement('canvas'); c.width=c.height=S; const x=c.getContext('2d');
+  if(img){ x.filter='blur(1.6px) saturate(.9) contrast(1.05)'; x.drawImage(img,-6,-6,S+12,S+12); x.filter='none'; } else { x.fillStyle='#b9b4ab'; x.fillRect(0,0,S,S); }
+  x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(255,190,140,.35)'; x.fillRect(0,0,S,S);
+  x.globalCompositeOperation='multiply'; const g=x.createRadialGradient(S/2,S/2,S*.3,S/2,S/2,S*.78); g.addColorStop(0,'#fff'); g.addColorStop(1,'#cfc6bb'); x.fillStyle=g; x.fillRect(0,0,S,S);
+  x.globalCompositeOperation='source-over'; grain(x,S,S,22); return c;
+}
+const PW=512,PH=622,IM={x:26,y:26,s:460};
+let paper;
+function paperCanvas(){ const c=document.createElement('canvas'); c.width=PW; c.height=PH; const x=c.getContext('2d'); x.fillStyle='#fbfaf6'; x.fillRect(0,0,PW,PH); grain(x,PW,PH,7); return c; }
+function drawPrint(x,photo,dev,base){
+  x.drawImage(paper,0,0); x.fillStyle=base; x.fillRect(IM.x,IM.y,IM.s,IM.s);
+  if(dev>0){ x.globalAlpha=Math.min(1,dev); x.filter=`saturate(${.2+.8*dev}) brightness(${1+.25*(1-dev)})`; x.drawImage(photo,IM.x,IM.y,IM.s,IM.s); x.filter='none'; x.globalAlpha=1; }
+  x.strokeStyle='rgba(0,0,0,.07)'; x.lineWidth=2; x.strokeRect(IM.x,IM.y,IM.s,IM.s);
+}
+function svgTex(url,w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  const im=new Image(); im.onload=()=>{ c.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url; return t; }
+
+async function start(){
+  const photo=instant(await loadImg(PHOTO)); paper=paperCanvas();
+  art.classList.add('gl'); art.prepend(renderer.domElement);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0xf8f8f8,0);
+  renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
+
+  const scene=new THREE.Scene();
+  const pm=new THREE.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+  const sun=new THREE.DirectionalLight(0xffffff,1.6); sun.position.set(-2.5,6,4.5); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048); sun.shadow.radius=7; sun.shadow.blurSamples=20; sun.shadow.bias=-.0005; sun.shadow.normalBias=.02;
+  Object.assign(sun.shadow.camera,{left:-3,right:3,top:3,bottom:-3,near:1,far:20}); scene.add(sun);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.ShadowMaterial({opacity:.13})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+  // soft contact shade under the camera
+  const cc=document.createElement('canvas'); cc.width=cc.height=128; { const x=cc.getContext('2d'),g=x.createRadialGradient(64,64,10,64,64,64); g.addColorStop(0,'rgba(0,0,0,.35)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,128,128); }
+  const contact=new THREE.Mesh(new THREE.PlaneGeometry(1.9,1.1),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cc),transparent:true,depthWrite:false}));
+  contact.rotation.x=-Math.PI/2; contact.position.y=.002; scene.add(contact);
+
+  /* ---------- the slosh camera: 136 x 104 x 64 (svg units / 100) ---------- */
+  const CW=1.36,CH=1.04,CD=.64, cam=new THREE.Group(); scene.add(cam);
+  const orange=new THREE.MeshStandardMaterial({color:0xf6853f,roughness:.62});
+  const mFront=new THREE.MeshStandardMaterial({map:svgTex('../../assets/shelf/camera-front.svg',1088,832),roughness:.6});
+  const mSide=new THREE.MeshStandardMaterial({map:svgTex('../../assets/shelf/camera-side.svg',512,832),roughness:.62});
+  const mTop=new THREE.MeshStandardMaterial({map:svgTex('../../assets/shelf/camera-top.svg',1088,512),roughness:.6});
+  const shell=new THREE.Mesh(new RoundedBoxGeometry(CW,CH,CD,4,.035),[orange,mSide,mTop,orange,mFront,orange]);
+  shell.position.y=CH/2; shell.castShadow=shell.receiveShadow=true; cam.add(shell);
+  const at=(sx,sy)=>[-CW/2+sx/100, CH-sy/100]; // svg front coords -> world
+  const [lx,ly]=at(62,58);
+  const dark=new THREE.MeshStandardMaterial({color:0x26272d,roughness:.45});
+  const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.245,.255,.16,56),dark); barrel.rotation.x=Math.PI/2; barrel.position.set(lx,ly,CD/2+.08); barrel.castShadow=true; cam.add(barrel);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(.215,.022,16,64),new THREE.MeshStandardMaterial({color:0x44464f,roughness:.35,metalness:.3})); rim.position.set(lx,ly,CD/2+.16); cam.add(rim);
+  const glass=new THREE.Mesh(new THREE.CircleGeometry(.2,56),new THREE.MeshPhysicalMaterial({color:0x14161d,roughness:.04,metalness:.1,clearcoat:1,envMapIntensity:1.6})); glass.position.set(lx,ly,CD/2+.155); cam.add(glass);
+  const [bx,by]=at(113,63.4);
+  const btn=new THREE.Mesh(new THREE.CylinderGeometry(.068,.072,.045,40),new THREE.MeshStandardMaterial({color:0xfff4ea,roughness:.5})); btn.rotation.x=Math.PI/2; btn.position.set(bx,by,CD/2+.02); btn.castShadow=true; cam.add(btn);
+  cam.rotation.y=.32;
+
+  /* ---------- the print ---------- */
+  const SLOTZ=-CD/2+CD*42/64, w=.6, h=w*PH/PW;
+  const pc=document.createElement('canvas'); pc.width=PW; pc.height=PH; const px=pc.getContext('2d');
+  const ptex=new THREE.CanvasTexture(pc); ptex.colorSpace=THREE.SRGBColorSpace; ptex.anisotropy=8;
+  const edge=new THREE.MeshStandardMaterial({color:0xf1efea,roughness:.8});
+  const print=new THREE.Mesh(new THREE.BoxGeometry(w,h,.008),[edge,edge,edge,edge,new THREE.MeshStandardMaterial({map:ptex,roughness:.5}),new THREE.MeshStandardMaterial({color:0x2c2b2a,roughness:.8})]);
+  print.castShadow=print.receiveShadow=true; cam.add(print);
+  let pDev=-1,pBase='';
+  function paint(dev,base){ if(Math.abs(dev-pDev)<.004&&base===pBase) return; pDev=dev; pBase=base; drawPrint(px,photo,dev,base); ptex.needsUpdate=true; }
+  const BLANK='#c9ccc4', BLACK='#121212';
+  paint(0,BLANK);
+  const HID=CH-h/2-.012, outY=n=>HID+(n/6)*.82*h, FULL=HID+h+.02;
+  const py={x:HID,v:0}; let mode='blank', blackK=0;
+  print.position.set(0,HID,SLOTZ);
+
+  /* ---------- physics for the drop ---------- */
+  const world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.8,0)}); world.allowSleep=true;
+  const mat=new CANNON.Material(); world.defaultContactMaterial.friction=.45; world.defaultContactMaterial.restitution=.15;
+  const ground=new CANNON.Body({mass:0,shape:new CANNON.Plane()}); ground.quaternion.setFromEuler(-Math.PI/2,0,0); world.addBody(ground);
+  const camBody=new CANNON.Body({mass:0,shape:new CANNON.Box(new CANNON.Vec3(CW/2,CH/2,CD/2))}); camBody.position.set(0,CH/2,0); camBody.quaternion.setFromEuler(0,cam.rotation.y,0); world.addBody(camBody);
+  let body=null;
+
+  /* ---------- view ---------- */
+  const view=new THREE.PerspectiveCamera(28,1,.1,60);
+  const look=new THREE.Vector3(.15,.78,.6), lookTo=look.clone(), eye=new THREE.Vector3(-1.1,2.7,6.2), eyeTo=eye.clone();
+  let mx=0,my=0; addEventListener('pointermove',e=>{ mx=e.clientX/innerWidth-.5; my=e.clientY/innerHeight-.5; });
+  function size(){ const r=art.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); view.aspect=r.width/Math.max(1,r.height); view.fov=view.aspect<.9?30:24; view.updateProjectionMatrix(); }
+  new ResizeObserver(size).observe(art); size();
+
+  /* ---------- events ---------- */
+  let phase='feed', t0=0, hop={x:0,v:0}, devK=0;
+  lk.on('type',n=>{ if(phase!=='feed') return; if(n>0&&mode==='blank') hop.v-=1.6; });
+  lk.on('wrong',()=>{ if(phase!=='feed') return; mode='black'; say('close, try again',true,2200); hop.v+=2.4; });
+  lk.on('right',()=>{ if(phase!=='feed') return; phase='eject'; t0=clock; hop.v-=3; });
+  say("hi, it's me");
+
+  /* ---------- loop ---------- */
+  let clock=0,last=performance.now(),raf=0;
+  const tmp=new THREE.Vector3(), q=new THREE.Quaternion();
+  function frame(now){
+    raf=requestAnimationFrame(frame);
+    const dt=Math.min(.033,(now-last)/1000); last=now; clock+=dt;
+    // camera hop: a damped spring on vertical squash
+    hop.v+=(-140*hop.x-11*hop.v)*dt; hop.x+=hop.v*dt; shell.scale.set(1-hop.x*.25,1+hop.x,1-hop.x*.25);
+    if(phase==='feed'){
+      const target=mode==='black'&&lk.count===6?outY(6):outY(lk.state==='wrong'?6:lk.count);
+      py.v+=(-90*(py.x-target)-15*py.v)*dt; py.x+=py.v*dt; print.position.y=py.x+hop.x*.4;
+      blackK+=((mode==='black'?1:0)-blackK)*Math.min(1,dt*9);
+      if(mode==='black'&&lk.count===0&&py.x<HID+.03){ mode='blank'; blackK=0; }
+      paint(0,blackK>.02?mix(BLANK,BLACK,blackK):BLANK);
+    } else if(phase==='eject'){
+      py.v+=(-260*(py.x-FULL)-18*py.v)*dt; py.x+=py.v*dt; print.position.y=py.x;
+      if(py.x>FULL-.03||clock-t0>.5){
+        phase='fly'; t0=clock; print.getWorldPosition(tmp); print.getWorldQuaternion(q); scene.attach(print);
+        body=new CANNON.Body({mass:.05,shape:new CANNON.Box(new CANNON.Vec3(w/2,h/2,.006)),linearDamping:.25,angularDamping:.35});
+        body.position.set(tmp.x,tmp.y,tmp.z); body.quaternion.set(q.x,q.y,q.z,q.w);
+        const fwd=new THREE.Vector3(0,0,1).applyQuaternion(q);
+        body.velocity.set(fwd.x*1.5,2.4,fwd.z*1.5);
+        const ax=new THREE.Vector3(1,0,0).applyQuaternion(q).multiplyScalar(-2.3);
+        body.angularVelocity.set(ax.x,ax.y+.6,ax.z); world.addBody(body);
+      }
+    } else {
+      world.step(1/120,dt,6);
+      print.position.copy(body.position); print.quaternion.copy(body.quaternion);
+      if(phase==='fly'&&clock-t0>.7&&(body.velocity.length()<.06||clock-t0>2.6)){ phase='develop'; t0=clock; }
+      if(phase==='develop'){
+        devK=Math.min(1,(clock-t0)/3.2); paint(devK*devK*(3-2*devK),BLANK);
+        if(clock-t0>.4&&!said){ said=true; say('come in'); }
+        lookTo.set(print.position.x*.6,.3,print.position.z*.6); eyeTo.set(print.position.x*.6-.7,3.3,print.position.z*.6+5.2);
+      }
+    }
+    look.lerp(lookTo,Math.min(1,dt*1.6)); eye.lerp(eyeTo,Math.min(1,dt*1.2));
+    view.position.set(eye.x+mx*.6,eye.y-my*.35,eye.z); view.lookAt(look);
+    renderer.render(scene,view);
+  }
+  let said=false;
+  function mix(a,b,k){ const A=parseInt(a.slice(1),16),B=parseInt(b.slice(1),16); const c=s=>Math.round(((A>>s)&255)*(1-k)+((B>>s)&255)*k);
+    return '#'+((c(16)<<16)|(c(8)<<8)|c(0)).toString(16).padStart(6,'0'); }
+  function go(){ if(!raf&&!document.hidden){ last=performance.now(); raf=requestAnimationFrame(frame); } }
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ cancelAnimationFrame(raf); raf=0; } else go(); });
+  go();
+}
+</script>
+</body>
+</html>

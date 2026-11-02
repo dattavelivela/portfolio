@@ -1,0 +1,130 @@
+<!-- v28 idea: a monsoon evening on a green Bengaluru street, rain falling as dither streaks into a puddle you can ripple with the cursor; each box eases the rain, and the right password stops it and clears a patch of sky. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v28 · Monsoon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:#0d1c14;color:#e3ecd2}
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.line{position:absolute;left:40px;top:34px;margin:0;font:italic 300 26px/1.2 "Newsreader",serif;letter-spacing:-.01em}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#a9c4a0}
+.line,.mono{text-shadow:0 0 6px #0d1c14,0 0 2px #0d1c14}
+.tr{left:40px;bottom:58px}.bl{left:40px;bottom:36px}.br{right:40px;bottom:36px}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <canvas id="cv"></canvas>
+  <p class="line" id="line">It’s pouring in Indiranagar.</p>
+  <span class="mono tr" id="mm">rain 24 mm/h</span>
+  <span class="mono bl" id="hint">touch the puddle</span>
+  <span class="mono br" id="clock"></span>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, hash, noise, fbm, clamp, lerp, sstep, clock, wireDemo } from './dither.js';
+const $ = id => document.getElementById(id);
+clock($('clock'));
+const art = $('art');
+const WATER = .64;                                         // where the street meets the puddle
+
+// ripples: from raindrops (deterministic per time slot) and from the cursor
+const drops = [];
+let lastDrop = 0;
+art.addEventListener('pointermove', e => {
+  const r = art.getBoundingClientRect(), u = (e.clientX - r.left) / r.width, v = (e.clientY - r.top) / r.height;
+  const now = d.t;
+  if (v > WATER + .02 && now - lastDrop > .12) { drops.push({ u, v, t0: now, a: 1 }); lastDrop = now; if (drops.length > 24) drops.shift(); }
+});
+
+let prog, clear, burst;
+function street(u, v, t, asp) {
+  // sky: low monsoon cloud, a patch clears on the right password
+  let s;
+  const cn = fbm(u * asp * 2.2 + t * .02, v * 5 + t * .004, 4);
+  const pd = Math.hypot((u - .66) * asp, (v - .14) * 1.6);
+  const hole = clear.x * (1 - sstep(.12, .34, pd + (cn - .5) * .25));
+  s = lerp(.42 + cn * .3, .97 - pd * .6, hole);
+  // a low line of buildings at the end of the road
+  const hb = .38 + .1 * sstep(.3, .7, noise(u * 14, 2));
+  if (v > hb && v < WATER) s = .2 + .04 * noise(u * 40, v * 40) + (hash(Math.floor(u * 90), Math.floor(v * 60)) > .93 ? .5 : 0) * (v < .5 ? 1 : 0);
+  // the road in perspective, wet and catching the lamp
+  const vp = .53, roadW = (v - .47) * 1.6;
+  if (v > .47 && v < WATER && Math.abs(u - vp) < roadW) {
+    s = .3 + .3 * Math.exp(-Math.pow((u - .3) * 7, 2)) * sstep(.47, .64, v);
+    if (Math.abs(u - vp) < .006 * (1 + (v - .47) * 20) && Math.floor(v * 80) % 3 === 0) s = .7;   // lane dashes
+  }
+  // rain trees arching over the street from both sides
+  const ca = fbm(u * 5, v * 6, 4), arch = Math.min(Math.hypot((u + .05) * 1.2, v * .9), Math.hypot((u - 1.05) * 1.2, v * .9));
+  if (ca - arch * 1.7 + .32 > .5) s = .09 + .07 * ca;
+  if (Math.abs(u - .12) < .006 && v > .2 && v < WATER) s = .12;                        // trunks
+  if (Math.abs(u - .93) < .007 && v > .22 && v < WATER) s = .12;
+  // a street lamp
+  if (Math.abs(u - .24) < .004 && v > .34 && v < WATER - .01) s = .14;
+  const ld = Math.hypot((u - .24) * asp, v - .335);
+  s = Math.max(s, ld < .014 ? 1 : s + .4 * Math.exp(-ld * ld / .008) * (1 - clear.x * .4));
+  return s;
+}
+const scene = shade((x, y, w, h, t, api) => {
+  const u = x / w, v = y / h, asp = w / h;
+  let s;
+  if (v < WATER) s = street(u, v, t, asp);
+  else {
+    // the puddle: the street upside down, broken by ripples
+    let rip = 0;
+    for (const dp of drops) {
+      const age = t - dp.t0; if (age < 0 || age > 2.2) continue;
+      const dd = Math.hypot((u - dp.u) * asp, (v - dp.v) * 2.6), r = age * .16;
+      rip += Math.sin((dd - r) * 90) * Math.exp(-Math.pow((dd - r) * 22, 2)) * (1 - age / 2.2) * dp.a;
+    }
+    const mv = 2 * WATER - v - .17 + rip * .012, mu = u + rip * .01 + Math.sin(v * 160 + t * 2) * .002;
+    s = street(mu, Math.max(0, mv), t, asp) * .62 + .05 + rip * .25;
+    s *= 1 - sstep(WATER, 1, v) * .35;
+  }
+  // rain: slanted streaks, thinning with every box
+  const dens = lerp(.34, .07, prog.x) * (1 - clear.x) + burst.x * .4;
+  if (dens > .001) {
+    const sl = x + Math.floor(y * .18), col = sl, ph = hash(col, 9) * 50, sp = 26 + hash(col, 4) * 14;
+    const seg = ((y + t * sp + ph) % 18 + 18) % 18;
+    if (hash(col, Math.floor((y + t * sp + ph) / 18)) < dens && seg < 5) s = Math.max(s, .75 + seg * .04);
+  }
+  return s;
+});
+
+const d = dither($('cv'), {
+  source: scene, palette: ['#0d1c14', '#2b5538', '#7da677', '#e4edd3'], grain: .08, dotMin: .3, dotMax: .96, noise: .45, sparse: .7,
+  frame(dt, t, api) {
+    api.p.cell = lerp(12, 4, prog.x) - clear.x * .5 + burst.x * 5;
+    api.p.resolve = clamp(lerp(.4, .95, prog.x) + clear.x - burst.x);
+    // raindrops land in the puddle while it rains
+    const rate = lerp(9, 1.5, prog.x) * (1 - clear.x) + burst.x * 12;
+    if (!api.reduced && Math.random() < rate * dt) { drops.push({ u: Math.random(), v: WATER + .04 + Math.random() * (1 - WATER - .06), t0: t, a: .6 }); if (drops.length > 24) drops.shift(); }
+  }
+});
+prog = d.ease(0, 2.2); clear = d.ease(0, .8); burst = d.ease(0, 5);
+
+let wrongAt = -1e9, done = false;
+const mm = n => $('mm').textContent = 'rain ' + Math.round(lerp(24, 3, n / 6)) + ' mm/h';
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) { burst.to(0); prog.to(0); mm(0); $('line').textContent = 'It’s pouring in Indiranagar.'; } }, 900); return; }
+  burst.to(0); prog.to(n / 6); mm(n); if (n) $('line').textContent = n < 4 ? 'Easing off.' : 'Nearly stopped.';
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('mm').textContent = 'cloudburst'; $('line').textContent = 'Cloudburst. Try again.'; });
+lk.on('right', () => { done = true; prog.to(1); clear.to(1); burst.to(0); $('mm').textContent = 'rain 0 mm/h'; $('line').textContent = 'Rain’s stopped. Come in.'; });
+wireDemo(() => {
+  d.settle();
+  // a still frame should still show a few rings in the puddle
+  if (new URLSearchParams(location.search).get('demo') !== 'right') for (let i = 0; i < 6; i++) drops.push({ u: .15 + i * .14, v: WATER + .06 + (i % 3) * .09, t0: d.t - .3 - i * .25, a: .8 });
+  else drops.push({ u: .6, v: .8, t0: d.t - .6, a: 1 });
+  d.draw();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!-- v12 idea: boarding passes to Datta's customer sites (BLR, AMD, AMS) hang from one hook on verlet strings; each box tears off a stub, wrong swings them hard, right stamps BOARDING. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v12 · Boarding passes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{user-select:none;-webkit-user-select:none;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#str{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0}
+#str path{fill:none;stroke:#8d877c;stroke-width:1.2;stroke-linecap:round}
+.hook{position:absolute;width:26px;height:34px;margin:-8px 0 0 -13px;z-index:6;overflow:visible}
+.bp{position:absolute;left:0;top:0;width:33em;height:13em;transform-origin:50% 0;will-change:transform;cursor:grab;touch-action:none;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.06)) drop-shadow(0 10px 14px rgba(0,0,0,.13))}
+.bp.drag{cursor:grabbing}
+.bp .main,.stub{position:absolute;top:0;height:100%;background:#fbfaf7;box-sizing:border-box;overflow:hidden}
+.bp .main{left:0;width:21em;border-radius:.7em 0 0 .7em;padding:3.1em 1.3em 0}
+.bp .main::before,.stub::before{content:"";position:absolute;left:0;right:0;top:0;height:2.1em;background:var(--c)}
+.bp .main::after,.stub::after{content:"";position:absolute;inset:0;background:var(--grain);opacity:.14;mix-blend-mode:multiply;pointer-events:none}
+.bp .eye{position:absolute;left:16.5em;top:.55em;width:1em;height:1em;margin-left:-.5em;border-radius:50%;background:#f8f8f8;box-shadow:inset 0 1px 1px rgba(0,0,0,.25);z-index:2}
+.bp .lab{position:absolute;left:1.3em;top:.6em;font:400 .8em/1 var(--mono);letter-spacing:.14em;color:#fff}
+.bp .route{display:flex;align-items:center;gap:.5em;font:600 3em/1 var(--sans);color:var(--ink);letter-spacing:-.01em}
+.bp .route i{display:block;width:1.1em;height:1px;background:var(--muted);position:relative}
+.bp .route i::after{content:"";position:absolute;right:0;top:-.12em;width:.24em;height:.24em;border:solid var(--muted);border-width:1px 1px 0 0;transform:rotate(45deg)}
+.bp .why{margin-top:.35em;font:500 1.75em/1 var(--hand);color:var(--body)}
+.bp .meta{position:absolute;left:1.3em;bottom:1em;display:flex;gap:1.6em;font:400 .72em/1.35 var(--mono);color:var(--muted);letter-spacing:.06em}
+.bp .meta b{display:block;font-weight:400;color:var(--ink)}
+.stub{width:6em;border-left:1.5px dashed #d2cabd;padding:3em .8em 0}
+.stub .t{font:400 .72em/1.35 var(--mono);color:var(--muted);letter-spacing:.06em}
+.stub b{display:block;font-weight:400;color:var(--ink);font-size:1.3em;margin-bottom:.6em}
+.stub .bar{position:absolute;left:.8em;right:.8em;bottom:1em;height:2.6em;background:repeating-linear-gradient(90deg,#3b3f47 0 .14em,transparent .14em .3em,#3b3f47 .3em .36em,transparent .36em .55em)}
+.bp .s1{left:21em}.bp .s2{left:27em;border-radius:0 .7em .7em 0}
+.bp .stub{transition:opacity .35s}
+.bp .stub.torn{opacity:0;transition:none}
+.free{position:absolute;left:0;top:0;height:13em;will-change:transform;filter:drop-shadow(0 4px 5px rgba(0,0,0,.14));transition:opacity .35s;z-index:5}
+.free .stub{position:relative;left:0;width:6em}
+.stamp{position:absolute;left:6.4em;top:4.6em;padding:.35em .7em;border:.2em solid var(--red);border-radius:.35em;color:var(--red);font:400 1.45em/1 var(--mono);letter-spacing:.18em;
+  transform:rotate(-11deg) scale(2.4);opacity:0;mix-blend-mode:multiply;z-index:3;
+  -webkit-mask:var(--grain) 0 0/9em,linear-gradient(#000,#000);-webkit-mask-composite:source-over}
+.stamp.on{animation:thunk .3s cubic-bezier(.5,0,.9,.5) forwards}
+@keyframes thunk{to{transform:rotate(-11deg) scale(1);opacity:.9}}
+.say{position:absolute;font:500 34px/1 var(--hand);color:#2b2b30;transform:rotate(-3deg);transition:opacity .2s,transform .3s;white-space:nowrap;z-index:7}
+.say.out{opacity:0;transform:translateY(5px) rotate(-1deg)}
+.say.bad{color:var(--red)}
+@media (prefers-reduced-motion:reduce){.stamp.on{animation:none;transform:rotate(-11deg);opacity:.9}}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <svg id="str"></svg>
+  <svg class="hook" id="hook" viewBox="0 0 26 34"><circle cx="13" cy="6" r="5.5" fill="#d9d4ca" stroke="#bdb6a9"/><circle cx="13" cy="6" r="1.4" fill="#a39b8d"/><path d="M13 10v13a5 5 0 0 1-10 0" fill="none" stroke="#a39b8d" stroke-width="2.4" stroke-linecap="round"/></svg>
+  <div class="say" id="say">hi, it's me</div>
+</div>
+<script src="base.js"></script>
+<script type="module">
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// headless review (?demo) gets no rAF under virtual time, so drive frames with timers there
+const DEMO=new URLSearchParams(location.search).has('demo'), frame=DEMO?f=>setTimeout(()=>f(performance.now()),16):requestAnimationFrame.bind(window), unframe=DEMO?clearTimeout:cancelAnimationFrame;
+const $=id=>document.getElementById(id), art=$('art'), svg=$('str'), hookEl=$('hook'), sayEl=$('say');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+let sayText="hi, it's me",sayT;
+function say(t,bad){if(t===sayText)return;sayText=t;sayEl.classList.add('out');clearTimeout(sayT);sayT=setTimeout(()=>{sayEl.textContent=t;sayEl.classList.toggle('bad',!!bad);sayEl.classList.remove('out')},RM?0:170)}
+
+const TRIPS=[
+  {from:'BLR',to:'AMS',why:'DPW, Amsterdam',flt:'PC 024',date:'14 MAR',seat:'24A',gate:'G6',c:'#3279f2'},
+  {from:'BLR',to:'AMD',why:'customer site, Gujarat',flt:'PC 117',date:'02 FEB',seat:'11C',gate:'B2',c:'#f6853f'},
+  {from:'AMD',to:'BLR',why:'back to build',flt:'PC 118',date:'04 FEB',seat:'11C',gate:'A4',c:'#3db37a'}];
+const passes=TRIPS.map((t,i)=>{
+  const el=document.createElement('div');el.className='bp';el.style.setProperty('--c',t.c);el.style.zIndex=4-i;
+  const stub=(cls,head,a,b)=>`<div class="stub ${cls}"><div class="t"><b>${head}</b>${a}<br>${b}</div><i class="bar"></i></div>`;
+  el.innerHTML=`<div class="main"><span class="lab">BOARDING PASS</span><div class="route">${t.from}<i></i>${t.to}</div><div class="why">${t.why}</div>
+    <div class="meta"><span>PASSENGER<b>VELIVELA/DATTA</b></span><span>FLIGHT<b>${t.flt}</b></span><span>DATE<b>${t.date}</b></span></div>${i===0?'<span class="stamp" id="stamp">BOARDING</span>':''}</div>
+    ${stub('s1','SEAT '+t.seat,'ZONE 2','ECONOMY')}${stub('s2','GATE '+t.gate,'BOARDS','06:40')}<i class="eye"></i>`;
+  art.appendChild(el);
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');svg.appendChild(path);
+  return {el,path,stubs:[el.querySelector('.s2'),el.querySelector('.s1')]};
+});
+// tear order: outer stubs top to bottom, then the inner ones
+const ORDER=[[0,0],[1,0],[2,0],[0,1],[1,1],[2,1]];
+
+let W=0,H=0,PW=300,PH=118,FS=9,hook={x:0,y:0},mode='idle',drag=null,torn=[],free=[];
+const EYE=16.5/33;   // the eyelet sits over the perforation side of the main part
+function layout(){
+  W=art.clientWidth;H=art.clientHeight;
+  PW=cl(Math.min(W*.6,H*.4),230,340);FS=PW/33;PH=13*FS;
+  hook={x:W*.5,y:Math.max(40,H*.07)};const hy=hook.y+18;hookEl.style.left=hook.x+'px';hookEl.style.top=hook.y+'px';
+  Object.assign(sayEl.style,{left:(hook.x+30)+'px',top:(hook.y-6)+'px'});
+  const gap=Math.min(46,(H-hook.y-40-3*PH)/3);
+  passes.forEach((p,i)=>{p.el.style.fontSize=FS+'px';const oL=p.L,oPH=p.PH,oh=p.hook;p.L=24+i*(PH+gap);p.PH=PH;p.hook={...hook};
+    if(p.P){const k=(p.L+PH)/(oL+oPH);p.P.forEach(q=>{for(const [a,b] of [['x','px'],['y','py']]){const o=a==='x'?'x':'y';q[a]=hook[o]+(q[a]-oh[o])*k;q[b]=hook[o]+(q[b]-oh[o])*k}});
+      const n=p.P.length-2;p.n=n;return}   // resize keeps the swing
+    p.n=Math.max(3,Math.round(p.L/28));
+    p.P=[];for(let k=0;k<=p.n+1;k++){const y=k<=p.n?hook.y+18+p.L*k/p.n:hook.y+18+p.L+PH;p.P.push({x:hook.x,y,px:hook.x,py:y,w:k===0?0:k>=p.n?.25:1})}});
+  free.forEach(f=>f.el.style.fontSize=FS+'px');
+}
+const G=1500,DT=1/60;
+function step(){
+  const damp=mode==='right'?.96:.988;
+  passes.forEach((p,pi)=>{const P=p.P,n=p.n,seg=p.L/n;
+    for(let i=1;i<P.length;i++){const q=P[i],vx=cl((q.x-q.px)*damp,-16,16),vy=cl((q.y-q.py)*damp,-16,16);q.px=q.x;q.py=q.y;q.x+=vx;q.y+=vy+G*DT*DT}
+    if(drag&&drag.p===p){const A=P[n],B=P[n+1],L=Math.hypot(B.x-A.x,B.y-A.y)||1,ux=(B.x-A.x)/L,uy=(B.y-A.y)/L,gx=A.x+ux*drag.v-uy*drag.u,gy=A.y+uy*drag.v+ux*drag.u,ex=drag.x-gx,ey=drag.y-gy;
+      A.x+=ex*.5;A.y+=ey*.5;B.x+=ex*.5;B.y+=ey*.5}
+    {const S=P[n-1],A=P[n],B=P[n+1],L=Math.hypot(A.x-S.x,A.y-S.y)||1;B.x+=(A.x+(A.x-S.x)/L*PH-B.x)*.04;B.y+=(A.y+(A.y-S.y)/L*PH-B.y)*.04}
+    for(let k=0;k<12;k++){
+      for(let i=0;i<=n;i++){const a=P[i],b=P[i+1],L=i===n?PH:seg,dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,diff=i===n?(d-L)/d:Math.max(0,(d-L)/d),s=a.w+b.w;if(!s)continue;
+        a.x+=dx*diff*a.w/s;a.y+=dy*diff*a.w/s;b.x-=dx*diff*b.w/s;b.y-=dy*diff*b.w/s}
+      P[0].x=hook.x;P[0].y=hook.y+18;}
+  });
+  const floor=H-10;
+  free.forEach(f=>{if(f.rest)return;f.vy+=G*DT;f.vx*=.995;f.va*=.995;f.x+=f.vx*DT;f.y+=f.vy*DT;f.a+=f.va*DT;
+    const low=f.y+Math.abs(f.hw*Math.sin(f.a))+Math.abs(f.hh*Math.cos(f.a));
+    if(low>=floor){f.y-=low-floor;if(Math.abs(f.vy)<120){f.vy=0;f.vx*=.8;const flat=(Math.round((f.a-Math.PI/2)/Math.PI)+.5)*Math.PI;f.a+=(flat-f.a)*.2;f.va=0;if(Math.abs(f.vx)<4&&Math.abs(flat-f.a)<.01)f.rest=true}
+      else{f.vy*=-.3;f.vx*=.7;f.va=f.va*.5+(Math.random()-.5)*3}}});
+}
+function passXf(p){const A=p.P[p.n],B=p.P[p.n+1];return{A,th:-Math.atan2(B.x-A.x,B.y-A.y)}}
+function render(){
+  passes.forEach(p=>{const {A,th}=passXf(p),ox=PW*EYE;
+    p.el.style.transform=`translate(${(A.x-PW/2).toFixed(2)}px,${A.y.toFixed(2)}px) rotate(${th.toFixed(4)}rad)`;
+    let d=`M${p.P[0].x.toFixed(1)} ${p.P[0].y.toFixed(1)}`;for(let i=1;i<=p.n;i++)d+=` L${p.P[i].x.toFixed(1)} ${p.P[i].y.toFixed(1)}`;p.path.setAttribute('d',d)});
+  free.forEach(f=>f.el.style.transform=`translate(${(f.x-f.hw).toFixed(1)}px,${(f.y-f.hh).toFixed(1)}px) rotate(${f.a.toFixed(4)}rad)`);
+}
+function kick(p,v,down=0){const P=p.P,n=p.n;P[n+1].px-=v;P[n].px-=v*.85;P[n-1].px-=v*.5;P[n+1].py-=down;P[n].py-=down}
+
+// the eyelet hangs the pass at its centre, so the transform origin is the centre top (A)
+function tear(k){
+  const [pi,si]=ORDER[k],p=passes[pi],stub=p.stubs[si];if(stub.classList.contains('torn'))return;
+  const {A,th}=passXf(p),left=(si===0?27:21)*FS,cx=left+3*FS-PW/2,cy=PH/2,c=Math.cos(th),s=Math.sin(th);
+  const el=document.createElement('div');el.className='free';el.style.setProperty('--c',TRIPS[pi].c);el.style.fontSize=FS+'px';el.style.width='6em';
+  el.innerHTML=stub.outerHTML.replace('class="stub','class="stub');el.firstChild.style.borderRadius=si===0?'0 .7em .7em 0':'0';art.appendChild(el);
+  stub.classList.add('torn');
+  const f={el,k,pi,si,hw:3*FS,hh:PH/2,x:A.x+cx*c-cy*s,y:A.y+cx*s+cy*c,a:th,vx:(A.x-A.px)*60+80+Math.random()*80,vy:-60-Math.random()*60,va:(Math.random()*2+1.5)*(Math.random()<.5?-1:1)};
+  free.push(f);torn.push(k);kick(p,-3.2,0);
+}
+function mend(k){const i=torn.lastIndexOf(k);if(i<0)return;torn.splice(i,1);const [pi,si]=ORDER[k];passes[pi].stubs[si].classList.remove('torn');
+  const j=free.findIndex(f=>f.k===k);if(j>=0){const f=free.splice(j,1)[0];f.el.style.opacity=0;setTimeout(()=>f.el.remove(),360)}}
+
+// cursor breeze + grab and swing
+let mx=null;
+addEventListener('pointermove',e=>{const r=art.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(drag){drag.x=x;drag.y=y}else if(mx!==null&&mode!=='right')passes.forEach(p=>{const B=p.P[p.n+1],f=Math.exp(-Math.hypot(x-B.x,y-B.y+PH/2)/320)*.05;B.px-=cl((x-mx)*f,-3,3);p.P[p.n].px-=cl((x-mx)*f*.5,-2,2)});
+  mx=x});
+passes.forEach(p=>p.el.addEventListener('pointerdown',e=>{if(mode==='right')return;const r=art.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,A=p.P[p.n],B=p.P[p.n+1],L=Math.hypot(B.x-A.x,B.y-A.y)||1,ux=(B.x-A.x)/L,uy=(B.y-A.y)/L,rx=x-A.x,ry=y-A.y;
+  drag={p,x,y,v:rx*ux+ry*uy,u:-rx*uy+ry*ux};p.el.classList.add('drag');p.el.setPointerCapture(e.pointerId);e.preventDefault()}));
+const end=()=>{if(drag)drag.p.el.classList.remove('drag');drag=null};addEventListener('pointerup',end);addEventListener('pointercancel',end);
+
+function settleNow(){passes.forEach(p=>p.P.forEach((q,i)=>{q.x=q.px=hook.x;q.y=q.py=i<=p.n?hook.y+18+p.L*i/p.n:hook.y+18+p.L+PH}));
+  free.forEach(f=>{f.a=(Math.round((f.a-Math.PI/2)/Math.PI)+.5)*Math.PI;f.y=H-10-Math.abs(f.hw*Math.sin(f.a))-Math.abs(f.hh*Math.cos(f.a));f.x=cl(f.x+40,40,W-40);f.rest=true});render()}
+lk.on('type',n=>{if(mode==='right')return;
+  if(mode==='wrong'){if(n)return;mode='idle'}
+  say("hi, it's me");
+  while(torn.length<n)tear(torn.length);
+  while(torn.length>n)mend(torn[torn.length-1]);
+  if(RM)settleNow()});
+lk.on('wrong',()=>{mode='wrong';say('close, try again',true);passes.forEach((p,i)=>kick(p,(i%2?-1:1)*(10+i*1.5),4));if(RM)settleNow()});
+lk.on('right',()=>{mode='right';end();say('come in');const st=$('stamp');st.classList.add('on');setTimeout(()=>kick(passes[0],0,5),RM?0:290);if(RM)settleNow()});
+
+let raf=0,last=0,acc=0;
+function tick(now){acc+=Math.min(120,now-last);last=now;while(acc>=1000/60){step();acc-=1000/60}render();raf=frame(tick)}
+function start(){if(!raf&&!RM){last=performance.now();raf=frame(tick)}}
+function stop(){unframe(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+addEventListener('resize',()=>{layout();render()});
+layout();if(!RM)passes.forEach((p,i)=>kick(p,i%2?-1.6:1.6));render();start();
+
+// ?demo=N | wrong | right : replay typing for review
+const q=new URLSearchParams(location.search).get('demo');
+if(q){const full=q==='wrong'||q==='right',k=full?6:Math.min(6,parseInt(q)||0);
+  for(let i=1;i<=k;i++)setTimeout(()=>{lk.count=i;lk.emit('type',i)},200+i*220);
+  if(full)setTimeout(()=>{lk.state=q;lk.emit(q);if(q==='wrong')setTimeout(()=>{lk.count=0;lk.state='idle';lk.emit('type',0)},700)},200+7*220+600);}
+</script>
+</body>
+</html>

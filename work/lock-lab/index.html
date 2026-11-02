@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lock lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+/* lock lab viewer: one variant at a time (WebGL pages are heavy), arrows or ← → to move */
+:root{--bg:#f8f8f8;--ink:#0a0a0a;--muted:#6b6c6e;--line:#e4e4e4;--blue:#3279f2}
+html,body{margin:0;height:100%;background:#ececec;font:400 14px/1.4 "Instrument Sans",system-ui,sans-serif;color:var(--ink)}
+body{display:grid;grid-template-columns:260px minmax(0,1fr);height:100vh}
+nav{overflow:auto;padding:18px 0;border-right:1px solid var(--line);background:#fff}
+nav h1{margin:0 18px 14px;font-size:15px;font-weight:600}
+nav h2{margin:18px 18px 6px;font:400 11px/1 "Space Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav a{display:flex;gap:10px;padding:7px 18px;color:var(--ink);text-decoration:none}
+nav a em{font:400 12px/1.6 "Space Mono",monospace;font-style:normal;color:var(--muted)}
+nav a:hover{background:#f6f6f6}
+nav a.on{background:#eef4ff;color:var(--blue)}nav a.on em{color:var(--blue)}
+section{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0}
+header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:#fff}
+header b{font-weight:600}header span{color:var(--muted)}
+header .sp{flex:1}
+header button,header a{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;color:var(--ink);cursor:pointer;text-decoration:none}
+header button:hover,header a:hover{border-color:#cfcfcf}
+.stage{padding:18px;min-height:0}
+iframe{width:100%;height:100%;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+</style>
+</head>
+<body>
+<nav id="list"><h1>Lock lab · 28</h1></nav>
+<section>
+  <header><b id="name"></b><span id="kind"></span><span class="sp"></span>
+    <span>demo password 123456</span>
+    <button id="prev" aria-label="Previous">←</button><button id="next" aria-label="Next">→</button>
+    <a id="open" target="_blank" rel="noopener">Open ↗</a></header>
+  <div class="stage"><iframe id="view" title="Variant"></iframe></div>
+</section>
+<script>
+var V=[
+  ['3D + physics',[['v01','Slosh prints you'],['v02','Combination suitcase'],['v03','Door 132'],['v04','Stubborn'],['v05','Paper plane'],
+                   ['v06','Everything I’ve built'],['v07','Keyboard'],['v08','Chai'],['v09','Signpost'],['v10','Signed for']]],
+  ['2D physics',[['v11','What’s in my bag'],['v12','Boarding passes'],['v13','Slosh prints you, flat'],['v14','Ideas wall'],['v15','Name magnets']]],
+  ['No WebGL',[['v16','Develops as you type'],['v17','Datta is typing…'],['v18','Terminal'],['v19','Film strip of the path'],['v20','A note from Datta']]],
+  ['Dither',[['v21','Bengaluru, right now'],['v22','Resolving'],['v23','Chai'],['v24','Window seat'],['v25','Door 132'],['v26','Signal'],['v27','Night city'],['v28','Monsoon']]]
+];
+var flat=[], list=document.getElementById('list'), view=document.getElementById('view');
+V.forEach(function(g){
+  var h=document.createElement('h2'); h.textContent=g[0]; list.appendChild(h);
+  g[1].forEach(function(v){ var a=document.createElement('a'); a.href='#'+v[0]; a.innerHTML='<em>'+v[0].slice(1)+'</em>'+v[1]; list.appendChild(a); flat.push({id:v[0],name:v[1],kind:g[0],a:a}); });
+});
+function show(i){
+  i=(i+flat.length)%flat.length; var v=flat[i];
+  flat.forEach(function(x){ x.a.classList.toggle('on',x===v); });
+  document.getElementById('name').textContent=v.id.slice(1)+' · '+v.name;
+  document.getElementById('kind').textContent=v.kind;
+  document.getElementById('open').href=v.id+'.html';
+  view.src=v.id+'.html'; cur=i;
+  if(location.hash!=='#'+v.id) history.replaceState(null,'','#'+v.id);
+}
+var cur=0;
+addEventListener('hashchange',function(){ var i=flat.findIndex(function(x){ return '#'+x.id===location.hash; }); if(i>=0&&i!==cur) show(i); });
+document.getElementById('prev').onclick=function(){ show(cur-1); };
+document.getElementById('next').onclick=function(){ show(cur+1); };
+addEventListener('keydown',function(e){ if(e.target===document.body){ if(e.key==='ArrowRight') show(cur+1); if(e.key==='ArrowLeft') show(cur-1); } });
+var start=flat.findIndex(function(x){ return '#'+x.id===location.hash; }); show(start<0?0:start);
+</script>
+</body>
+</html>

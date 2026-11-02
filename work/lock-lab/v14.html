@@ -1,0 +1,118 @@
+<!-- v14 idea: a wall of sticky notes with Datta's working rules on springs that flutter in cursor wind; each box pins one flat, wrong blows them off, right slaps on a "come in" note. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v14 · Ideas wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{user-select:none;-webkit-user-select:none;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.nt{position:absolute;left:0;top:0;width:var(--n);height:var(--n);transform-origin:50% 0;will-change:transform,box-shadow;box-sizing:border-box;padding:0 .7em;
+  background:var(--c);display:flex;align-items:center;justify-content:center;text-align:center;font:500 calc(var(--n)*.165)/1.05 var(--hand);color:#2e2a22;
+  box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.nt::before{content:"";position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(rgba(0,0,0,.05),rgba(0,0,0,0))}
+.nt::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 55%,rgba(255,255,255,.35) 80%,rgba(0,0,0,.08)),var(--grain);background-blend-mode:normal,multiply;opacity:calc(.25 + var(--l,0)*.75);pointer-events:none;mix-blend-mode:multiply}
+.pin{position:absolute;left:50%;top:7%;width:15px;height:15px;margin-left:-7.5px;border-radius:50%;opacity:0;transform:translateY(-14px) scale(1.8);z-index:2;
+  background:radial-gradient(circle at 35% 30%,var(--ph),var(--pc) 50%,var(--pd));box-shadow:0 1px 1px rgba(0,0,0,.25),3px 5px 5px -2px rgba(0,0,0,.25)}
+.pin::after{content:"";position:absolute;left:4px;top:3px;width:4px;height:3px;border-radius:50%;background:rgba(255,255,255,.7)}
+.nt.pinned .pin{opacity:1;transform:none;transition:transform .22s cubic-bezier(.5,0,.8,.4),opacity .1s}
+.big{z-index:20;font-size:calc(var(--n)*.24);flex-direction:column;gap:.15em;opacity:0}
+.big small{font:400 calc(var(--n)*.065)/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#6d6450}
+.say{position:absolute;left:0;right:0;text-align:center;font:500 36px/1 var(--hand);color:#2b2b30;transform:rotate(-2deg);transition:opacity .25s,transform .35s;pointer-events:none;z-index:30}
+.say.out{opacity:0;transform:translateY(6px) rotate(0)}
+.say.bad{color:var(--red)}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"><div class="say" id="say">hi, it's me</div></div>
+<script src="base.js"></script>
+<script type="module">
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// headless review (?demo) gets no rAF under virtual time, so drive frames with timers there
+const DEMO=new URLSearchParams(location.search).has('demo'), frame=DEMO?f=>setTimeout(()=>f(performance.now()),16):requestAnimationFrame.bind(window), unframe=DEMO?clearTimeout:cancelAnimationFrame;
+const art=document.getElementById('art'), sayEl=document.getElementById('say');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+let sayT;function say(t,bad){clearTimeout(sayT);sayEl.classList.add('out');sayT=setTimeout(()=>{sayEl.textContent=t;sayEl.classList.toggle('bad',!!bad);sayEl.classList.remove('out')},RM?0:180)}
+
+const RULES=[['talk to users','#ffe27a'],['ship small','#ffc2cf'],['AI reads, code decides','#bfead3'],['never stays down','#c8e1ff'],['ask why twice','#ffd2a6'],['make it real','#ddd0ff']];
+const PINS=[['#ff9aa0','#ef4b54','#c9313b'],['#8fb6ff','#3279f2','#1f56c4'],['#9fe3bd','#3db37a','#278a58']];
+const notes=RULES.map(([t,c],i)=>{const el=document.createElement('div');el.className='nt';el.style.setProperty('--c',c);
+  const p=PINS[i%3];el.innerHTML=`<i class="pin" style="--ph:${p[0]};--pc:${p[1]};--pd:${p[2]}"></i>${t}`;art.insertBefore(el,sayEl);
+  return {el,th:0,w:0,l:0,lv:0,rest:(((i*37)%7)-3)*.012,ph:i*1.7,pinned:false,free:null,back:1}});
+const big=document.createElement('div');big.className='nt big';big.style.setProperty('--c','#ffe27a');big.innerHTML='come in<small>datta</small>';art.insertBefore(big,sayEl);
+
+let W=0,H=0,N=150,mode='idle',slap=null,T=0;
+function layout(){
+  W=art.clientWidth;H=art.clientHeight;N=Math.round(cl(Math.min(W*.24,H*.24),110,180));
+  const gx=N*1.22,gy=N*1.32,top=Math.max(110,(H-gy-N)/2);
+  notes.forEach((n,i)=>{n.x=W/2+(i%3-1)*gx;n.y=top+Math.floor(i/3)*gy;n.el.style.setProperty('--n',N+'px')});
+  big.style.setProperty('--n',Math.round(N*1.2)+'px');
+  sayEl.style.top=Math.max(24,top-80)+'px';
+}
+// each note: an angular spring about its sticky top edge (th) and a peel spring (l) that lifts the bottom
+let wind=0,mx=null,my=null,mvx=0;
+const DT=1/120;
+function step(){
+  T+=DT;wind*=.985;
+  notes.forEach((n,i)=>{
+    if(n.free&&mode!=='wrong'&&(n.free.x>W+N||n.free.y>H+N||n.free.y<-2*N)){n.free=null;n.back=0;n.th=n.rest;n.w=0;n.l=.4}   // flown away: a fresh note comes back
+    if(n.free){const f=n.free;f.vx+=(wind*.4+120)*DT;f.vy+=(420-f.vy*.9)*DT;f.x+=f.vx*DT;f.y+=f.vy*DT;f.w+=(Math.sin(T*7+i)*3-f.w*.3)*DT*4;f.a+=f.w*DT;n.l=.6+Math.sin(T*9+i)*.3;return}
+    const near=mx===null?0:Math.exp(-Math.hypot(mx-n.x,my-(n.y+N/2))/260);
+    const gust=(Math.sin(T*1.3+n.ph)*.5+Math.sin(T*3.1+n.ph*2)*.3)*1.2+wind*.004+mvx*near*.02;
+    const k=n.pinned?900:26,c=n.pinned?60:3.2;
+    const tq=n.pinned?0:gust;
+    n.w+=(-k*(n.th-n.rest)-c*n.w+tq)*DT;n.th+=n.w*DT;
+    const lk2=n.pinned?600:40,lift=n.pinned?0:Math.abs(gust)*3+Math.abs(mvx)*near*.03;
+    n.lv+=(-lk2*n.l-(n.pinned?50:5)*n.lv+lift)*DT;n.l=cl(n.l+n.lv*DT,0,1);
+    n.back=Math.min(1,n.back+DT*2.5);
+  });
+  mvx*=.9;
+  if(slap){slap.t+=DT;}
+}
+function render(){
+  notes.forEach(n=>{let x=n.x,y=n.y,a=n.th,o=n.back;
+    if(n.free){x=n.free.x;y=n.free.y;a=n.free.a}
+    const s=1-n.l*.14, sb=.92+.08*n.back;
+    n.el.style.transform=`translate(${(x-N/2).toFixed(1)}px,${(y+(1-n.back)*-30).toFixed(1)}px) rotate(${a.toFixed(4)}rad) scale(${sb.toFixed(3)},${(s*sb).toFixed(4)})`;
+    n.el.style.opacity=o.toFixed(3);n.el.style.setProperty('--l',n.l.toFixed(3));
+    n.el.style.boxShadow=`0 ${(2+12*n.l).toFixed(1)}px ${(4+18*n.l).toFixed(1)}px rgba(0,0,0,${(.1+.08*n.l).toFixed(3)})`});
+  if(slap){const t=cl(slap.t/(RM?1e-6:.24)),e=t*t,M=N*1.2,sq=slap.t>.24?1-Math.sin(cl((slap.t-.24)/.18)*Math.PI)*.05:1,s=(2.1-1.1*e)*sq;
+    if(t>=1&&!slap.hit){slap.hit=true;notes.forEach(n=>{n.lv+=1.2;n.w+=(n.x<W/2?-1:1)*.4})}
+    big.style.opacity=Math.min(1,t*3).toFixed(3);
+    big.style.transform=`translate(${(W/2-M/2).toFixed(1)}px,${(notes[0].y+N*1.16-M/2).toFixed(1)}px) rotate(${(-10+7*e).toFixed(2)}deg) scale(${s.toFixed(4)})`;
+    big.style.boxShadow=`0 ${(4+30*(1-e)).toFixed(1)}px ${(8+40*(1-e)).toFixed(1)}px rgba(0,0,0,${(.14+.06*(1-e)).toFixed(3)})`;}
+}
+
+addEventListener('pointermove',e=>{const r=art.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;if(mx!==null){mvx=cl(mvx*.5+(x-mx)*8,-1500,1500);wind=cl(wind+(x-mx)*1.5,-600,600)}mx=x;my=y});
+
+function settleNow(){for(let i=0;i<300;i++)step();if(slap)slap.t=1;render()}
+lk.on('type',n=>{if(mode==='right')return;
+  if(mode==='wrong'){if(n)return;mode='idle';say("hi, it's me");if(RM)notes.forEach(q=>{q.free=null;q.back=1;q.th=q.rest;q.w=0;q.l=0})}
+  notes.forEach((q,i)=>{const want=i<n;if(want&&!q.pinned){q.pinned=true;q.el.classList.add('pinned');q.lv-=.6}else if(!want&&q.pinned){q.pinned=false;q.el.classList.remove('pinned');q.w+=.8}});
+  if(RM)settleNow()});
+lk.on('wrong',()=>{mode='wrong';say('close, try again',true);wind=500;
+  notes.forEach((q,i)=>{q.pinned=false;q.el.classList.remove('pinned');q.free={x:q.x,y:q.y,vx:260+Math.random()*260+(i%3)*80,vy:-200-Math.random()*220,a:q.th,w:(Math.random()-.5)*6}});
+  if(RM){notes.forEach(q=>q.back=0)}});
+lk.on('right',()=>{mode='right';say('');slap={t:0,hit:false};if(RM)settleNow()});
+
+let raf=0,last=0,acc=0;
+function tick(now){acc+=Math.min(120,now-last);last=now;while(acc>=1000*DT){step();acc-=1000*DT}render();raf=frame(tick)}
+function start(){if(!raf&&!RM){last=performance.now();raf=frame(tick)}}
+function stop(){unframe(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+addEventListener('resize',()=>{layout();render()});
+layout();if(RM)settleNow();else render();start();
+
+// ?demo=N | wrong | right : replay typing for review
+const q=new URLSearchParams(location.search).get('demo');
+if(q){const full=q==='wrong'||q==='right',k=full?6:Math.min(6,parseInt(q)||0);
+  for(let i=1;i<=k;i++)setTimeout(()=>{lk.count=i;lk.emit('type',i)},200+i*220);
+  if(full)setTimeout(()=>{lk.state=q;lk.emit(q);if(q==='wrong')setTimeout(()=>{lk.count=0;lk.state='idle';lk.emit('type',0)},700)},200+7*220+600);}
+</script>
+</body>
+</html>

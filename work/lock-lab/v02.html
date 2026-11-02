@@ -1,0 +1,187 @@
+<!-- v02 idea: Datta's ribbed aluminium cabin case with a 6-dial combination lock; each typed box rolls a dial with momentum, wrong rattles the latches, right pops them, the lid swings open on its hinge and travel tags tumble out. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v02 · Combination suitcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<script type="importmap">{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+<style>
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:9%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--ink);opacity:0;transform:translateY(6px) rotate(-2deg);transition:opacity .45s,transform .45s;pointer-events:none}
+#art .cap.in{opacity:.82;transform:none}
+#art .cap.bad{color:var(--red)}
+/* static fallback when WebGL or the CDN is unavailable */
+#art .fb{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%)}
+#art .fb b{display:block;margin-top:18px;text-align:center;font:500 30px/1 var(--hand);color:var(--ink);opacity:.8}
+#art.gl .fb{display:none}
+
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"><div class="fb"><img src="../../assets/trip/suitcase.webp" alt="" style="display:block;width:240px;height:auto"><b>hi, it's me</b></div><p class="cap"></p></div>
+<script src="base.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import * as CANNON from 'cannon-es';
+const art=document.getElementById('art'), capEl=art.querySelector('.cap');
+let capT=0;
+function say(t,bad,ms){ clearTimeout(capT); capEl.classList.remove('in'); setTimeout(()=>{ capEl.textContent=t; capEl.classList.toggle('bad',!!bad); capEl.classList.add('in'); },180);
+  if(ms) capT=setTimeout(()=>say(IDLE),ms); }
+const IDLE="hi, it's me";
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function grain(x,w,h,amt){ const d=x.getImageData(0,0,w,h),a=d.data; for(let i=0;i<a.length;i+=4){ const n=(Math.random()-.5)*amt; a[i]+=n;a[i+1]+=n;a[i+2]+=n; } x.putImageData(d,0,0); }
+function canvasTex(w,h,draw){ const c=document.createElement('canvas'); c.width=w; c.height=h; draw(c.getContext('2d'),w,h); const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t; }
+function svgTex(url,w,h){ const t=canvasTex(w,h,()=>{}); const im=new Image(); im.onload=()=>{ t.image.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url; return t; }
+
+/* ---------- a light studio: transparent renderer over the page bg, soft shadows, resize, pause when hidden ---------- */
+let renderer=null;
+try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }catch(e){}
+function stage({eye,look,fov=30,shadow=3,sunPos=[-2.5,6,4.5],shadowOpacity=.14}){
+  art.classList.add('gl'); art.prepend(renderer.domElement);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setClearColor(0xf8f8f8,0);
+  renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
+  const scene=new THREE.Scene();
+  const pm=new THREE.PMREMGenerator(renderer); scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+  const sun=new THREE.DirectionalLight(0xffffff,1.5); sun.position.set(...sunPos); sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048); sun.shadow.radius=7; sun.shadow.blurSamples=20; sun.shadow.bias=-.0005; sun.shadow.normalBias=.02;
+  Object.assign(sun.shadow.camera,{left:-shadow,right:shadow,top:shadow,bottom:-shadow,near:.5,far:25}); scene.add(sun);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity:shadowOpacity})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+  const view=new THREE.PerspectiveCamera(fov,1,.05,80);
+  const S={scene,view,sun,floor,eye:new THREE.Vector3(...eye),look:new THREE.Vector3(...look),frames:[],mouse:{x:0,y:0},clock:0,camEase:1.2,parallax:[.5,.3]};
+  S.eyeTo=S.eye.clone(); S.lookTo=S.look.clone();
+  addEventListener('pointermove',e=>{ S.mouse.x=e.clientX/innerWidth-.5; S.mouse.y=e.clientY/innerHeight-.5; });
+  S.ndc=(e)=>{ const r=renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); };
+  function size(){ const r=art.getBoundingClientRect(); renderer.setSize(r.width,r.height,false); view.aspect=r.width/Math.max(1,r.height); view.fov=view.aspect<.9?fov:fov*.82; view.updateProjectionMatrix(); }
+  new ResizeObserver(size).observe(art); size();
+  let last=performance.now(),raf=0;
+  function frame(now){ raf=requestAnimationFrame(frame); const dt=Math.min(.033,(now-last)/1000); last=now; S.clock+=dt;
+    for(const f of S.frames) f(dt,S.clock);
+    S.eye.lerp(S.eyeTo,Math.min(1,dt*S.camEase)); S.look.lerp(S.lookTo,Math.min(1,dt*S.camEase*1.3));
+    view.position.set(S.eye.x+S.mouse.x*S.parallax[0],S.eye.y-S.mouse.y*S.parallax[1],S.eye.z); view.lookAt(S.look);
+    renderer.render(scene,view); }
+  function go(){ if(!raf&&!document.hidden){ last=performance.now(); raf=requestAnimationFrame(frame); } }
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ cancelAnimationFrame(raf); raf=0; } else go(); });
+  go(); say(IDLE); return S;
+}
+if(renderer) start();
+function start(){
+  const S=stage({eye:[.3,3.3,7.4],look:[0,.5,.1],fov:30,shadow:3.2,sunPos:[-2.2,7,4]});
+  const {scene}=S;
+  const W=2.24, D=1.6, HB=.52, HL=.42;           // 56 x 40 cm case lying on its back; base + lid heights
+  const alu=new THREE.MeshPhysicalMaterial({color:0xf3f4f6,metalness:.8,roughness:.3,envMapIntensity:1.5});
+  const aluDark=new THREE.MeshPhysicalMaterial({color:0xd2d5da,metalness:.8,roughness:.34,envMapIntensity:1.4});
+  const chrome=new THREE.MeshPhysicalMaterial({color:0xf0f1f3,metalness:1,roughness:.14});
+  const rubber=new THREE.MeshStandardMaterial({color:0x1d1e22,roughness:.55});
+  const lining=new THREE.MeshStandardMaterial({color:0x34405e,roughness:.95});
+  const mesh=(g,m,p,parent=scene)=>{ const o=new THREE.Mesh(g,m); o.position.set(...p); o.castShadow=o.receiveShadow=true; parent.add(o); return o; };
+
+  /* ---------- base ---------- */
+  const caseG=new THREE.Group(); scene.add(caseG);
+  mesh(new RoundedBoxGeometry(W,HB,D,4,.07),alu,[0,HB/2,0],caseG);
+  mesh(new RoundedBoxGeometry(W+.04,.05,D+.04,2,.02),aluDark,[0,HB-.03,0],caseG);       // rim on the seam
+  const lin=new THREE.Mesh(new THREE.PlaneGeometry(W-.14,D-.14),lining); lin.rotation.x=-Math.PI/2; lin.position.y=HB+.003; lin.receiveShadow=true; caseG.add(lin);
+  // a folded tee and a passport, packed
+  mesh(new RoundedBoxGeometry(.8,.06,.6,2,.025),new THREE.MeshStandardMaterial({color:0xf2efe8,roughness:.95}),[-.45,HB+.03,.05],caseG).rotation.y=.08;
+  mesh(new RoundedBoxGeometry(.26,.025,.36,2,.01),new THREE.MeshStandardMaterial({color:0x22386b,roughness:.7}),[.55,HB+.013,-.2],caseG).rotation.y=-.3;
+  for(const s of [-1,1]) for(const z of [-1,1]) mesh(new RoundedBoxGeometry(.16,.16,.16,2,.05),aluDark,[s*(W/2-.04),.08,z*(D/2-.04)],caseG);
+  // carry handle on the end
+  const handle=mesh(new THREE.TorusGeometry(.17,.035,12,32,Math.PI),rubber,[W/2+.02,HB-.02,0],caseG); handle.rotation.set(0,Math.PI/2,-Math.PI/2);
+
+  /* ---------- lid on a hinge along the back edge ---------- */
+  const hinge=new THREE.Group(); hinge.position.set(0,HB,-D/2); caseG.add(hinge);
+  const lid=new THREE.Group(); lid.position.set(0,0,D/2); hinge.add(lid);
+  mesh(new RoundedBoxGeometry(W,HL,D,4,.07),alu,[0,HL/2,0],lid);
+  mesh(new RoundedBoxGeometry(W+.04,.05,D+.04,2,.02),aluDark,[0,.03,0],lid);
+  const lin2=new THREE.Mesh(new THREE.PlaneGeometry(W-.14,D-.14),lining); lin2.rotation.x=Math.PI/2; lin2.position.y=-.003; lid.add(lin2);
+  for(let i=0;i<9;i++) mesh(new RoundedBoxGeometry(W-.36,.035,.075,2,.016),alu,[0,HL+.012,-D/2+.26+i*(D-.52)/8],lid);   // the ribs
+  for(const s of [-1,1]) for(const z of [-1,1]) mesh(new RoundedBoxGeometry(.16,.16,.16,2,.05),aluDark,[s*(W/2-.04),HL-.08,z*(D/2-.04)],lid);
+
+  /* ---------- combination lock on the front of the base ---------- */
+  const FZ=D/2;
+  const lock=new THREE.Group(); lock.position.set(0,HB-.17,FZ); caseG.add(lock);
+  mesh(new RoundedBoxGeometry(1.2,.27,.1,3,.04),aluDark,[0,0,.03],lock);
+  mesh(new THREE.BoxGeometry(1.04,.15,.02),new THREE.MeshStandardMaterial({color:0x15161a,roughness:.6}),[0,0,.075],lock);
+  const digits=canvasTex(1024,128,(x,w,h)=>{ x.fillStyle='#f4f3ef'; x.fillRect(0,0,w,h); x.fillStyle='#16171b'; x.font='700 66px "Space Mono", monospace'; x.textAlign='center'; x.textBaseline='middle';
+    for(let d=0;d<10;d++){ x.save(); x.translate((d+.5)*w/10,h/2); x.rotate(Math.PI/2); x.fillText(String(d),0,4); x.restore(); x.fillStyle='rgba(0,0,0,.12)'; x.fillRect(d*w/10,0,2,h); x.fillStyle='#16171b'; } });
+  const dialMat=[new THREE.MeshStandardMaterial({map:digits,roughness:.45}),chrome,chrome];
+  const dials=[];
+  for(let i=0;i<6;i++){
+    const g=new THREE.Mesh(new THREE.CylinderGeometry(.088,.088,.13,40),dialMat); g.rotation.z=Math.PI/2;
+    const holder=new THREE.Group(); holder.position.set(-.425+i*.17,0,.05); holder.add(g); lock.add(holder);
+    dials.push({g,a:0,v:0,T:0,d:0});
+  }
+  // two latches either side, hinged at their lower edge
+  const latches=[-.78,.78].map(x=>{ const p=new THREE.Group(); p.position.set(x,HB-.2,FZ+.02); caseG.add(p);
+    mesh(new RoundedBoxGeometry(.2,.26,.06,2,.025),chrome,[0,.13,0],p); mesh(new THREE.BoxGeometry(.12,.04,.03),aluDark,[0,.22,.03],p);
+    return {p,a:0,v:0,T:0}; });
+
+  /* ---------- physics: tags tumble out on open ---------- */
+  const world=new CANNON.World({gravity:new CANNON.Vec3(0,-9.8,0)}); world.allowSleep=true;
+  world.defaultContactMaterial.friction=.5; world.defaultContactMaterial.restitution=.2;
+  const ground=new CANNON.Body({mass:0,shape:new CANNON.Plane()}); ground.quaternion.setFromEuler(-Math.PI/2,0,0); world.addBody(ground);
+  const caseBody=new CANNON.Body({mass:0,shape:new CANNON.Box(new CANNON.Vec3(W/2,HB/2,D/2))}); caseBody.position.set(0,HB/2,0); world.addBody(caseBody);
+  const TAGS=[['BLR','Bengaluru','#2c7cf6'],['AMD','Gujarat','#ff8a3d'],['AMS','Amsterdam','#c94a3f'],['01A','Build something','#22386b']];
+  function tagTex(code,city,col){ return canvasTex(512,256,(x,w,h)=>{ x.fillStyle='#f6efdc'; x.fillRect(0,0,w,h); grain(x,w,h,8);
+    x.fillStyle=col; x.fillRect(0,0,w,46); x.fillStyle='#fff'; x.font='700 22px "Space Mono", monospace'; x.fillText('DATTA  /  BAGGAGE',96,31);
+    x.fillStyle='#20253f'; x.font='700 104px "Instrument Sans", sans-serif'; x.fillText(code,96,160);
+    x.font='400 30px "Space Mono", monospace'; x.fillText(city.toUpperCase(),100,212);
+    x.beginPath(); x.arc(44,h/2+20,15,0,7); x.fillStyle='#d6cfbd'; x.fill(); x.beginPath(); x.arc(44,h/2+20,9,0,7); x.fillStyle='#f8f8f8'; x.fill();
+    for(let i=0;i<34;i++){ x.fillStyle='#20253f'; x.fillRect(360+i*4,170,(i*7%3)+1,46); } }); }
+  const tags=[];
+
+  /* ---------- the typed digits drive the dials ---------- */
+  const boxes=[...document.querySelectorAll('#lk .bx')];
+  const STEP=Math.PI*2/10, OFF=0;
+  function roll(i,d,back){ const D0=dials[i]; if(D0.d===d&&!back) { D0.v+=6; return; }
+    const cur=D0.T; let tgt=d*STEP+OFF; while(tgt<cur+Math.PI*2) tgt+=Math.PI*2;          // always spin forward at least a turn
+    if(back){ tgt=d*STEP+OFF; while(tgt>cur-.01) tgt-=Math.PI*2; }
+    D0.T=tgt; D0.d=d; D0.v+=back?-4:9; }
+  let phase='lock';
+  lk.on('type',n=>{ if(phase!=='lock') return;
+    boxes.forEach((b,i)=>{ if(i<n){ const v=b.value, d=/\d/.test(v)?+v:(v.charCodeAt(0)||0)%10; if(dials[i].d!==d||!dials[i].set){ dials[i].set=true; roll(i,d); } }
+      else if(dials[i].set){ dials[i].set=false; roll(i,0,true); } }); });
+  lk.on('wrong',()=>{ if(phase!=='lock') return; say('close, try again',true,2200);
+    latches.forEach((l,i)=>{ l.v+=(i?1:-1)*0; l.rattle=.9; }); shake=.5; });
+  lk.on('right',()=>{ if(phase!=='lock') return; phase='pop'; t0=S.clock; latches.forEach(l=>{ l.T=-1.25; l.v-=14; }); });
+
+  let shake=0, t0=0, lidA=0, lidV=0, said=false;
+  S.frames.push((dt,t)=>{
+    for(const d of dials){ // damped spring toward the target digit, plus a detent that clicks it into place
+      const acc=-55*(d.a-d.T)-6.5*d.v-3*Math.sin(10*(d.a-d.T)); d.v+=acc*dt; d.a+=d.v*dt; d.g.parent.rotation.x=d.a; }
+    for(const l of latches){ let acc=-160*(l.a-l.T)-9*l.v; if(l.rattle>0){ l.rattle-=dt; acc+=Math.sin(t*70)*90*l.rattle; } l.v+=acc*dt; l.a+=l.v*dt; l.p.rotation.x=-l.a*.0+l.a; }
+    if(shake>0){ shake-=dt; caseG.position.x=Math.sin(t*55)*.012*shake; caseG.rotation.y=Math.sin(t*41)*.01*shake; } else { caseG.position.x=0; caseG.rotation.y=0; }
+    if(phase==='pop'&&t-t0>.35){ phase='open'; lidV=2.2; spawnTags(); }
+    if(phase==='open'){
+      // hinge: a gas strut pushes it open against gravity, damped, with a soft stop at ~110 degrees
+      const acc=10-7.5*Math.cos(lidA)-1.6*lidV; lidV+=acc*dt; lidA+=lidV*dt;
+      if(lidA>1.92){ lidA=1.92; lidV=-lidV*.32; }
+      hinge.rotation.x=-lidA;
+      world.step(1/120,dt,6);
+      for(const tg of tags){ tg.m.position.copy(tg.b.position); tg.m.quaternion.copy(tg.b.quaternion); }
+      if(t-t0>.9&&!said){ said=true; say('come in'); S.eyeTo.set(.3,4.4,7.6); S.lookTo.set(0,.65,.8); }
+    }
+  });
+  function spawnTags(){
+    TAGS.forEach(([c,city,col],i)=>{ const tex=tagTex(c,city,col);
+      const m=new THREE.Mesh(new THREE.BoxGeometry(.56,.28,.012),[0,0,0,0].map(()=>new THREE.MeshStandardMaterial({color:0xefe7d2,roughness:.9})).concat([new THREE.MeshStandardMaterial({map:tex,roughness:.85}),new THREE.MeshStandardMaterial({map:tex,roughness:.85})]));
+      m.castShadow=m.receiveShadow=true; scene.add(m);
+      const b=new CANNON.Body({mass:.03,shape:new CANNON.Box(new CANNON.Vec3(.28,.14,.01)),linearDamping:.3,angularDamping:.3});
+      b.position.set(-.6+i*.4,HB+.12+i*.04,.1-i*.05); b.quaternion.setFromEuler(-Math.PI/2+(Math.random()-.5)*.6,(Math.random()-.5)*.8,(Math.random()-.5)*.6);
+      b.velocity.set((i-1.5)*.55,3+Math.random()*.9,1.5+Math.random()*.6); b.angularVelocity.set((Math.random()-.5)*9,(Math.random()-.5)*6,(Math.random()-.5)*9);
+      world.addBody(b); m.position.copy(b.position); tags.push({m,b}); });
+  }
+}
+
+</script>
+</body>
+</html>

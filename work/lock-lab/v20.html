@@ -1,0 +1,122 @@
+<!-- v20 idea: a handwritten note from Datta that writes itself one line per typed box; a wrong password scribbles out a line, the right one signs it, adds a heart and folds it in half. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v20 · A note from Datta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{display:flex;align-items:center;justify-content:center;perspective:1400px;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.desk{position:relative;width:380px;height:480px;transform:rotate(-2deg)}
+.shadow{position:absolute;inset:14px 8px -6px;border-radius:4px;background:rgba(20,20,30,.22);filter:blur(18px);transition:transform .9s cubic-bezier(.5,0,.2,1),opacity .9s}
+.half{position:absolute;left:0;width:380px;height:240px;transform-style:preserve-3d}
+.half.top{top:0;transform-origin:50% 100%;z-index:2}
+.half.bot{top:240px}
+.face{position:absolute;inset:0;overflow:hidden;background:#fffefa;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face::after{content:"";position:absolute;inset:0;background:var(--grain);opacity:.14;mix-blend-mode:multiply;pointer-events:none}
+.top .face{border-radius:4px 4px 0 0}.bot .face{border-radius:0 0 4px 4px}
+.face svg{position:absolute;left:0;width:380px;height:480px}
+.bot .face svg{top:-240px}.top .face svg{top:0}
+.top .backside{transform:rotateX(180deg);background:#f7f5ee;display:flex;align-items:center;justify-content:center}
+.backside span{font:500 46px/1 var(--hand);color:#2b2b30;transform:rotate(-4deg);opacity:0;transition:opacity .4s .5s}
+.folded .backside span{opacity:1}
+.crease{position:absolute;left:0;right:0;top:239px;height:2px;background:linear-gradient(rgba(0,0,0,.05),rgba(255,255,255,.6));z-index:3;pointer-events:none}
+text{font:500 34px var(--hand);fill:#26272b}
+.rule{stroke:#e9ebef;stroke-width:1}
+.margin{stroke:rgba(239,75,84,.28);stroke-width:1}
+.ink{fill:none;stroke:#26272b;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.red{stroke:var(--red)}
+.side{font-size:26px;fill:var(--red)}
+html.demo *{transition:none!important}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div class="desk" id="desk">
+    <div class="shadow" id="shadow"></div>
+    <div class="half bot"><div class="face" data-copy="b"></div></div>
+    <div class="half top" id="top"><div class="face" data-copy="t"></div><div class="face backside"><span>come in</span></div></div>
+    <div class="crease"></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script type="module">
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LINES=['hey,','this one\'s under NDA.','but you found it,','so you\'re probably','the right person.','~ Datta'];
+const X=[46,46,46,46,46,190], Y=[84,146,208,270,332,404];
+const top=document.getElementById('top'), desk=document.getElementById('desk'), shadow=document.getElementById('shadow');
+
+// the note is drawn twice (top and bottom half of the sheet) so the top half can fold over
+function sheet(c){let s=`<svg viewBox="0 0 380 480">`;
+  for(let y=96;y<470;y+=62)s+=`<line class="rule" x1="24" x2="356" y1="${y}" y2="${y}"/>`;
+  s+=`<line class="margin" x1="34" x2="34" y1="0" y2="480"/>`;
+  LINES.forEach((t,i)=>{s+=`<clipPath id="w${i}${c}"><rect class="wipe" data-i="${i}" x="0" y="${Y[i]-44}" width="0" height="64"/></clipPath>`+
+    `<text x="${X[i]}" y="${Y[i]}" clip-path="url(#w${i}${c})" data-t="${i}">${t.replace(/'/g,'&#39;')}</text>`});
+  // scribble over line 5, red margin note, heart and tick: all drawn as strokes
+  s+=`<path class="ink scrib" d="M42 330 l14 -14 l6 18 l14 -20 l8 22 l14 -22 l8 22 l14 -22 l8 20 l14 -22 l8 22 l14 -22 l8 20 l14 -20 l8 20 l14 -22 l6 18 l12 -16 l6 14 l12 -14 l6 12 l12 -14 l6 14 l12 -12"/>`;
+  s+=`<text class="side" x="200" y="378" clip-path="url(#ws${c})">try again?</text><clipPath id="ws${c}"><rect class="wipeS" x="196" y="350" width="0" height="40"/></clipPath>`;
+  s+=`<path class="ink red heart" d="M338 394 c-8 -12 -26 -8 -22 6 c3 10 16 16 22 24 c6 -8 19 -14 22 -24 c4 -14 -14 -18 -22 -6"/>`;
+  s+=`<path class="ink tick red" d="M264 322 l8 9 l18 -24"/>`;
+  return s+'</svg>'}
+document.querySelectorAll('[data-copy]').forEach(f=>f.innerHTML=sheet(f.dataset.copy));
+const wipes=i=>[...document.querySelectorAll(`.wipe[data-i="${i}"]`)];
+const texts=i=>[...document.querySelectorAll(`text[data-t="${i}"]`)];
+const strokes=cls=>[...document.querySelectorAll('.'+cls)];
+
+// stroke-draw helpers
+function prep(cls){strokes(cls).forEach(p=>{const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;p.dataset.len=L})}
+['scrib','heart','tick'].forEach(prep);
+
+// per-line write head: px written so far vs target; writes at hand speed, erases fast
+const W=new Array(6).fill(0), T=new Array(6).fill(0), D={scrib:0,heart:0,tick:0,side:0}, DT={scrib:0,heart:0,tick:0,side:0};
+let fullW=[];
+document.fonts.load('500 34px Caveat').then(()=>{fullW=LINES.map((t,i)=>texts(i)[0].getComputedTextLength()+8)});
+const widthOf=i=>fullW[i]||texts(i)[0].getComputedTextLength()+8;
+let fold=0, foldT=0, foldV=0;
+function render(){
+  for(let i=0;i<6;i++)wipes(i).forEach(r=>{r.setAttribute('x',X[i]-8);r.setAttribute('width',(W[i]>0?W[i]+8:0).toFixed(1))});
+  for(const k of ['scrib','heart','tick'])strokes(k).forEach(p=>{p.style.strokeDashoffset=(p.dataset.len*(1-D[k])).toFixed(1);p.style.opacity=D[k]>.001?1:0});
+  document.querySelectorAll('.wipeS').forEach(r=>r.setAttribute('width',(D.side*160).toFixed(1)));
+  top.style.transform=`rotateX(${(-fold*180).toFixed(2)}deg)`;
+  shadow.style.transform=`translateY(${(fold*120).toFixed(1)}px) scaleY(${(1-fold*.5).toFixed(3)})`;
+  desk.classList.toggle('folded',fold>.9);
+}
+let last=performance.now();
+(function tick(now){let e=Math.min(.5,(now-last)/1000);last=now;
+  while(e>0){const dt=Math.min(1/120,e);e-=dt;
+    // lines are written in order: a line only starts once the one above is finished
+    for(let i=0;i<6;i++){const tgt=T[i]?widthOf(i):0, prevDone=i===0||!T[i-1]||W[i-1]>=widthOf(i-1)-.5;
+      if(W[i]<tgt&&prevDone)W[i]=RM?tgt:Math.min(tgt,W[i]+dt*330);else if(W[i]>tgt)W[i]=RM?tgt:Math.max(tgt,W[i]-dt*1400)}
+    for(const k in D){if(D[k]<DT[k])D[k]=RM?DT[k]:Math.min(DT[k],D[k]+dt*(k==='scrib'?2.2:1.6));else if(D[k]>DT[k])D[k]=RM?DT[k]:Math.max(DT[k],D[k]-dt*3)}
+    // fold spring with a little overshoot
+    const a=-60*(fold-foldT)-9*foldV;foldV+=a*dt;fold+=foldV*dt;if(RM){fold=foldT;foldV=0}}
+  render();requestAnimationFrame(tick)})(last);
+
+let wrongAt=-1e9, done=false;
+function setLines(n){for(let i=0;i<5;i++)T[i]=i<n?1:0;T[5]=0}
+lk.on('type',n=>{if(done)return;
+  if(n===0&&performance.now()-wrongAt<1500){setTimeout(()=>{if(lk.count===0&&!done){setLines(0);DT.scrib=0;DT.side=0}},1300);return}
+  DT.scrib=0;DT.side=0;setLines(Math.min(5,n))});
+lk.on('wrong',()=>{wrongAt=performance.now();setLines(5);DT.scrib=1;setTimeout(()=>{DT.side=1},RM?0:450)});
+lk.on('right',()=>{done=true;setLines(5);T[5]=1;DT.scrib=0;DT.side=0;
+  const wait=()=>W[5]>=widthOf(5)-.5;
+  const go=()=>{DT.heart=1;setTimeout(()=>{DT.tick=1},RM?0:500);setTimeout(()=>{if(q!=='signed')foldT=1},RM?0:1500)};
+  const poll=()=>wait()?go():setTimeout(poll,60);poll()});
+
+// ?demo=N | right | wrong : fire the handlers as if typed (for screenshots)
+const q=new URLSearchParams(location.search).get('demo');
+if(q)document.documentElement.classList.add('demo');
+if(q)setTimeout(()=>{const bx=[...document.querySelectorAll('#lk .bx')];
+  if(q==='wrong'){'654321'.split('').forEach((c,i)=>bx[i].value=c);document.querySelector('#lk .msg').textContent='Not quite. Try again.';lk.count=6;lk.state='wrong';lk.emit('type',6);lk.emit('wrong');return}
+  const n=(q==='right'||q==='signed')?6:Math.max(0,Math.min(5,+q||0));for(let i=0;i<n;i++)bx[i].value='123456'[i];if(n)bx[n-1].dispatchEvent(new Event('input'));},400);
+// headless screenshots barely tick rAF: finish the writing at once (?demo=signed shows the right state before the fold)
+if(q)setTimeout(()=>{for(let i=0;i<6;i++)W[i]=T[i]?widthOf(i):0;for(const k in D)D[k]=DT[k];
+  if(q==='right'||q==='signed'){D.heart=DT.heart=1;D.tick=DT.tick=1;fold=foldT=q==='right'?1:0;foldV=0}render()},1200);
+</script>
+</body>
+</html>

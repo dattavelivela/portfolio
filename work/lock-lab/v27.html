@@ -1,0 +1,129 @@
+<!-- v27 idea: Bengaluru's skyline at night in indigo and sodium yellow; each box switches on another band of windows, and the right password lights them all while one tower spells "hi". -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v27 · Night city</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:#0a0b26;color:#ffe2a0}
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.line{position:absolute;left:40px;top:34px;margin:0;font:italic 300 26px/1.2 "Newsreader",serif;letter-spacing:-.01em}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#8f90d8}
+.tr{right:40px;top:44px}.bl{left:40px;bottom:36px}.br{right:40px;bottom:36px}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <canvas id="cv"></canvas>
+  <p class="line" id="line">Bengaluru, after hours.</p>
+  <span class="mono tr" id="clock"></span>
+  <span class="mono bl" id="lit">0 of 6 floors lit</span>
+  <span class="mono br">12.97° N, 77.59° E</span>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, hash, noise, fbm, clamp, lerp, sstep, clock, wireDemo } from './dither.js';
+const $ = id => document.getElementById(id);
+clock($('clock'));
+
+// "hi" in a 7 x 5 window grid, lit on the tower when you get in
+const HI = ['1000010', '1000000', '1110010', '1010010', '1010010'];
+const GROUND = .82, PW = 13, PH = 17;                      // ground line (v), window pitch in CSS px
+
+// skyline, rebuilt for the current width: a list of front buildings and a hazy back row
+let city = null, cityW = 0, cityH = 0;
+function build(W, H) {
+  if (city && cityW === W && cityH === H) return city;
+  cityW = W; cityH = H;
+  const front = [], back = [];
+  let x = -10, i = 0;
+  const towerX = W * .58, spireX = W * .2;
+  while (x < W + 20) {
+    let bw = 50 + hash(i, 1) * 70, top = H * (GROUND - .14 - hash(i, 2) * .3), kind = 0;
+    if (x < towerX && x + bw > towerX - 10) { x = towerX; bw = PW * 7 + 16; top = H * .26; kind = 2; }      // the "hi" tower
+    else if (x < spireX && x + bw > spireX) { bw = 64; top = H * .3; kind = 1; }                              // a spire, UB City style
+    front.push({ x, w: bw, top, kind, seed: i });
+    x += bw + (hash(i, 3) > .6 ? 6 + hash(i, 4) * 14 : 0); i++;
+  }
+  for (let bx = -20, j = 0; bx < W + 20; j++) { const bw = 30 + hash(j, 7) * 60; back.push({ x: bx, w: bw, top: H * (GROUND - .2 - hash(j, 8) * .34) }); bx += bw; }
+  return (city = { front, back });
+}
+const at = (list, X) => { for (const b of list) if (X >= b.x && X < b.x + b.w) return b; return null; };
+
+let prog, done, burst;
+const scene = shade((x, y, w, h, t, api) => {
+  const W = api.W, H = api.H, X = (x + .5) / w * W, Y = (y + .5) / h * H, v = Y / H;
+  const C = build(W, H);
+  // sky with a sodium haze over the city
+  let s = lerp(.12, .3, Math.pow(v / GROUND, 2)) + .34 * Math.exp(-Math.pow((GROUND - v) * 4, 2));
+  if (hash(x, y, 11) > .996 && v < .5) s = .7;                                                    // a few stars
+  const bb = at(C.back, X);
+  if (bb && Y > bb.top) s = .24 + .05 * Math.exp(-Math.pow((GROUND - v) * 6, 2));                 // back row, in haze
+  const b = at(C.front, X);
+  if (b) {
+    let top = b.top;
+    if (b.kind === 1) {                                                                            // stepped spire
+      const cx = b.x + b.w / 2, d = Math.abs(X - cx);
+      if (Y < top && d < 3 && Y > top - H * .09) s = .05;
+      if (Y < top && Y > top - H * .03 && d < b.w * .3) s = .05;
+      if (Math.abs(X - cx) < 2 && Math.abs(Y - (top - H * .09)) < 3) s = (Math.sin(t * 3) > 0 ? 1 : .3);   // aircraft light
+    }
+    if (Y > top && v < GROUND) {
+      s = .07;
+      // windows on a grid inside the facade
+      const lx = X - b.x - 7, ly = Y - top - 9;
+      const ci = Math.floor(lx / PW), ri = Math.floor(ly / PH), fx = lx - ci * PW, fy = ly - ri * PH;
+      const cols = Math.floor((b.w - 12) / PW);
+      if (lx > 0 && ci < cols && ly > 0 && fx < 7 && fy < 10 && Y < H * GROUND - 6) {
+        const floorsUp = (H * GROUND - Y) / (H * (GROUND - .26));                                     // 0 at street, 1 at the tallest roof
+        const band = Math.min(5, Math.floor(floorsUp * 6));
+        const lit = band < prog.x * 6 - .0001 ? 1 : 0;
+        let win = .22;
+        if (lit && hash(b.seed * 31 + ci, ri, 5) < .78) win = .82 + hash(ci, ri, b.seed) * .18;
+        if (b.kind === 2 && done.x > 0) {                                                // the tower spells hi
+          const on = ri >= 1 && ri < 6 && HI[ri - 1][ci] === '1';
+          const blink = Math.sin(t * 4) > -.4 ? 1 : 0;
+          win = lerp(win, on ? (blink ? 1 : .45) : .34, done.x);
+        } else win = lerp(win, Math.max(win, .9), done.x * (hash(b.seed, ci, ri) < .85 ? 1 : 0));
+        s = win;
+      }
+    }
+  }
+  if (v >= GROUND) {                                                                                // the street, lamps and wet reflections
+    const g = (v - GROUND) / (1 - GROUND);
+    s = .06 + .2 * Math.exp(-g * 6) * (.6 + .4 * noise(X * .05, g * 30));
+    if (g < .06 && Math.abs((X % 60) - 30) < 2.5) s = .95;                                          // street lamps
+    const lampGlow = Math.exp(-Math.pow(((X % 60) - 30) / 14, 2)) * Math.exp(-g * 9);
+    s += lampGlow * .45;
+  }
+  return s + burst.x * (hash(x, y, Math.floor(t * 20)) - .4) * .9;
+});
+
+const d = dither($('cv'), {
+  source: scene, palette: ['#0a0b26', '#22266a', '#4b4fa6', '#c5852c', '#ffcb4d'], grain: .07, dotMin: .32, dotMax: .97, noise: .45, sparse: .7,
+  frame(dt, t, api) {
+    api.p.cell = lerp(12, 3.5, prog.x) - done.x * .5 + burst.x * 6;
+    api.p.resolve = clamp(lerp(.4, .96, prog.x) + done.x - burst.x);
+  }
+});
+prog = d.ease(0, 2.4); done = d.ease(0, 1.6); burst = d.ease(0, 5);
+addEventListener('resize', () => { city = null; });
+
+let wrongAt = -1e9, isDone = false;
+const lit = n => $('lit').textContent = n + ' of 6 floors lit';
+lk.on('type', n => {
+  if (isDone) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !isDone) { burst.to(0); prog.to(0); lit(0); $('line').textContent = 'Bengaluru, after hours.'; } }, 900); return; }
+  burst.to(0); prog.to(n / 6); lit(n);
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('lit').textContent = 'power cut'; $('line').textContent = 'Power cut. Again.'; });
+lk.on('right', () => { isDone = true; prog.to(1); done.to(1); burst.to(0); $('lit').textContent = 'every floor lit'; $('line').textContent = 'Someone’s still up.'; });
+wireDemo(() => d.settle());
+</script>
+</body>
+</html>

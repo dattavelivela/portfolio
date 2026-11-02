@@ -1,0 +1,102 @@
+<!-- v21 idea: Bengaluru's sky at Datta's actual local time, dithered; each typed box thins the clouds and the right password lets the sun (or moon) through. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v21 · Bengaluru, right now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#sky{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0;pointer-events:none}
+#art{z-index:1;color:var(--txt,#fff);text-shadow:0 0 8px var(--halo,#000),0 0 2px var(--halo,#000)}
+.line{position:absolute;right:40px;top:36px;margin:0;font:italic 300 26px/1.15 "Newsreader",serif;letter-spacing:-.01em;text-align:right;transition:opacity .8s}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.clock{right:40px;bottom:36px}
+.coord{right:40px;top:104px}
+.state{left:40px;bottom:36px}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <p class="line" id="line">Bengaluru, right now.</p>
+  <span class="mono coord">12.97° N, 77.59° E</span>
+  <span class="mono state" id="state">cloud cover 92%</span>
+  <span class="mono clock" id="clock"></span>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, fbm, clamp, lerp, sstep, clock, hoursIn, wireDemo, hash } from './dither.js';
+const $ = id => document.getElementById(id);
+if (!/nocl/.test(location.search)) clock($('clock'));
+
+// palettes through the day: [bg, c1, c2, c3 (brightest), text]
+const NIGHT = ['#0c0f2e', '#1f2766', '#4c58a6', '#d9deff', '#e6e9ff'],
+      DAWN  = ['#3b2a4f', '#a75f7d', '#f09f86', '#ffe3c4', '#fff4e6'],
+      NOON  = ['#7d9aa3', '#a9c0c0', '#dfe6dc', '#fffcf2', '#16252a'],
+      DUSK  = ['#24173f', '#6d346b', '#dc6a45', '#ffc67c', '#ffeede'];
+const KEYS = [[0, NIGHT], [4.8, NIGHT], [6.3, DAWN], [8.6, NOON], [16, NOON], [18.1, DUSK], [19.5, NIGHT], [24, NIGHT]];
+const hx = c => [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16));
+const mix = (a, b, k) => '#' + hx(a).map((v, i) => Math.round(lerp(v, hx(b)[i], k)).toString(16).padStart(2, '0')).join('');
+const qh = new URLSearchParams(location.search).get('hour');
+function paletteAt(h) {
+  for (let i = 0; i < KEYS.length - 1; i++) if (h >= KEYS[i][0] && h <= KEYS[i + 1][0]) {
+    const k = sstep(KEYS[i][0], KEYS[i + 1][0], h);
+    return KEYS[i][1].map((c, j) => mix(c, KEYS[i + 1][1][j], k));
+  }
+  return NIGHT;
+}
+const hour = () => qh != null ? +qh : hoursIn('Asia/Kolkata');
+const isDay = h => h > 6 && h < 18.6;
+
+// the scene, one value per cell
+let prog, clear, burst, DAY = true;
+const SUN = [.74, .4];
+const scene = shade((x, y, w, h, t) => {
+  const asp = w / h, u = x / w, v = y / h;
+  const dx = (u - SUN[0]) * asp, dy = v - SUN[1], r = Math.sqrt(dx * dx + dy * dy);
+  const base = lerp(.1, .46, Math.pow(v, 1.6));                         // sky: deep above, glow at the horizon
+  const disc = .055, glow = Math.exp(-r * r / .05) * (.16 + .22 * clear.x) + Math.exp(-r * r / .3) * .1;
+  let s = base + glow;
+  if (r < disc) s = DAY ? 1 : .86 + .14 * fbm(dx * 40 + 3, dy * 40, 2);   // sun, or a full moon with faint maria
+  // drifting cloud banks, stretched sideways; thinner with every box
+  const n = fbm(u * asp * 1.7 + t * .014 + 4.3, v * 3.6 + t * .003 + 1.7, 4) * .8 + fbm(u * asp * 5 - t * .025, v * 9, 2) * .2;
+  const thr = lerp(.42, .54, prog.x) - burst.x * .3;
+  let c = sstep(thr, thr + .12, n) * lerp(.5, 1, sstep(.05, .7, v));
+  c *= 1 - clear.x * (1 - sstep(.12, .34, r + (n - .5) * .25));                           // a hole opens round the sun on the right password
+  const lit = .6 + glow * .9 + (n - thr) * .5 + clear.x * .25 * Math.exp(-r * r / .12);                         // clouds catch the light near the disc
+  return lerp(s, lit, c);
+});
+
+const d = dither($('sky'), {
+  source: scene, palette: NIGHT.slice(0, 4), grain: .07, dotMin: .34, dotMax: .98, noise: .5, sparse: .6, flicker: 6,
+  veil: (u, v) => innerWidth < 760 ? sstep(.5, .7, v) : sstep(.4, .6, u + (v - .5) * .04),
+  frame(dt, t, api) {
+    const H = hour(); DAY = isDay(H); const P = paletteAt(H);
+    api.p.palette = P.slice(0, 4); const st = document.documentElement.style; st.setProperty('--txt', P[4]); st.setProperty('--halo', P[0]);
+    api.p.cell = lerp(15, 5, prog.x) - clear.x * 1 + burst.x * 8;
+    api.p.resolve = clamp(lerp(.3, .95, prog.x) + clear.x - burst.x);
+  }
+});
+prog = d.ease(0, 2.4); clear = d.ease(0, 1.1); burst = d.ease(0, 5);
+
+let wrongAt = -1e9, done = false;
+const cover = n => $('state').textContent = 'cloud cover ' + Math.round(lerp(92, 34, n / 6)) + '%';
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) { burst.to(0); prog.to(0); cover(0); } }, 900); return; }
+  burst.to(0); prog.to(n / 6); cover(n);
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('state').textContent = 'overcast'; });
+lk.on('right', () => {
+  done = true; prog.to(1); clear.to(1); burst.to(0);
+  $('state').textContent = 'clear';
+  $('line').textContent = isDay(hour()) ? 'Sun’s out. Come in.' : 'Clear night. Come in.';
+});
+wireDemo(() => d.settle());
+</script>
+</body>
+</html>

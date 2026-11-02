@@ -1,0 +1,118 @@
+<!-- v23 idea: steam rising off a glass of cutting chai, dithered in amber and cream; each box thickens the steam and clears the glass, your cursor stirs it, and the right password curls the steam into "come in". -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v23 · Chai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:#1a110b;color:#f2dcb4}
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.line{position:absolute;left:40px;top:34px;margin:0;font:italic 300 26px/1.2 "Newsreader",serif;letter-spacing:-.01em;transition:opacity .6s}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#b98a55}
+.tr{right:40px;top:44px}.bl{left:40px;bottom:36px}.br{right:40px;bottom:36px}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <canvas id="cv"></canvas>
+  <p class="line" id="line">Chai first.</p>
+  <span class="mono tr" id="temp">68 °C</span>
+  <span class="mono bl">cutting chai · glass no. 2</span>
+  <span class="mono br" id="hint">move to stir</span>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, mask, fbm, noise, clamp, lerp, sstep, wireDemo } from './dither.js';
+const $ = id => document.getElementById(id);
+const art = $('art');
+
+// "come in" as a mask, rebuilt on resize and once the font arrives
+let words = null;
+function buildWords() {
+  const r = $('cv').getBoundingClientRect(), W = Math.max(64, r.width / 2), H = Math.max(64, r.height / 2);
+  words = mask((g, w, h) => { g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `italic 400 ${Math.round(w * .2)}px "Newsreader", Georgia, serif`; g.fillText('come in', w * .5, h * .34); }, W, H);
+}
+document.fonts.load('italic 400 120px "Newsreader"').then(buildWords).catch(() => {});
+addEventListener('resize', buildWords);
+
+// cursor stir: position + an eased velocity
+const mouse = { x: .5, y: .4, vx: 0, vy: 0 };
+let lastM = null;
+art.addEventListener('pointermove', e => {
+  const r = art.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+  if (lastM) { mouse.vx += (x - lastM[0]) * 6; mouse.vy += (y - lastM[1]) * 6; }
+  lastM = [x, y]; mouse.x = x; mouse.y = y;
+});
+art.addEventListener('pointerleave', () => lastM = null);
+
+let prog, solved, burst;
+const scene = shade((x, y, w, h, t) => {
+  const u = x / w, v = y / h, asp = w / h;
+  // glass: a fluted cutting-chai tumbler sitting on a dark table
+  const gx = .5, top = .64, bot = .84, hw = .085 / asp * 1.6;        // half width at the top, in u
+  const tv = (v - top) / (bot - top), half = lerp(hw, hw * .78, tv);
+  const du = u - gx;
+  let s = 0;
+  if (v > bot) s = .07 + .05 * Math.exp(-Math.pow(du * 4, 2)) * (1 - (v - bot) * 3);   // table, with a soft reflection
+  const clarity = lerp(.35, 1, prog.x);
+  if (tv >= 0 && tv <= 1 && Math.abs(du) < half) {
+    const fx = du / half, flute = .5 + .5 * Math.cos(fx * 9.5);         // fluting
+    const level = .14;                                                   // chai sits a little below the rim
+    if (tv < level) s = .18 + .25 * flute * clarity;                    // empty glass above the chai
+    else if (tv < level + .05) s = lerp(.5, .95, clarity);              // the foam line
+    else s = lerp(.45, .62 + .14 * (1 - tv) + .08 * flute, clarity) - Math.abs(fx) * .12;  // chai, darker at the walls
+    if (Math.abs(fx) > .9) s = lerp(.3, .8, clarity);                   // glass walls catch light
+  }
+  if (Math.abs(tv) < .012 && Math.abs(du) < hw) s = lerp(.3, .85, clarity);   // rim
+  // steam rises from the rim, widens and drifts
+  if (v < top + .01) {
+    const hgt = (top - v) / top;                                         // 0 at the rim, 1 at the top
+    const sway = Math.sin(v * 7 + t * .6) * .03 * (1 + hgt * 2) + Math.sin(v * 13 - t * .9) * .012;
+    // stir near the cursor
+    const mx = (u - mouse.x) * asp, my = v - mouse.y, md = Math.exp(-(mx * mx + my * my) / .02);
+    const sx = u - gx - sway - mouse.vx * md * .25, sy = v - mouse.vy * md * .25;
+    const width = hw * .7 + hgt * .22;
+    const plume = Math.exp(-Math.pow(sx / width, 2) * 1.6) * sstep(0, .08, hgt) * (1 - sstep(.55, 1, hgt));
+    const n = fbm(sx * 7 + md * 1.5, sy * 5 + t * .45, 4);
+    const wisps = sstep(.34, .72, n + (md * .1));
+    let steam = plume * wisps * lerp(.45, 1.25, prog.x);
+    if (solved.x > 0) {                                                  // the steam curls into the words
+      const wx = x + (noise(x * .08, y * .08 + t * .4) - .5) * 6 * (1 - solved.x * .6),
+            wy = y + (noise(x * .08 + 7, y * .08 + t * .4) - .5) * 6 * (1 - solved.x * .6);
+      const m = (words ? words.at(wx / w, wy / h) : 0) * (.55 + .7 * n);
+      steam = lerp(steam, Math.max(steam * .35, m), solved.x);
+    }
+    s = Math.max(s, steam * .95);
+  }
+  return s + burst.x * (noise(x * .7, y * .7 + t * 9) - .3) * .8;
+});
+
+const d = dither($('cv'), {
+  source: scene, palette: ['#1a110b', '#6e3f1b', '#d48b35', '#f7e7c6'], grain: .08, dotMin: .3, dotMax: .95, noise: .5, sparse: .7,
+  frame(dt, t, api) {
+    mouse.vx *= Math.exp(-dt * 2.5); mouse.vy *= Math.exp(-dt * 2.5);
+    api.p.cell = lerp(13, 4.5, prog.x) - solved.x * .5 + burst.x * 6;
+    api.p.resolve = clamp(lerp(.35, .95, prog.x) + solved.x - burst.x);
+  }
+});
+prog = d.ease(0, 2.6); solved = d.ease(0, .9); burst = d.ease(0, 5);
+
+let wrongAt = -1e9, done = false;
+const temp = n => $('temp').textContent = Math.round(lerp(68, 82, n / 6)) + ' °C';
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) { burst.to(0); prog.to(0); temp(0); $('line').textContent = 'Chai first.'; } }, 900); return; }
+  burst.to(0); prog.to(n / 6); temp(n);
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('line').textContent = 'Spilled. Pour again.'; });
+lk.on('right', () => { done = true; prog.to(1); solved.to(1); burst.to(0); $('line').textContent = 'Kettle’s on.'; $('hint').textContent = 'served'; });
+buildWords();
+wireDemo(() => { buildWords(); d.settle(); });
+</script>
+</body>
+</html>

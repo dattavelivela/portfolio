@@ -1,0 +1,201 @@
+<!-- v09 idea: Datta's signpost (Dukaan, Pine Labs, Procol and blank arms); each typed box spins an arm with real momentum, wrong spins them all wildly, right swings every arm to point left at the form and the top one reads "this way". -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v09 · Signpost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+/* variant styles: only #art and what lives inside it */
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:8%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--body);
+  pointer-events:none;z-index:2;transition:opacity .2s,transform .2s,color .6s}
+#art .cap.swap{opacity:0;transform:translateY(5px)}
+#art .cap.wrong{color:var(--red)}
+#art .cap.right{color:var(--blue)}
+/* no-WebGL fallback */
+#art .fb{position:absolute;inset:0;display:grid;place-items:center}
+
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"></div>
+<script src="base.js"></script>
+<script>
+// shared by the 3D scene and the CSS fallback
+const PHOTO='../../assets/datta.jpg';
+const CAPS={idle:"hi, it's me",wrong:'close, try again',right:'come in'};
+const ART=document.getElementById('art');
+const cap=document.createElement('p'); cap.className='cap'; cap.dataset.k='idle'; cap.textContent=CAPS.idle; ART.appendChild(cap);
+function say(k){ if(cap.dataset.k===k) return; cap.dataset.k=k; cap.classList.add('swap');
+  clearTimeout(say.t); say.t=setTimeout(function(){ cap.textContent=CAPS[k]; cap.className='cap '+k; },200); }
+lk.on('wrong',function(){ say('wrong'); setTimeout(function(){ if(lk.state==='idle'&&!lk.count) say('idle'); },2600); });
+lk.on('right',function(){ say('right'); });
+lk.on('type',function(n){ if(lk.state==='idle'&&n>0) say('idle'); });
+function lkFallback(){
+  if(ART.querySelector('.fb')||ART.querySelector('canvas')) return;
+  var d=document.createElement('div'); d.className='fb'; d.innerHTML=`<img src="../../assets/post/signpost.webp" alt="" style="height:78%;width:auto">`; ART.prepend(d);
+}
+// if the module (CDN) never starts, still show the static fallback
+setTimeout(function(){ if(!ART.querySelector('canvas')) lkFallback(); },6000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+/* ---------- shared 3D kit (same in v06 to v10) ---------- */
+const TAU=Math.PI*2;
+const clamp01=t=>Math.max(0,Math.min(1,t));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const damp=(a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt));
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+function glOK(){ try{ const c=document.createElement('canvas'); return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl'))); }catch(e){ return false; } }
+
+// canvas textures that redraw once the web fonts are in
+const FONTS=Promise.all(['600 64px "Instrument Sans"','400 40px "Space Mono"','500 64px Caveat'].map(f=>document.fonts.load(f).catch(()=>{}))).catch(()=>{});
+function canvasTex(w,h,draw,{srgb=true}={}){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  const t=new THREE.CanvasTexture(c); if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  t.redraw=()=>{ g.clearRect(0,0,w,h); draw(g,w,h); t.needsUpdate=true; };
+  t.redraw(); FONTS.then(()=>t.redraw()); t.canvas=c; t.ctx=g; return t;
+}
+function svgTex(url,w,h){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  const im=new Image(); im.onload=()=>{ c.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url;
+  return t;
+}
+function noise(g,w,h,amt){ const d=g.getImageData(0,0,w,h),p=d.data; for(let i=0;i<p.length;i+=4){ const n=(Math.random()-.5)*amt; p[i]+=n; p[i+1]+=n; p[i+2]+=n; } g.putImageData(d,0,0); }
+function makeStage({bg='#f8f8f8',fov=35}={}){
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  ART.querySelector('.fb')?.remove();
+  ART.prepend(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(bg);
+  const camera=new THREE.PerspectiveCamera(fov,1,.1,100);
+  const st={renderer,scene,camera,tick:null,onResize:null};
+  const size=()=>{ const w=ART.clientWidth||1,h=ART.clientHeight||1; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); st.onResize&&st.onResize(w,h); };
+  new ResizeObserver(size).observe(ART); size();
+  let raf=0,last=0;
+  const loop=now=>{ raf=requestAnimationFrame(loop); const dt=Math.max(0,Math.min((now-last)/1000,1/30)); last=now; st.tick&&st.tick(dt,now/1000); renderer.render(scene,camera); };
+  st.start=()=>{ if(raf) return; last=performance.now(); raf=requestAnimationFrame(loop); };
+  st.stop=()=>{ cancelAnimationFrame(raf); raf=0; };
+  document.addEventListener('visibilitychange',()=>document.hidden?st.stop():st.start());
+  return st;
+}
+function ndc(e,el){ const r=el.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); }
+function shadowFloor(y,opacity=.14){ const m=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity})); m.rotation.x=-Math.PI/2; m.position.y=y; m.receiveShadow=true; return m; }
+function softLights(scene,{pos=[-2.5,7,5],key=2.2,hemi=1.9,box=4,map=1024}={}){
+  const h=new THREE.HemisphereLight(0xffffff,0xe8e4dc,hemi); scene.add(h);
+  const d=new THREE.DirectionalLight(0xfffaf2,key); d.position.set(...pos); d.castShadow=true;
+  d.shadow.mapSize.set(map,map); const c=d.shadow.camera; c.left=c.bottom=-box; c.right=c.top=box; c.near=.5; c.far=40;
+  d.shadow.bias=-.0005; d.shadow.normalBias=.02; d.shadow.radius=4;
+  scene.add(d); scene.add(d.target); return {hemi:h,key:d};
+}
+/* ---------- variant ---------- */
+
+if(!glOK()) lkFallback(); else main();
+function main(){
+const st=makeStage({fov:32}),{scene,camera,renderer}=st;
+const look=new THREE.Vector3(0,2.45,0);
+camera.position.set(.6,3.1,12.6); camera.lookAt(look);
+softLights(scene,{pos:[-4,9,6],key:2.4,hemi:1.8,box:5});
+scene.add(shadowFloor(0,.14));
+
+// pole: brushed metal, like the signpost on the site
+const metal=new THREE.MeshStandardMaterial({color:'#d4d7dc',roughness:.35,metalness:.3});
+const pole=new THREE.Mesh(new THREE.CylinderGeometry(.075,.085,5.2,24),metal); pole.position.y=2.6; pole.castShadow=true; scene.add(pole);
+const tip=new THREE.Mesh(new THREE.ConeGeometry(.07,.32,20),metal); tip.position.y=5.36; tip.castShadow=true; scene.add(tip);
+const ball=new THREE.Mesh(new THREE.SphereGeometry(.1,20,14),metal); ball.position.y=5.2; scene.add(ball);
+const base=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,.16,32),new THREE.MeshStandardMaterial({color:'#e3e1dc',roughness:.8})); base.position.y=.08; base.castShadow=base.receiveShadow=true; scene.add(base);
+
+// arms, top to bottom
+const ARMS=[
+  {t:'',c:'#ef4b54',ink:'#ffffff',hand:true},
+  {t:'Procol',c:'#ffd9de',ink:'#c8323b'},
+  {t:'Pine Labs',c:'#fbf7f0',ink:'#c8323b'},
+  {t:'Dukaan',c:'#ffd9de',ink:'#c8323b'},
+  {t:'',c:'#fbf7f0',ink:'#c8323b'},
+  {t:'',c:'#ffd9de',ink:'#c8323b'},
+];
+const AL=2.05,AH=.44,AD=.08;
+const shape=new THREE.Shape(); shape.moveTo(.16,-AH/2); shape.lineTo(AL-.26,-AH/2); shape.lineTo(AL,0); shape.lineTo(AL-.26,AH/2); shape.lineTo(.16,AH/2); shape.closePath();
+const armGeo=new THREE.ExtrudeGeometry(shape,{depth:AD,bevelEnabled:true,bevelThickness:.012,bevelSize:.012,bevelSegments:2}); armGeo.translate(0,0,-AD/2);
+const labelGeo=new THREE.PlaneGeometry(AL-.5,AH*.9);
+function labelTex(a,text){
+  return canvasTex(512,Math.round(512*AH*.9/(AL-.5)),(g,w,h)=>{
+    if(!text) return;
+    g.fillStyle=a.ink; g.textAlign='center'; g.textBaseline='middle';
+    g.font=a.hand?`500 ${h*.95}px Caveat`:`600 ${h*.56}px "Instrument Sans"`; g.fillText(text,w/2,h/2+(a.hand?4:2));
+  });
+}
+const arms=ARMS.map((a,i)=>{
+  const grp=new THREE.Group(); grp.position.y=4.75-i*.62; scene.add(grp);
+  const m=new THREE.Mesh(armGeo,new THREE.MeshStandardMaterial({color:a.c,roughness:.6})); m.castShadow=m.receiveShadow=true; grp.add(m);
+  const tex=labelTex(a,a.t),lm=new THREE.MeshBasicMaterial({map:tex,transparent:true});
+  const f=new THREE.Mesh(labelGeo,lm); f.position.set(.16+(AL-.5)/2,0,AD/2+.014); grp.add(f);
+  const b=new THREE.Mesh(labelGeo,lm); b.position.set(.16+(AL-.5)/2+.0,0,-AD/2-.014); b.rotation.y=Math.PI; grp.add(b);
+  const collar=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.18,20),metal); collar.castShadow=true; grp.add(collar);
+  const bolt=new THREE.Mesh(new THREE.BoxGeometry(.12,.05,.05),metal); bolt.position.x=.12; grp.add(bolt);
+  const th=[.35,2.7,-.45,3.6,1.0,2.25][i];
+  return {a,grp,tex,th,w:0,drag:false,spring:false,delay:0,tgt:0};
+});
+const setLabel=(arm,text)=>{ arm.a.t=text; const nt=labelTex(arm.a,text); arm.grp.children[1].material.map=nt; arm.grp.children[1].material.needsUpdate=true; };
+
+let state='idle',rt=0,last=0;
+const order=[5,4,3,2,1,0]; // boxes spin arms bottom up
+function spin(arm,v){ arm.spring=false; arm.w+=v; }
+lk.on('type',n=>{ if(state==='right') return; state='idle';
+  if(n>last){ for(let k=last;k<n;k++){ const arm=arms[order[k]]; spin(arm,(Math.random()<.5?-1:1)*(7+Math.random()*6)); } }
+  last=n; });
+lk.on('wrong',()=>{ if(state==='right') return; state='wrong'; arms.forEach(arm=>spin(arm,(Math.random()<.5?-1:1)*(18+Math.random()*10))); });
+lk.on('right',()=>{ state='right'; rt=0;
+  arms.forEach((arm,i)=>{ arm.spring=true; arm.delay=.15+i*.12;
+    // pointing left (-x) is th = PI; choose the nearest turn ahead of its momentum
+    const ahead=arm.th+arm.w*.35; arm.tgt=Math.round((ahead-Math.PI)/TAU)*TAU+Math.PI; });
+  setTimeout(()=>setLabel(arms[0],'this way'),500);
+});
+
+// grab and fling an arm sideways
+const ray=new THREE.Raycaster(); let held=null,lx=0,lt=0;
+renderer.domElement.addEventListener('pointerdown',e=>{
+  if(state==='right') return;
+  ray.setFromCamera(ndc(e,renderer.domElement),camera);
+  const h=ray.intersectObjects(arms.map(a=>a.grp),true)[0]; if(!h) return;
+  held=arms.find(a=>a.grp===h.object.parent); held.drag=true; held.spring=false; held.w=0; lx=e.clientX; lt=performance.now();
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!held) return; const now=performance.now(),dx=e.clientX-lx,d=Math.max(1,now-lt)/1000;
+  const dth=dx*.012; held.th+=dth; held.w=damp(held.w,dth/d,12,d); lx=e.clientX; lt=now;
+});
+const up=()=>{ if(held){ held.drag=false; held.w=THREE.MathUtils.clamp(held.w,-30,30); held=null; } };
+renderer.domElement.addEventListener('pointerup',up); renderer.domElement.addEventListener('pointercancel',up);
+
+st.tick=(dt,t)=>{
+  if(state==='right') rt+=dt;
+  arms.forEach((arm,i)=>{
+    if(arm.drag){ arm.grp.rotation.y=arm.th; return; }
+    if(arm.spring&&rt>arm.delay){
+      // damped spring toward "this way": swings past a little, then settles
+      for(let s=0;s<4;s++){ const h=dt/4; arm.w+=(-16*(arm.th-arm.tgt)-3.4*arm.w)*h; arm.th+=arm.w*h; }
+    } else {
+      // bearing friction: a constant drag plus a little viscous drag
+      const sgn=Math.sign(arm.w); arm.w-=sgn*Math.min(Math.abs(arm.w),(1.1+Math.abs(arm.w)*.45)*dt);
+      arm.th+=arm.w*dt;
+    }
+    const sway=state==='right'?0:Math.sin(t*.7+i*1.3)*.025;
+    arm.grp.rotation.y=arm.th+sway;
+  });
+};
+st.start();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!-- v07 idea: Datta builds with a keyboard; a 3D mechanical board presses its keys in sync with your typing and fills dots on its OLED, wrong shakes it, right pops the H and I caps off to land spelling HI. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v07 · Keyboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+/* variant styles: only #art and what lives inside it */
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:8%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--body);
+  pointer-events:none;z-index:2;transition:opacity .2s,transform .2s,color .6s}
+#art .cap.swap{opacity:0;transform:translateY(5px)}
+#art .cap.wrong{color:var(--red)}
+#art .cap.right{color:var(--blue)}
+/* no-WebGL fallback */
+#art .fb{position:absolute;inset:0;display:grid;place-items:center}
+#art .fbk{display:flex;gap:10px}
+#art .fbk span{width:64px;height:64px;display:grid;place-items:center;background:#f6f5f1;border-radius:10px;box-shadow:0 4px 0 #d7d6d1,0 10px 20px rgba(0,0,0,.08);font:400 24px/1 var(--mono);color:var(--ink)}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"></div>
+<script src="base.js"></script>
+<script>
+// shared by the 3D scene and the CSS fallback
+const PHOTO='../../assets/datta.jpg';
+const CAPS={idle:"hi, it's me",wrong:'close, try again',right:'come in'};
+const ART=document.getElementById('art');
+const cap=document.createElement('p'); cap.className='cap'; cap.dataset.k='idle'; cap.textContent=CAPS.idle; ART.appendChild(cap);
+function say(k){ if(cap.dataset.k===k) return; cap.dataset.k=k; cap.classList.add('swap');
+  clearTimeout(say.t); say.t=setTimeout(function(){ cap.textContent=CAPS[k]; cap.className='cap '+k; },200); }
+lk.on('wrong',function(){ say('wrong'); setTimeout(function(){ if(lk.state==='idle'&&!lk.count) say('idle'); },2600); });
+lk.on('right',function(){ say('right'); });
+lk.on('type',function(n){ if(lk.state==='idle'&&n>0) say('idle'); });
+function lkFallback(){
+  if(ART.querySelector('.fb')||ART.querySelector('canvas')) return;
+  var d=document.createElement('div'); d.className='fb'; d.innerHTML=`<div class="fbk"><span>H</span><span>I</span></div>`; ART.prepend(d);
+}
+// if the module (CDN) never starts, still show the static fallback
+setTimeout(function(){ if(!ART.querySelector('canvas')) lkFallback(); },6000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+/* ---------- shared 3D kit (same in v06 to v10) ---------- */
+const TAU=Math.PI*2;
+const clamp01=t=>Math.max(0,Math.min(1,t));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const damp=(a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt));
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+function glOK(){ try{ const c=document.createElement('canvas'); return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl'))); }catch(e){ return false; } }
+
+// canvas textures that redraw once the web fonts are in
+const FONTS=Promise.all(['600 64px "Instrument Sans"','400 40px "Space Mono"','500 64px Caveat'].map(f=>document.fonts.load(f).catch(()=>{}))).catch(()=>{});
+function canvasTex(w,h,draw,{srgb=true}={}){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  const t=new THREE.CanvasTexture(c); if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  t.redraw=()=>{ g.clearRect(0,0,w,h); draw(g,w,h); t.needsUpdate=true; };
+  t.redraw(); FONTS.then(()=>t.redraw()); t.canvas=c; t.ctx=g; return t;
+}
+function svgTex(url,w,h){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  const im=new Image(); im.onload=()=>{ c.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url;
+  return t;
+}
+function noise(g,w,h,amt){ const d=g.getImageData(0,0,w,h),p=d.data; for(let i=0;i<p.length;i+=4){ const n=(Math.random()-.5)*amt; p[i]+=n; p[i+1]+=n; p[i+2]+=n; } g.putImageData(d,0,0); }
+function makeStage({bg='#f8f8f8',fov=35}={}){
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  ART.querySelector('.fb')?.remove();
+  ART.prepend(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(bg);
+  const camera=new THREE.PerspectiveCamera(fov,1,.1,100);
+  const st={renderer,scene,camera,tick:null,onResize:null};
+  const size=()=>{ const w=ART.clientWidth||1,h=ART.clientHeight||1; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); st.onResize&&st.onResize(w,h); };
+  new ResizeObserver(size).observe(ART); size();
+  let raf=0,last=0;
+  const loop=now=>{ raf=requestAnimationFrame(loop); const dt=Math.max(0,Math.min((now-last)/1000,1/30)); last=now; st.tick&&st.tick(dt,now/1000); renderer.render(scene,camera); };
+  st.start=()=>{ if(raf) return; last=performance.now(); raf=requestAnimationFrame(loop); };
+  st.stop=()=>{ cancelAnimationFrame(raf); raf=0; };
+  document.addEventListener('visibilitychange',()=>document.hidden?st.stop():st.start());
+  return st;
+}
+function ndc(e,el){ const r=el.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); }
+function shadowFloor(y,opacity=.14){ const m=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity})); m.rotation.x=-Math.PI/2; m.position.y=y; m.receiveShadow=true; return m; }
+function softLights(scene,{pos=[-2.5,7,5],key=2.2,hemi=1.9,box=4,map=1024}={}){
+  const h=new THREE.HemisphereLight(0xffffff,0xe8e4dc,hemi); scene.add(h);
+  const d=new THREE.DirectionalLight(0xfffaf2,key); d.position.set(...pos); d.castShadow=true;
+  d.shadow.mapSize.set(map,map); const c=d.shadow.camera; c.left=c.bottom=-box; c.right=c.top=box; c.near=.5; c.far=40;
+  d.shadow.bias=-.0005; d.shadow.normalBias=.02; d.shadow.radius=4;
+  scene.add(d); scene.add(d.target); return {hemi:h,key:d};
+}
+/* ---------- variant ---------- */
+
+if(!glOK()) lkFallback(); else main();
+function main(){
+const st=makeStage({fov:30}),{scene,camera,renderer}=st;
+softLights(scene,{pos:[-4,10,6],key:2.3,hemi:1.9,box:8,map:1024});
+scene.add(shadowFloor(0,.13));
+
+// layout: a 60% board, rows of [label, width]
+const ROWS=[
+  [['1'],['2'],['3'],['4'],['5'],['6'],['7'],['8'],['9'],['0'],['⌫',1.5]],
+  [['tab',1.5],['Q'],['W'],['E'],['R'],['T'],['Y'],['U'],['I'],['O'],['P']],
+  [['caps',1.25],['A'],['S'],['D'],['F'],['G'],['H'],['J'],['K'],['L'],['↵',1.25]],
+  [['shift',2.5],['Z'],['X'],['C'],['V'],['B'],['N'],['M'],['.'],['/']],
+];
+const U=1,W=11.5,CASE_D=5.6,CASE_H=.55,CAP_H=.42;
+const board=new THREE.Group(); board.rotation.x=.04; scene.add(board);
+const caseM=new THREE.MeshStandardMaterial({color:'#e7e7e9',roughness:.5});
+const kcase=new THREE.Mesh(new RoundedBoxGeometry(W+.7,CASE_H,CASE_D,4,.22),caseM); kcase.position.y=CASE_H/2; kcase.castShadow=kcase.receiveShadow=true; board.add(kcase);
+const plate=new THREE.Mesh(new THREE.BoxGeometry(W+.1,.02,4.1),new THREE.MeshStandardMaterial({color:'#cfd0d3',roughness:.6})); plate.position.set(0,CASE_H+.005,.45); plate.receiveShadow=true; board.add(plate);
+
+// OLED, top right of the case
+let oledMode='dots',oledN=0;
+const oledTex=canvasTex(320,80,(g,w,h)=>drawOled(g,w,h));
+function drawOled(g,w,h){
+  g.fillStyle='#07090c'; g.fillRect(0,0,w,h);
+  g.fillStyle='#bfe3ff'; g.strokeStyle='#bfe3ff'; g.lineWidth=3;
+  if(oledMode==='dots'){ for(let i=0;i<6;i++){ const x=w/2+(i-2.5)*44+(i>2?10:0)-(i<3?10:0); g.beginPath(); g.arc(x,h/2,11,0,TAU); i<oledN?g.fill():g.stroke(); } }
+  else { g.font='400 40px "Space Mono"'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(oledMode,w/2,h/2+2); }
+}
+function oled(mode){ oledMode=mode; oledTex.redraw(); }
+const oledM=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.55),new THREE.MeshBasicMaterial({map:oledTex,toneMapped:false}));
+oledM.rotation.x=-Math.PI/2; oledM.position.set(W/2-1.3,CASE_H+.022,-CASE_D/2+.6); board.add(oledM);
+const oledBez=new THREE.Mesh(new THREE.BoxGeometry(2.4,.03,.72),new THREE.MeshStandardMaterial({color:'#1b1c1f',roughness:.4})); oledBez.position.set(oledM.position.x,CASE_H,oledM.position.z); board.add(oledBez);
+// maker's mark, top left
+const markTex=canvasTex(640,80,(g,w,h)=>{ g.font='400 30px "Space Mono"'; g.fillStyle='rgba(60,60,64,.55)'; g.textBaseline='middle'; g.fillText('datta / built with claude code',4,h/2); });
+const mark=new THREE.Mesh(new THREE.PlaneGeometry(5.75,.72),new THREE.MeshBasicMaterial({map:markTex,transparent:true})); mark.rotation.x=-Math.PI/2; mark.position.set(-W/2+2.9,CASE_H+.004,-CASE_D/2+.6); board.add(mark);
+
+// keys
+const geoCache={};
+const capGeo=w=>geoCache[w]||(geoCache[w]=new RoundedBoxGeometry(w*U-.1,CAP_H,.9,3,.09));
+const legendTex=(t,ink)=>canvasTex(160,160,(g,w,h)=>{
+  g.fillStyle=ink; g.textAlign='center'; g.textBaseline='middle';
+  const big=t.length===1; g.font=big?"400 76px \"Space Mono\"":"400 40px \"Space Mono\""; g.fillText(t,w/2,h/2+(big?6:4)); });
+const stemM=new THREE.MeshStandardMaterial({color:'#ef4b54',roughness:.5});
+const stemGeo=new THREE.BoxGeometry(.22,.2,.06),stemGeo2=new THREE.BoxGeometry(.06,.2,.22);
+const keys={},allKeys=[];
+ROWS.forEach((row,r)=>{
+  let x=-W/2; const z=-1.05+r*1.0+.45;
+  row.forEach(([t,w=1])=>{
+    const mod=t.length>1&&t!=='↵', enter=t==='↵';
+    const col=enter?'#3279f2':mod?'#dcdde0':'#f7f6f2', ink=enter?'#ffffff':'#2a2a2e';
+    const g=new THREE.Group(); g.position.set(x+w/2,CASE_H+.12+CAP_H/2,z);
+    const cap=new THREE.Mesh(capGeo(w),new THREE.MeshStandardMaterial({color:col,roughness:.55})); cap.castShadow=cap.receiveShadow=true; g.add(cap);
+    const lg=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),new THREE.MeshBasicMaterial({map:legendTex(t,ink),transparent:true,depthWrite:false}));
+    lg.rotation.x=-Math.PI/2; lg.position.y=CAP_H/2+.003; if(w>1.2) lg.scale.setScalar(1.15); g.add(lg);
+    board.add(g);
+    const s1=new THREE.Mesh(stemGeo,stemM),s2=new THREE.Mesh(stemGeo2,stemM); s1.position.set(g.position.x,CASE_H+.1,z); s2.position.copy(s1.position); board.add(s1,s2);
+    const k={t,g,y:0,v:0,hold:0,base:g.position.clone(),w,free:false};
+    allKeys.push(k); keys[t]=keys[t]||k; x+=w;
+  });
+});
+function press(t){ const k=keys[t]; if(!k||k.free) return; k.hold=.085; k.v-=2; }
+const KEYMAP={Backspace:'⌫',Enter:'↵',Tab:'tab',CapsLock:'caps',Shift:'shift'};
+let lastDown=0;
+document.addEventListener('keydown',e=>{ const t=KEYMAP[e.key]||(e.key.length===1?e.key.toUpperCase():null); if(t){ press(t); lastDown=performance.now(); } },true);
+
+// camera: fit the board's width to the column
+const target=new THREE.Vector3(0,.4,.9),camDir=new THREE.Vector3(0,.72,.69).normalize();
+let camDist=20;
+st.onResize=(w,h)=>{ const hf=Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*w/h); camDist=Math.max(16,(W/2+1.4)/Math.tan(hf)); };
+st.onResize(ART.clientWidth,ART.clientHeight);
+
+// physics for the right answer: H and I jump off the board
+const world=new CANNON.World({gravity:new CANNON.Vec3(0,-22,0)}); world.solver.iterations=20;
+const gnd=new CANNON.Body({mass:0,shape:new CANNON.Plane()}); gnd.quaternion.setFromEuler(-Math.PI/2,0,0); world.addBody(gnd);
+const caseBody=new CANNON.Body({mass:0,shape:new CANNON.Box(new CANNON.Vec3((W+.7)/2,CASE_H/2,CASE_D/2))}); caseBody.position.set(0,CASE_H/2,0); world.addBody(caseBody);
+const flying=[];
+function popOff(t,to,delay){
+  const k=keys[t]; setTimeout(()=>{
+    k.free=true; const wp=new THREE.Vector3(); k.g.getWorldPosition(wp);
+    board.remove(k.g); scene.add(k.g); k.g.position.copy(wp);
+    const body=new CANNON.Body({mass:1,shape:new CANNON.Box(new CANNON.Vec3(.45,CAP_H/2,.45)),linearDamping:.01,angularDamping:.1});
+    body.position.set(wp.x,wp.y,wp.z);
+    const T=.95,g=22; body.velocity.set((to.x-wp.x)/T,(to.y-wp.y+.5*g*T*T)/T,(to.z-wp.z)/T);
+    body.angularVelocity.set(-TAU/T*1.0,(Math.random()-.5)*.4,0);
+    world.addBody(body); flying.push({k,body});
+  },delay);
+}
+
+let state='idle',shake=0,count=0;
+lk.on('type',n=>{
+  if(state==='right') return;
+  if(n>count&&performance.now()-lastDown>120){ const b=document.querySelectorAll('#lk .bx')[n-1]; press((b&&b.value||'').toUpperCase()); }
+  count=n; if(state==='wrong'&&n===0) return; state='idle'; oledN=n; oled('dots');
+});
+lk.on('wrong',()=>{ if(state==='right') return; state='wrong'; shake=1; oled('nope.'); setTimeout(()=>{ if(state==='wrong'){ state='idle'; oledN=0; oled('dots'); } },1500); });
+lk.on('right',()=>{
+  state='right'; oled('hi :)');
+  popOff('H',new THREE.Vector3(-.62,CAP_H/2,CASE_D/2+1.25),250);
+  popOff('I',new THREE.Vector3(.62,CAP_H/2,CASE_D/2+1.25),420);
+});
+
+// hover: keys under the pointer dip a little
+const ray=new THREE.Raycaster(); let hoverK=null;
+renderer.domElement.addEventListener('pointermove',e=>{ ray.setFromCamera(ndc(e,renderer.domElement),camera); const h=ray.intersectObjects(allKeys.filter(k=>!k.free).map(k=>k.g),true)[0]; hoverK=h?allKeys.find(k=>k.g===h.object.parent):null; });
+renderer.domElement.addEventListener('pointerdown',()=>{ if(hoverK) press(hoverK.t); });
+
+st.tick=(dt,t)=>{
+  camera.position.copy(target).addScaledVector(camDir,camDist); camera.position.x+=Math.sin(t*.2)*.4; camera.lookAt(target);
+  shake=Math.max(0,shake-dt*1.6);
+  for(const k of allKeys){
+    if(k.free) continue;
+    k.hold-=dt; const tgt=k.hold>0?-.15:(k===hoverK?-.03:0);
+    for(let s=0;s<4;s++){ const h=dt/4; k.v+=(1500*(tgt-k.y)-34*k.v)*h; k.y+=k.v*h; }
+    const j=shake*shake;
+    k.g.position.set(k.base.x+(Math.random()-.5)*.09*j,k.base.y+k.y+Math.random()*.06*j,k.base.z+(Math.random()-.5)*.06*j);
+    k.g.rotation.z=(Math.random()-.5)*.16*j;
+  }
+  board.position.x=Math.sin(t*60)*.03*shake*shake;
+  if(flying.length){ world.step(1/120,dt,6); for(const f of flying){ f.k.g.position.copy(f.body.position); f.k.g.quaternion.copy(f.body.quaternion); } }
+};
+st.start();
+}
+</script>
+</body>
+</html>

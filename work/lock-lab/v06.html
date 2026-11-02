@@ -1,0 +1,231 @@
+<!-- v06 idea: a tower of wooden blocks, one per thing Datta built (Dukaan, Pine Labs, Procol, Clara, Intake AI, this one); each box drops a block with cannon-es physics, wrong topples it, right lights the top block. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v06 · Everything I've built</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+/* variant styles: only #art and what lives inside it */
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#art .cap{position:absolute;left:0;right:0;bottom:8%;margin:0;text-align:center;font:500 36px/1 var(--hand);color:var(--body);
+  pointer-events:none;z-index:2;transition:opacity .2s,transform .2s,color .6s}
+#art .cap.swap{opacity:0;transform:translateY(5px)}
+#art .cap.wrong{color:var(--red)}
+#art .cap.right{color:var(--blue)}
+/* no-WebGL fallback */
+#art .fb{position:absolute;inset:0;display:grid;place-items:center}
+#art .fbs{display:flex;flex-direction:column;gap:3px;align-items:center}
+#art .fbs span{width:210px;padding:12px 0;text-align:center;background:#e4c9a0;color:#5b3c1f;font:600 18px/1 var(--sans);border-radius:3px}
+#art .fbs span:first-child{background:var(--blue);color:#fff;font:500 26px/1 var(--hand)}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true"></div>
+<script src="base.js"></script>
+<script>
+// shared by the 3D scene and the CSS fallback
+const PHOTO='../../assets/datta.jpg';
+const CAPS={idle:"hi, it's me",wrong:'close, try again',right:'come in'};
+const ART=document.getElementById('art');
+const cap=document.createElement('p'); cap.className='cap'; cap.dataset.k='idle'; cap.textContent=CAPS.idle; ART.appendChild(cap);
+function say(k){ if(cap.dataset.k===k) return; cap.dataset.k=k; cap.classList.add('swap');
+  clearTimeout(say.t); say.t=setTimeout(function(){ cap.textContent=CAPS[k]; cap.className='cap '+k; },200); }
+lk.on('wrong',function(){ say('wrong'); setTimeout(function(){ if(lk.state==='idle'&&!lk.count) say('idle'); },2600); });
+lk.on('right',function(){ say('right'); });
+lk.on('type',function(n){ if(lk.state==='idle'&&n>0) say('idle'); });
+function lkFallback(){
+  if(ART.querySelector('.fb')||ART.querySelector('canvas')) return;
+  var d=document.createElement('div'); d.className='fb'; d.innerHTML=`<div class="fbs"><span>this one</span><span>Intake AI</span><span>Clara</span><span>Procol</span><span>Pine Labs</span><span>Dukaan</span></div>`; ART.prepend(d);
+}
+// if the module (CDN) never starts, still show the static fallback
+setTimeout(function(){ if(!ART.querySelector('canvas')) lkFallback(); },6000);
+</script>
+<script type="module">
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+/* ---------- shared 3D kit (same in v06 to v10) ---------- */
+const TAU=Math.PI*2;
+const clamp01=t=>Math.max(0,Math.min(1,t));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const damp=(a,b,l,dt)=>a+(b-a)*(1-Math.exp(-l*dt));
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const easeOut=t=>1-Math.pow(1-t,3);
+function glOK(){ try{ const c=document.createElement('canvas'); return !!(window.WebGLRenderingContext&&(c.getContext('webgl2')||c.getContext('webgl'))); }catch(e){ return false; } }
+
+// canvas textures that redraw once the web fonts are in
+const FONTS=Promise.all(['600 64px "Instrument Sans"','400 40px "Space Mono"','500 64px Caveat'].map(f=>document.fonts.load(f).catch(()=>{}))).catch(()=>{});
+function canvasTex(w,h,draw,{srgb=true}={}){
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  const t=new THREE.CanvasTexture(c); if(srgb) t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  t.redraw=()=>{ g.clearRect(0,0,w,h); draw(g,w,h); t.needsUpdate=true; };
+  t.redraw(); FONTS.then(()=>t.redraw()); t.canvas=c; t.ctx=g; return t;
+}
+function svgTex(url,w,h){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8;
+  const im=new Image(); im.onload=()=>{ c.getContext('2d').drawImage(im,0,0,w,h); t.needsUpdate=true; }; im.src=url;
+  return t;
+}
+function noise(g,w,h,amt){ const d=g.getImageData(0,0,w,h),p=d.data; for(let i=0;i<p.length;i+=4){ const n=(Math.random()-.5)*amt; p[i]+=n; p[i+1]+=n; p[i+2]+=n; } g.putImageData(d,0,0); }
+function makeStage({bg='#f8f8f8',fov=35}={}){
+  const renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  ART.querySelector('.fb')?.remove();
+  ART.prepend(renderer.domElement);
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(bg);
+  const camera=new THREE.PerspectiveCamera(fov,1,.1,100);
+  const st={renderer,scene,camera,tick:null,onResize:null};
+  const size=()=>{ const w=ART.clientWidth||1,h=ART.clientHeight||1; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); st.onResize&&st.onResize(w,h); };
+  new ResizeObserver(size).observe(ART); size();
+  let raf=0,last=0;
+  const loop=now=>{ raf=requestAnimationFrame(loop); const dt=Math.max(0,Math.min((now-last)/1000,1/30)); last=now; st.tick&&st.tick(dt,now/1000); renderer.render(scene,camera); };
+  st.start=()=>{ if(raf) return; last=performance.now(); raf=requestAnimationFrame(loop); };
+  st.stop=()=>{ cancelAnimationFrame(raf); raf=0; };
+  document.addEventListener('visibilitychange',()=>document.hidden?st.stop():st.start());
+  return st;
+}
+function ndc(e,el){ const r=el.getBoundingClientRect(); return new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1); }
+function shadowFloor(y,opacity=.14){ const m=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.ShadowMaterial({opacity})); m.rotation.x=-Math.PI/2; m.position.y=y; m.receiveShadow=true; return m; }
+function softLights(scene,{pos=[-2.5,7,5],key=2.2,hemi=1.9,box=4,map=1024}={}){
+  const h=new THREE.HemisphereLight(0xffffff,0xe8e4dc,hemi); scene.add(h);
+  const d=new THREE.DirectionalLight(0xfffaf2,key); d.position.set(...pos); d.castShadow=true;
+  d.shadow.mapSize.set(map,map); const c=d.shadow.camera; c.left=c.bottom=-box; c.right=c.top=box; c.near=.5; c.far=40;
+  d.shadow.bias=-.0005; d.shadow.normalBias=.02; d.shadow.radius=4;
+  scene.add(d); scene.add(d.target); return {hemi:h,key:d};
+}
+/* ---------- variant ---------- */
+
+if(!glOK()) lkFallback(); else main();
+function main(){
+const st=makeStage({fov:30}),{scene,camera,renderer}=st;
+const look=new THREE.Vector3(0,1.75,0);
+camera.position.set(1.8,3.8,12); camera.lookAt(look);
+const L=softLights(scene,{pos:[-3,8,6],key:2.4,hemi:1.8,box:5});
+scene.add(shadowFloor(0,.16));
+
+// blocks: bottom to top, in the order Datta built them
+const BLOCKS=[
+  {t:'Dukaan',   w:2.1,c:'#e3c49a',ink:'#5a3a1c'},
+  {t:'Pine Labs',w:1.95,c:'#d9b383',ink:'#4f3218'},
+  {t:'Procol',   w:1.85,c:'#ebd3ad',ink:'#5a3a1c'},
+  {t:'Clara',    w:1.7,c:'#dcb98c',ink:'#4f3218'},
+  {t:'Intake AI',w:1.6,c:'#e8cba2',ink:'#5a3a1c'},
+  {t:'this one', w:1.5,c:'#3279f2',ink:'#ffffff',hand:true},
+];
+const BH=.5,BD=.85;
+function woodTex(b,label){
+  return canvasTex(512,Math.round(512*BH/b.w),(g,w,h)=>{
+    g.fillStyle=b.c; g.fillRect(0,0,w,h);
+    if(!b.hand){ // grain: long wavy lines
+      for(let i=0;i<26;i++){ const y=Math.random()*h,a=.05+Math.random()*.08; g.strokeStyle=`rgba(90,55,25,${a})`; g.lineWidth=.6+Math.random()*1.6;
+        g.beginPath(); for(let x=0;x<=w;x+=16) g.lineTo(x,y+Math.sin(x*.012+i)*4+Math.sin(x*.05+i*3)*1.2); g.stroke(); }
+    }
+    noise(g,w,h,b.hand?6:14);
+    if(label){
+      g.textAlign='center'; g.textBaseline='middle';
+      g.font=b.hand?`500 ${h*.62}px Caveat`:`600 ${h*.36}px "Instrument Sans"`;
+      if(!b.hand){ g.fillStyle='rgba(255,245,225,.55)'; g.fillText(b.t,w/2+1,h/2+2); }
+      g.fillStyle=b.ink; g.globalAlpha=b.hand?1:.82; g.fillText(b.t,w/2,h/2+(b.hand?2:0)); g.globalAlpha=1;
+    }
+  });
+}
+const world=new CANNON.World({gravity:new CANNON.Vec3(0,-14,0)});
+world.allowSleep=true; world.solver.iterations=25;
+const wm=new CANNON.Material('wood');
+world.addContactMaterial(new CANNON.ContactMaterial(wm,wm,{friction:.65,restitution:.04}));
+const ground=new CANNON.Body({mass:0,material:wm,shape:new CANNON.Plane()}); ground.quaternion.setFromEuler(-Math.PI/2,0,0); world.addBody(ground);
+
+const items=BLOCKS.map((b,i)=>{
+  const front=new THREE.MeshStandardMaterial({map:woodTex(b,true),roughness:.7});
+  const side=new THREE.MeshStandardMaterial({map:woodTex(b,false),roughness:.75});
+  const mats=[side,side,side,side,front,side];
+  if(b.hand){ mats.forEach(m=>{ m.emissive=new THREE.Color('#3279f2'); m.emissiveIntensity=0; }); }
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(b.w,BH,BD),mats); mesh.castShadow=mesh.receiveShadow=true;
+  const body=new CANNON.Body({mass:1,material:wm,shape:new CANNON.Box(new CANNON.Vec3(b.w/2,BH/2,BD/2)),sleepSpeedLimit:.08,linearDamping:.05,angularDamping:.2});
+  return {b,mesh,body,mats,state:'out',t:0,fade:1};
+});
+// glow light for "this one"
+const glow=new THREE.PointLight(0x5b95ff,0,4,2); scene.add(glow);
+
+// drops wait their turn: a block only falls once the one under it has landed
+const queue=new Set();
+function dropBlock(i){ const it=items[i]; if(it.state==='in'||it.state==='pending') return;
+  if(it.state==='fallen'||it.state==='leaving'){ world.removeBody(it.body); scene.remove(it.mesh); }
+  it.state='pending'; queue.add(i); }
+function releaseQueued(){
+  for(const i of [...queue].sort((a,b)=>a-b)){
+    const below=items[i-1];
+    if(i>0&&(below.state!=='in'||below.body.position.y>(i-1)*BH+BH/2+.12||below.body.velocity.length()>.6)) return;
+    queue.delete(i); const it=items[i];
+    it.body.position.set((Math.random()-.5)*.12,i*BH+BH/2+1.0,(Math.random()-.5)*.06);
+    it.body.quaternion.setFromEuler((Math.random()-.5)*.05,(Math.random()-.5)*.14,(Math.random()-.5)*.05);
+    it.body.velocity.set(0,0,0); it.body.angularVelocity.set(0,0,0); it.body.type=CANNON.Body.DYNAMIC; it.body.wakeUp();
+    world.addBody(it.body); scene.add(it.mesh); it.mesh.position.copy(it.body.position); it.mesh.quaternion.copy(it.body.quaternion);
+    it.state='in'; it.fade=1; it.mesh.scale.setScalar(1);
+  }
+}
+function liftBlock(i){ const it=items[i]; if(it.state==='pending'){ queue.delete(i); it.state='out'; return; } if(it.state!=='in') return; it.state='leaving'; it.t=0; world.removeBody(it.body); }
+function clearFallen(){ items.forEach(it=>{ if(it.state==='fallen'){ it.state='leaving'; it.t=0; world.removeBody(it.body); } }); }
+
+let mode='idle',rt=0,clearAt=0;
+lk.on('type',n=>{
+  if(mode==='right') return;
+  if(mode==='toppled'){ if(n===0){ clearAt=performance.now()+1400; return; } clearFallen(); mode='idle'; }
+  for(let i=0;i<6;i++){ if(i<n) dropBlock(i); else liftBlock(i); }
+});
+lk.on('wrong',()=>{
+  if(mode==='right') return; mode='toppled';
+  // a shove at the top: the tower goes over
+  const dir=Math.random()<.5?-1:1;
+  queue.forEach(i=>items[i].state='out'); queue.clear();
+  items.forEach((it,i)=>{ if(it.state!=='in') return; it.state='fallen'; it.body.wakeUp();
+    it.body.applyImpulse(new CANNON.Vec3(dir*(1.2+i*.9),.4,(Math.random()-.5)*.6),new CANNON.Vec3(it.body.position.x,it.body.position.y+.2,it.body.position.z)); });
+});
+lk.on('right',()=>{ mode='right'; rt=0; });
+
+// drag a block a little with the pointer: nudge it
+const ray=new THREE.Raycaster();
+renderer.domElement.addEventListener('pointerdown',e=>{
+  if(mode==='right') return;
+  ray.setFromCamera(ndc(e,renderer.domElement),camera);
+  const hit=ray.intersectObjects(items.filter(i=>i.state==='in'||i.state==='fallen').map(i=>i.mesh))[0]; if(!hit) return;
+  const it=items.find(i=>i.mesh===hit.object); it.body.wakeUp();
+  const d=ray.ray.direction; it.body.applyImpulse(new CANNON.Vec3(d.x*1.2,.3,d.z*1.2),new CANNON.Vec3(hit.point.x,hit.point.y,hit.point.z));
+});
+
+const lookNow=look.clone();
+st.tick=(dt,t)=>{
+  releaseQueued(); world.step(1/120,dt,6);
+  if(mode==='toppled'&&clearAt&&performance.now()>clearAt){ clearAt=0; clearFallen(); mode='idle'; }
+  items.forEach(it=>{
+    if(it.state==='out'||it.state==='pending') return;
+    if(it.state==='leaving'){ it.t+=dt; it.fade=1-clamp01(it.t/.45); it.mesh.position.y+=dt*2.5; it.mesh.scale.setScalar(.6+.4*it.fade);
+      if(it.fade<=0){ it.state='out'; scene.remove(it.mesh); } return; }
+    it.mesh.position.copy(it.body.position); it.mesh.quaternion.copy(it.body.quaternion);
+  });
+  const top=items[5];
+  if(mode==='right'){
+    rt+=dt;
+    if(rt>1.2&&!queue.size&&items.every(it=>it.state!=='in'||(it.body.velocity.length()<.05&&it.body.position.y<BH*(BLOCKS.indexOf(it.b)+1)))) items.forEach(it=>{ if(it.state==='in'){ it.body.type=CANNON.Body.STATIC; it.body.velocity.set(0,0,0); it.body.angularVelocity.set(0,0,0); } });
+    const k=easeOut(clamp01((rt-1)/1.2)),pulse=.75+.25*Math.sin(t*2.4);
+    top.mats.forEach(m=>m.emissiveIntensity=.55*k*pulse);
+    glow.position.copy(top.mesh.position).add(new THREE.Vector3(0,.2,.9)); glow.intensity=6*k*pulse;
+    lookNow.lerp(new THREE.Vector3(0,2,0),1-Math.exp(-dt*1.5)); camera.position.lerp(new THREE.Vector3(1.4,3.6,11),1-Math.exp(-dt*1.2)); camera.lookAt(lookNow);
+  } else {
+    // idle: the camera breathes a little
+    camera.position.x=1.8+Math.sin(t*.25)*.25; camera.lookAt(look);
+  }
+};
+st.start();
+}
+</script>
+</body>
+</html>

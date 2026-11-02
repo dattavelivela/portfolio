@@ -1,0 +1,126 @@
+<!-- v13 idea: Datta's orange slosh camera prints a polaroid one spring-loaded step per box; wrong prints black and swallows it, right ejects it to bounce on the floor and develop. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v13 · Slosh prints you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{user-select:none;-webkit-user-select:none;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#scene{position:absolute;left:50%;top:50%;width:520px;height:820px;margin:-410px 0 0 -260px;transform:scale(var(--s,1))}
+#cam{position:absolute;left:100px;top:60px;width:320px;z-index:2;will-change:transform}
+#cam img{display:block;width:100%;filter:drop-shadow(0 18px 22px rgba(120,60,20,.18)) drop-shadow(0 2px 2px rgba(0,0,0,.08))}
+#cam .slot{position:absolute;left:45px;width:230px;top:236px;height:12px;border-radius:0 0 7px 7px;background:linear-gradient(#3a2b22,#1d1714);box-shadow:inset 0 3px 3px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.25)}
+#tray{position:absolute;left:160px;top:302px;width:200px;height:520px;overflow:hidden;z-index:1}
+#tray.free{overflow:visible;z-index:3}
+.pol{position:absolute;left:0;top:0;width:200px;padding:12px 12px 0;box-sizing:border-box;background:#fdfdfb;border-radius:2px;
+  box-shadow:0 1px 1px rgba(0,0,0,.06),0 10px 22px -8px rgba(0,0,0,.2),0 30px 40px -26px rgba(0,0,0,.25);transform-origin:50% 100%;will-change:transform}
+.pol::after{content:"";position:absolute;inset:0;border-radius:2px;background:var(--grain);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.ph{position:relative;aspect-ratio:1;overflow:hidden;background:#cdd5c8}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;filter:blur(.35px)}
+.ph .milk{position:absolute;inset:0;background:radial-gradient(120% 90% at 40% 35%,#d4dacd,#bfc8b9 70%,#b2bcac)}
+.ph .black{position:absolute;inset:0;background:radial-gradient(120% 90% at 40% 35%,#26262a,#111113);opacity:0;transition:opacity .25s}
+.pol.dark .black{opacity:1}
+.ph .gr{position:absolute;inset:0;background:var(--grain);mix-blend-mode:overlay;opacity:.55}
+.ph .sheen{position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%,rgba(255,255,255,0) 70%,rgba(255,255,255,.08))}
+.cap{height:56px;display:flex;align-items:center;justify-content:center;font:500 27px/1 var(--hand);color:#2b2b30;opacity:0;transition:opacity .6s .5s}
+.pol.done .cap{opacity:1}
+.floor{position:absolute;left:30px;right:30px;top:792px;height:1px;background:var(--line)}
+.note{position:absolute;left:300px;top:6px;font:500 34px/1 var(--hand);color:#2b2b30;transform:rotate(-4deg);transition:opacity .2s,transform .3s;white-space:nowrap}
+.note.out{opacity:0;transform:translateY(5px) rotate(-2deg)}
+.note.bad{color:var(--red)}
+.arrow{position:absolute;left:262px;top:14px;width:46px;height:50px;stroke:#2b2b30;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:opacity .3s}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div id="scene">
+    <div class="floor"></div>
+    <div class="note" id="note">hi, it's me</div>
+    <svg class="arrow" id="arrow" viewBox="0 0 46 50"><path d="M42 8C28 4 12 12 10 40"/><path d="M4 33l6 8 6-7"/></svg>
+    <div id="tray"><div class="pol" id="pol">
+      <div class="ph"><img id="img" alt="" draggable="false"><div class="milk" id="milk"></div><div class="black"></div><div class="gr"></div><div class="sheen"></div></div>
+      <div class="cap">come in</div>
+    </div></div>
+    <div id="cam"><img src="../../assets/shelf/camera-front.svg" alt="" draggable="false"><i class="slot"></i></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script type="module">
+const PHOTO='../../assets/datta.jpg';
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// headless review (?demo) gets no rAF under virtual time, so drive frames with timers there
+const DEMO=new URLSearchParams(location.search).has('demo'), frame=DEMO?f=>setTimeout(()=>f(performance.now()),16):requestAnimationFrame.bind(window), unframe=DEMO?clearTimeout:cancelAnimationFrame;
+const $=id=>document.getElementById(id), art=$('art'), scene=$('scene'), cam=$('cam'), tray=$('tray'), pol=$('pol'), img=$('img'), milk=$('milk'), note=$('note'), arrow=$('arrow');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)), ss=(a,b,v)=>{v=cl((v-a)/(b-a));return v*v*(3-2*v)};
+img.src=PHOTO;
+const PH=12+176+56, FLOOR=792-302;   // print height; floor measured in tray coordinates
+
+function develop(p){
+  const tone=ss(0,.7,p), col=ss(.45,1,p);
+  milk.style.opacity=(1-tone*.97).toFixed(3);
+  img.style.filter=`blur(${(.9-.55*p).toFixed(2)}px) brightness(${(1.9-.9*tone).toFixed(3)}) contrast(${(.35+.65*tone).toFixed(3)}) saturate(${col.toFixed(3)}) sepia(${(.55*(1-col)).toFixed(3)})`;
+}
+let noteT,noteText="hi, it's me";
+function say(t,bad){if(t===noteText)return;noteText=t;note.classList.add('out');clearTimeout(noteT);
+  noteT=setTimeout(()=>{note.textContent=t;note.classList.toggle('bad',!!bad);note.classList.remove('out')},RM?0:170)}
+
+// state: the print slides on a spring (o = how far out), then becomes a free body when ejected
+const S={o:0,v:0,t:0,k:170,c:10};
+let mode='idle',free=null,shake=0,whirr=0,dev=0,devT=0;
+const rest=n=>n?PH*(.08+n/6*.7):0;
+function step(dt){
+  if(!free){
+    const a=-S.k*(S.o-S.t)-S.c*S.v;S.v+=a*dt;S.o+=S.v*dt;
+    if(mode==='right'&&S.o>=PH){free={x:0,y:S.o-PH,vy:Math.max(80,S.v*.6),a:0,va:(Math.random()<.5?-1:1)*.6,hits:0};tray.classList.add('free')}
+  }else if(free.hits<2){
+    free.vy+=2600*dt;free.y+=free.vy*dt;free.a+=free.va*dt;free.x+=free.va*14*dt;
+    if(free.y+PH>=FLOOR){free.y=FLOOR-PH;
+      if(free.hits===0){free.vy*=-.3;free.va=(-.07-free.a)/.32;free.hits=1}   // one bounce, then lean into a gentle tilt
+      else{free.vy=0;free.hits=2;devT=1;pol.classList.add('done')}}
+  }else{free.a+=(-.07-free.a)*.15}
+  shake=Math.max(0,shake-dt*2.2);whirr=Math.max(0,whirr-dt*5);
+  dev+=(devT-dev)*(devT===1?.018:.1);
+}
+function render(){
+  if(free)pol.style.transform=`translate(${free.x.toFixed(2)}px,${(free.y).toFixed(2)}px) rotate(${free.a.toFixed(4)}rad)`;
+  else pol.style.transform=`translateY(${(S.o-PH).toFixed(2)}px)`;
+  const t=performance.now()/1000, sx=Math.sin(t*61)*9*shake*shake+Math.sin(t*90)*.7*whirr, sr=Math.sin(t*47)*1.6*shake*shake;
+  cam.style.transform=`translate(${sx.toFixed(2)}px,${(Math.cos(t*73)*.6*whirr).toFixed(2)}px) rotate(${sr.toFixed(2)}deg)`;
+  develop(dev);
+}
+
+let blackT;
+lk.on('type',n=>{if(mode==='right')return;
+  if(mode==='wrong'){if(n)return;mode='idle'}            // the swallow finishes on its own timers
+  else{clearTimeout(blackT);pol.classList.remove('dark');S.k=170;S.c=10}
+  S.t=rest(n);whirr=1;devT=0;say("hi, it's me");arrow.style.opacity=n?0:1;
+  if(RM){S.o=S.t;S.v=0;if(!n)pol.classList.remove('dark');render()}});
+lk.on('wrong',()=>{mode='wrong';say('close, try again',true);pol.classList.add('dark');arrow.style.opacity=0;
+  blackT=setTimeout(()=>{S.k=420;S.c=24;S.t=0;shake=1;blackT=setTimeout(()=>pol.classList.remove('dark'),500)},RM?0:420);
+  if(RM){S.o=0;S.v=0;render()}});
+lk.on('right',()=>{mode='right';pol.classList.remove('dark');arrow.style.opacity=0;S.k=120;S.c=8;S.t=PH+30;whirr=1;say('');
+  if(RM){free={x:0,y:FLOOR-PH,vy:0,a:-.07,va:0,hits:2};tray.classList.add('free');devT=dev=1;pol.classList.add('done');render()}});
+
+function fit(){const s=Math.min(art.clientWidth/540,art.clientHeight/840,1.15);scene.style.setProperty('--s',s.toFixed(4))}
+let raf=0,last=0,acc=0;
+function tick(now){acc+=Math.min(120,now-last);last=now;while(acc>=1000/120){step(1/120);acc-=1000/120}render();raf=frame(tick)}
+function start(){if(!raf&&!RM){last=performance.now();raf=frame(tick)}}
+function stop(){unframe(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+addEventListener('resize',fit);
+fit();render();start();
+
+// ?demo=N | wrong | right : replay typing for review
+const q=new URLSearchParams(location.search).get('demo');
+if(q){const full=q==='wrong'||q==='right',k=full?6:Math.min(6,parseInt(q)||0);
+  for(let i=1;i<=k;i++)setTimeout(()=>{lk.count=i;lk.emit('type',i)},200+i*220);
+  if(full)setTimeout(()=>{lk.state=q;lk.emit(q);if(q==='wrong')setTimeout(()=>{lk.count=0;lk.state='idle';lk.emit('type',0)},700)},200+7*220+600);}
+</script>
+</body>
+</html>

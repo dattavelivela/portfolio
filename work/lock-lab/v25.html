@@ -1,0 +1,121 @@
+<!-- v25 idea: door 132 at night, dithered in deep green; warm light leaks from under it and widens with every box, and the right password swings it open so the light floods out. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v25 · Door 132</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&family=Newsreader:ital,opsz,wght@1,6..72,300..500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{background:#06100c;color:#e9d3a6}
+#art canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.line{position:absolute;left:40px;top:34px;margin:0;font:italic 300 26px/1.2 "Newsreader",serif;letter-spacing:-.01em}
+.line,.mono{text-shadow:0 0 6px #06100c,0 0 2px #06100c}
+.mono{position:absolute;font:400 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7f9a84}
+.tr{right:40px;top:44px}.bl{left:40px;bottom:36px}.br{right:40px;bottom:36px}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <canvas id="cv"></canvas>
+  <p class="line" id="line">Someone’s home.</p>
+  <span class="mono tr">no. 132</span>
+  <span class="mono bl" id="state">light under the door</span>
+  <span class="mono br">please knock</span>
+</div>
+<script src="base.js"></script>
+<script type="module">
+import { dither, shade, mask, fbm, noise, clamp, lerp, sstep, wireDemo } from './dither.js';
+const $ = id => document.getElementById(id);
+
+// small text masks (door number, mat), rebuilt on resize and once the font arrives
+let M = null;
+function buildMasks() {
+  const r = $('cv').getBoundingClientRect(), W = Math.max(64, r.width / 2), H = Math.max(64, r.height / 2);
+  const txt = (t, size, cy, sx) => mask((g, w, h) => { g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `700 ${Math.round(h * size)}px "Space Mono", monospace`; g.translate(w * D.cx, h * cy); g.scale(sx, 1); g.fillText(t, 0, 0); }, W, H);
+  M = { num: txt('132', .034, D.top + .12, 1), mat: txt('HELLO', .05, D.bot + .074, 1.15) };
+}
+document.fonts.load('700 40px "Space Mono"').then(() => buildMasks()).catch(() => {});
+addEventListener('resize', () => buildMasks());
+
+let prog, open, burst;
+const D = { cx: .5, hw: .17, top: .2, bot: .78 };
+buildMasks();                              // the door, in u/v
+const scene = shade((x, y, w, h, t) => {
+  const u = x / w, v = y / h, asp = w / h;
+  const L = lerp(.38, .95, prog.x), O = open.x;                                // light strength, door open 0..1
+  const left = D.cx - D.hw, right = D.cx + D.hw;
+  const flick = 1 + .05 * Math.sin(t * 7.3) * Math.sin(t * 3.1);               // the light inside breathes a little
+  let s;
+  if (v < D.bot) {
+    // wall: dark green planks
+    s = .1 + .04 * noise(u * 40, v * 3) + .04 * sstep(.2, .9, Math.sin(u * 46) * .5 + .5);
+    // frame round the door
+    const inFrame = u > left - .02 && u < right + .02 && v > D.top - .02;
+    if (inFrame) s = .46;
+    if (u > left && u < right && v > D.top) {
+      const panelEnd = right - (right - left) * O * .86;                       // the door swings in on its left hinge
+      if (u < panelEnd) {
+        const pu = (u - left) / (panelEnd - left), pv = (v - D.top) / (D.bot - D.top);
+        s = .3 + .04 * noise(u * 60, v * 4) - O * .12;
+        const inset = (a, b, c, d2) => pu > a && pu < b && pv > c && pv < d2;
+        if (inset(.14, .86, .08, .44) || inset(.14, .86, .52, .92)) s += .09;  // two raised panels
+        if (inset(.12, .88, .06, .065) || inset(.12, .88, .5, .505)) s += .12;
+        if (Math.abs(pu - .84) < .025 && Math.abs(pv - .55) < .012) s = .62;   // brass handle
+        const plate = Math.abs(pu - .5) < .17 && Math.abs(pv - .2) < .045;
+        if (plate && O < .2) s = .5 + M.num.at(u, v) * .45;                    // number plate: 132
+        s += L * .18 * Math.exp(-Math.pow((D.bot - v) * 60, 2));               // lit edge at the bottom
+      } else {
+        const iu = (u - panelEnd) / (right - panelEnd + 1e-4);                 // the room beyond: warm light
+        s = (.78 + .22 * Math.exp(-Math.pow((iu - .55) * 2.2, 2))) * flick;
+      }
+    }
+    // light leaks round the frame edges
+    const gap = Math.min(Math.abs(u - left), Math.abs(u - right));
+    if (v > D.top && gap < .004 && O < .05) s = Math.max(s, L * .55);
+    // spill on the wall from the open door
+    s += O * .22 * Math.exp(-Math.pow((u - D.cx) * 2.4, 2) - Math.pow((v - D.bot) * 3, 2)) * (u > right + .02 || u < left - .02 || v < D.top - .02 ? 1 : 0);
+  } else {
+    // floor: the strip of light under the door fans out towards us
+    const fv = v - D.bot;                                                       // 0 at the threshold
+    const gapH = lerp(.006, .018, prog.x) * (1 - O);
+    s = .14 + .05 * noise(u * 8, v * 60);
+    const spread = D.hw * (1 + fv * lerp(3, 8, prog.x));
+    const fan = Math.exp(-Math.pow((u - D.cx) / spread, 4)) * Math.exp(-fv * lerp(9, 3.5, prog.x));
+    if (fv < gapH && u > left && u < right) s = Math.max(s, L + .1);
+    s += fan * L * 1.1 * flick;
+    // the open door floods the floor, wider and further, out to the right
+    const wedge = Math.exp(-Math.pow((u - D.cx - fv * .9) / (D.hw * (1 + fv * 6)), 4)) * Math.exp(-fv * 2);
+    s += O * wedge * .6 * flick * (1 - fv * .8);
+    // HELLO mat
+    const mu = (u - D.cx) / (D.hw * .9 * (1 + fv * 1.2)), mv = (fv - .03) / .085;
+    if (Math.abs(mu) < 1 && mv > 0 && mv < 1) s = s * .45 + .14 + M.mat.at(u, v) * (.3 + L * .4 + O * .2) - (O * .1);
+  }
+  return s + burst.x * (noise(x * .6, y * .6 + t * 8) - .35);
+});
+
+const d = dither($('cv'), {
+  source: scene, palette: ['#06100c', '#15382a', '#2e6a4e', '#cf8a3d', '#ffdc9a'], grain: .08, dotMin: .3, dotMax: .96, noise: .45, sparse: .7,
+  frame(dt, t, api) {
+    api.p.cell = lerp(13, 4.5, prog.x) - open.x * .5 + burst.x * 6;
+    api.p.resolve = clamp(lerp(.4, .95, prog.x) + open.x - burst.x);
+  }
+});
+prog = d.ease(0, 2.2); open = d.ease(0, .9); burst = d.ease(0, 5);
+
+let wrongAt = -1e9, done = false;
+const STATES = ['light under the door', 'footsteps', 'someone’s up', 'kettle on', 'keys', 'the latch', 'the latch'];
+lk.on('type', n => {
+  if (done) return;
+  if (n === 0 && performance.now() - wrongAt < 1500) { setTimeout(() => { if (!lk.count && !done) { burst.to(0); prog.to(0); $('state').textContent = STATES[0]; $('line').textContent = 'Someone’s home.'; } }, 900); return; }
+  burst.to(0); prog.to(n / 6); $('state').textContent = STATES[n];
+});
+lk.on('wrong', () => { wrongAt = performance.now(); burst.to(1); prog.to(0); $('state').textContent = 'lights out'; $('line').textContent = 'Wrong door?'; });
+lk.on('right', () => { done = true; prog.to(1); open.to(1); burst.to(0); $('state').textContent = 'door open'; $('line').textContent = 'It’s open. Come in.'; });
+wireDemo(() => { buildMasks(); d.settle(); });
+</script>
+</body>
+</html>

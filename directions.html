@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio directions</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Instrument+Sans:wght@400..700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+/* every direction built for the portfolio, side by side, to compare */
+:root{--ink:#1f1b18;--muted:#6f655c;--line:#e4ddd2;--ground:#f6f2ea}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:400 16px/1.5 "Instrument Sans",system-ui,sans-serif}
+main{width:min(980px,100% - 32px);margin:0 auto;padding:64px 0 96px}
+h1{margin:0 0 8px;font:400 44px/1.05 "Archivo Black",sans-serif;letter-spacing:-.01em}
+.lede{margin:0 0 40px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;padding:20px;border:1px solid var(--line);border-radius:14px;background:#fff;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--ink);transform:translateY(-2px)}
+.card:focus-visible{outline:3px solid #e9482a;outline-offset:2px}
+.tag{font:400 11px/1 "Space Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card b{display:block;margin:10px 0 6px;font:400 24px/1.1 "Archivo Black",sans-serif}
+.card span{color:var(--muted);font-size:15px}
+.live{color:#1d7a4a}
+.extra{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+.extra a{font-size:14px;color:var(--ink)}
+h2{margin:48px 0 14px;font:400 13px/1 "Space Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Portfolio directions</h1>
+  <p class="lede">Every direction built for dattavelivela.xyz. Each opens as a full page; the live index is marked.</p>
+
+  <h2>The site as one world</h2>
+  <div class="grid">
+    <a class="card" href="index.html"><span class="tag live">Live index</span><b>Wayfinding venue</b><span>Lightbox signs on a maroon stone wall; a camera glides along the wall the way each arrow points.</span></a>
+    <a class="card" href="desk.html"><span class="tag">New</span><b>The desk</b><span>A flatlay in hard afternoon sun; pick objects up to open them, put them back and they drop under physics.</span></a>
+    <a class="card" href="signpost.html"><span class="tag">Earlier</span><b>Chrome signpost</b><span>A pinned 3D post of enamel signs that turns to face the section you are reading.</span></a>
+    <a class="card" href="parcel.html?intro=1"><span class="tag">Earlier</span><b>Signed for</b><span>A parcel lands on the doormat; tear the tape and the shelf objects fly out into the page.</span></a>
+  </div>
+
+  <h2>Other openings for Signed for</h2>
+  <div class="grid">
+    <div class="card"><span class="tag">Six intros, one stage</span><b>Intro variants</b><span>Each plays on the same page and hands off to the same shelf.</span>
+      <p class="extra">
+        <a href="parcel.html?intro=receipt">Receipt</a><a href="parcel.html?intro=deploy">Deploy</a><a href="parcel.html?intro=knock">Knock</a>
+        <a href="parcel.html?intro=boarding">Boarding pass</a><a href="parcel.html?intro=collect">Collect</a><a href="parcel.html?intro=signed&amp;for=Linear">Addressed to a company</a>
+      </p>
+    </div>
+    <a class="card" href="index.html?exit=plain#talk"><span class="tag">Venue option</span><b>Venue without the suitcase</b><span>The TALK sign as the exit, with the suitcase footer left out.</span></a>
+  </div>
+</main>
+</body>
+</html>

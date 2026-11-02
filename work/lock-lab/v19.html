@@ -1,0 +1,126 @@
+<!-- v19 idea: a strip of negatives runs down the right side (Dukaan, Pine Labs, Procol, Datta, then a blank "this one"); each box winds it one frame and the right password lights the last frame like a light box. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v19 · Film strip of the path</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{--pitch:270px;--fw:228px;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.rig{position:absolute;left:58%;top:0;bottom:0;width:300px;margin-left:-150px;transform:rotate(-3deg);transform-origin:50% 50%}
+.strip{position:absolute;left:0;top:0;width:300px;will-change:transform;
+  background:linear-gradient(90deg,#a9521c,#c8692a 8%,#d27432 50%,#c8692a 92%,#a9521c);
+  box-shadow:0 30px 60px -20px rgba(80,30,0,.35),0 2px 6px rgba(80,30,0,.18)}
+.strip::before,.strip::after{content:"";position:absolute;top:0;bottom:0;width:14px;
+  background:repeating-linear-gradient(180deg,transparent 0 8px,#f8f8f8 8px 24px,transparent 24px 34px);border-radius:2px}
+.strip::before{left:11px}.strip::after{right:11px}
+.strip .tex{position:absolute;inset:0;background:var(--grain);opacity:.22;mix-blend-mode:multiply;pointer-events:none}
+.fr{position:absolute;left:36px;width:var(--fw);height:var(--fw);background:#1a0f08;overflow:hidden;border-radius:3px}
+.fr .neg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#fff;filter:invert(1)}
+.fr .neg img.logo{width:76px;height:76px;object-fit:contain}
+.fr .neg b{font:600 17px/1 var(--sans);color:#0a0a0a;letter-spacing:-.01em}
+.fr .neg img.me{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(.5px)}
+.fr .mask{position:absolute;inset:0;background:#f2a35f;mix-blend-mode:multiply}
+.fr .base{position:absolute;inset:0;background:#4a230c;mix-blend-mode:screen}
+.fr .lead{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:400 12px/1 var(--mono);letter-spacing:.14em;color:#f6d36a;opacity:.8}
+.fr .tex{position:absolute;inset:0;background:var(--grain);mix-blend-mode:overlay;opacity:.5}
+.fr.blank{background:#120a05}
+.fr.blank .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:400 13px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#7a4a28;transition:opacity .3s}
+.fr.blank .lit{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,#fffdf7,#fff6e6 60%,#f7e3c4);opacity:0;
+  font:500 44px/1 var(--hand);color:#2b2b30}
+.fr.blank .lit span{transform:rotate(-4deg) scale(.9);transition:transform .7s linear(0,.5 12%,1.12 32%,.96 54%,1.02 74%,1)}
+.edge{position:absolute;font:400 10px/1 var(--mono);letter-spacing:.1em;color:#f6d36a;opacity:.85;white-space:nowrap;writing-mode:vertical-rl}
+.edge.l{left:-1px}.edge.r{right:-1px;transform:rotate(180deg)}
+.glow{position:absolute;left:50%;top:50%;width:460px;height:460px;margin:-230px 0 0 -230px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,236,200,.95),rgba(255,214,150,.35) 40%,rgba(255,214,150,0) 70%);opacity:0;pointer-events:none}
+.dim{position:absolute;inset:0;background:rgba(20,12,6,.0);pointer-events:none}
+.cap{position:absolute;left:6%;top:50%;margin-top:-20px;font:500 32px/1 var(--hand);color:#2b2b30;white-space:nowrap}
+.cap span{display:inline-block;transition:opacity .2s,transform .4s linear(0,.55 15%,1.1 38%,.97 60%,1)}
+.cap span.out{opacity:0;transform:translateY(6px)}
+.cap.bad{color:var(--red)}
+.cap svg{display:block;margin:6px 0 0 70px}
+.cnt{position:absolute;left:6%;bottom:40px;font:400 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+html.demo *{transition:none!important}
+@media (prefers-reduced-motion:reduce){.cap span,.fr.blank .lit span{transition:none}}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <svg width="0" height="0" style="position:absolute"><filter id="mb" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur id="mbs" stdDeviation="0 0"/></filter></svg>
+  <div class="glow" id="glow"></div>
+  <div class="rig" id="rig"><div class="strip" id="strip"><div class="tex"></div></div></div>
+  <div class="cap" id="cap"><span>hi, it's me</span>
+    <svg width="120" height="34" viewBox="0 0 120 34" fill="none" stroke="#2b2b30" stroke-width="1.6" stroke-linecap="round"><path d="M4 8c30 18 62 22 104 12"/><path d="M98 13l11 7-12 5"/></svg></div>
+  <p class="cnt" id="cnt">frame 00</p>
+</div>
+<script src="base.js"></script>
+<script type="module">
+const PHOTO='../../assets/datta.jpg';
+const LOGOS=[['../../assets/dukaan.png','Dukaan'],['../../assets/pinelabs-mark.png','Pine Labs'],['../../assets/procol-mark.svg','Procol']];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const strip=$('strip'), rig=$('rig'), cap=$('cap'), glow=$('glow'), cnt=$('cnt'), mbs=$('mbs');
+const PITCH=270, FW=228, PAD=900;   // PAD: empty film above and below so the strip always runs off screen
+
+// frames: leader, the path, me, this one
+const frames=[{leader:1},...LOGOS.map(([src,name])=>({src,name})),{me:1},{blank:1}];
+frames.forEach((f,i)=>{const el=document.createElement('div');el.className='fr'+(f.blank?' blank':'');el.style.top=(PAD+i*PITCH)+'px';
+  if(f.blank)el.innerHTML='<div class="lbl">this one</div><div class="lit" id="lit"><span>come in</span></div>';
+  else if(f.leader)el.style.background='linear-gradient(#c8692a,#b85d22)',el.innerHTML='<div class="lead">▸ START  DV 400</div>';
+  else el.innerHTML='<div class="neg">'+(f.me?`<img class="me" src="${PHOTO}" alt="">`:`<img class="logo" src="${f.src}" alt=""><b>${f.name}</b>`)+'</div><div class="mask"></div><div class="base"></div><div class="tex"></div>';
+  strip.appendChild(el);
+  // edge print: frame numbers on the rails
+  const a=document.createElement('div');a.className='edge l';a.style.top=(PAD+i*PITCH+70)+'px';a.textContent=`${String(i+11)}  ▸ ${String(i+11)}A`;strip.appendChild(a);
+  const b=document.createElement('div');b.className='edge r';b.style.top=(PAD+i*PITCH+40)+'px';b.textContent=i%2?'DV 400  SAFETY FILM':'DV 400';strip.appendChild(b)});
+strip.style.height=(PAD*2+frames.length*PITCH)+'px';
+const lit=$('lit'), lastFr=strip.querySelectorAll('.fr')[frames.length-1];
+
+function spring(x=0,k=120,d=16){return{x,v:0,t:x,k,d,step(dt){const a=-this.k*(this.x-this.t)-this.d*this.v;this.v+=a*dt;this.x+=this.v*dt;if(RM){this.x=this.t;this.v=0}}}}
+const pos=spring(0,150,17), light=spring(0,40,11), sway=spring(0,60,9);
+let my=null;
+addEventListener('pointermove',e=>{my=e.clientY/innerHeight-.5});
+
+function render(){
+  const H=rig.clientHeight;
+  strip.style.transform=`translateY(${(H/2-PAD-FW/2-pos.x*PITCH+sway.x).toFixed(2)}px)`;
+  const blur=Math.min(10,Math.abs(pos.v)*1.6);mbs.setAttribute('stdDeviation',`0 ${blur.toFixed(2)}`);strip.style.filter=blur>.3?'url(#mb)':'none';
+  const L=Math.max(0,light.x);lit.style.opacity=Math.min(1,L).toFixed(3);glow.style.opacity=(Math.min(1,L)*.9).toFixed(3);
+  glow.style.left=(rig.offsetLeft+rig.offsetWidth/2)+'px';glow.style.marginLeft='-230px';
+  glow.style.transform=`scale(${(.6+.4*L).toFixed(3)})`;
+  lastFr.style.boxShadow=L>.01?`0 0 ${(40*L).toFixed(1)}px ${(8*L).toFixed(1)}px rgba(255,226,170,${(.8*Math.min(1,L)).toFixed(3)})`:'none';
+  cnt.textContent='frame '+String(Math.round(Math.max(0,pos.x))+11);
+}
+let last=performance.now();
+(function tick(now){let e=Math.min(.5,(now-last)/1000);last=now;
+  while(e>0){const dt=Math.min(1/120,e);e-=dt;if(my!==null&&!done)sway.t=my*-18;pos.step(dt);light.step(dt);sway.step(dt)}
+  render();requestAnimationFrame(tick)})(last);
+
+let curText="hi, it's me", swapT;
+function say(t,bad){cap.classList.toggle('bad',!!bad);if(t===curText)return;curText=t;const s=cap.firstElementChild;s.classList.add('out');clearTimeout(swapT);
+  swapT=setTimeout(()=>{s.textContent=t;void s.offsetWidth;s.classList.remove('out')},RM?0:170)}
+
+let wrongAt=-1e9, done=false;
+const LINES=["hi, it's me",'where it started','then this','then this','this is me','almost…'];
+lk.on('type',n=>{if(done)return;
+  if(n===0&&performance.now()-wrongAt<1500){setTimeout(()=>{if(lk.count===0&&!done)say("hi, it's me")},1100);return}
+  pos.t=Math.min(5,n);say(LINES[Math.min(5,n)])});
+lk.on('wrong',()=>{wrongAt=performance.now();pos.t=0;pos.k=60;pos.d=8;setTimeout(()=>{pos.k=150;pos.d=17},900);say('close, try again',true)});
+lk.on('right',()=>{done=true;pos.t=5;sway.t=0;light.t=1;light.v+=RM?0:3;lit.firstElementChild.style.transform='rotate(-4deg) scale(1)';
+  strip.querySelector('.fr.blank .lbl').style.opacity=0;say('this one')});
+
+// ?demo=N | right | wrong : fire the handlers as if typed (for screenshots)
+const q=new URLSearchParams(location.search).get('demo');
+if(q)document.documentElement.classList.add('demo');
+if(q)setTimeout(()=>{const bx=[...document.querySelectorAll('#lk .bx')];
+  if(q==='wrong'){'654321'.split('').forEach((c,i)=>bx[i].value=c);document.querySelector('#lk .msg').textContent='Not quite. Try again.';lk.count=6;lk.state='wrong';lk.emit('type',6);pos.x=5;lk.emit('wrong');return}
+  const n=q==='right'?6:Math.max(0,Math.min(5,+q||0));for(let i=0;i<n;i++)bx[i].value='123456'[i];if(n)bx[n-1].dispatchEvent(new Event('input'));},400);
+// headless screenshots barely tick rAF: settle (wrong is caught mid-rewind, with motion blur)
+if(q)setTimeout(()=>{[pos,light,sway].forEach(s=>{s.x=s.t;s.v=0});if(q==='wrong'){pos.x=2.6;pos.t=2.6}render()},900);
+</script>
+</body>
+</html>

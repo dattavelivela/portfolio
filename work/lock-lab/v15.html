@@ -1,0 +1,141 @@
+<!-- v15 idea: a fridge door with Datta's polaroid under a magnet; each typed box tumbles in a plastic letter magnet (matter-js), wrong slides them all off, right snaps them into COME IN. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v15 · Name magnets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..600&family=Space+Mono&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<style>
+#art{user-select:none;-webkit-user-select:none;touch-action:none;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+#art.grab{cursor:grabbing}
+.door{position:absolute;border-radius:22px;overflow:hidden;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.7) 42%,rgba(255,255,255,0) 54%),linear-gradient(100deg,#ffffff 0%,#f6f7f8 55%,#eef0f2 100%);
+  box-shadow:0 1px 0 #fff inset,0 0 0 1px #e6e7ea,0 30px 50px -36px rgba(0,0,0,.25)}
+.door::before{content:"";position:absolute;left:22px;top:12%;width:10px;height:26%;border-radius:6px;background:linear-gradient(90deg,#dfe2e6,#f7f8f9 45%,#d3d7dc);box-shadow:0 2px 4px rgba(0,0,0,.12)}
+.pol{position:absolute;left:0;top:0;width:var(--w);padding:calc(var(--w)*.06) calc(var(--w)*.06) 0;box-sizing:border-box;background:#fdfdfb;border-radius:2px;transform:rotate(-3deg);
+  box-shadow:0 1px 1px rgba(0,0,0,.06),0 8px 16px -8px rgba(0,0,0,.2)}
+.pol::after{content:"";position:absolute;inset:0;border-radius:2px;background:var(--grain);opacity:.16;mix-blend-mode:multiply;pointer-events:none}
+.ph{position:relative;aspect-ratio:1;overflow:hidden;background:#cdd5c8}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;filter:blur(.4px) saturate(.88) contrast(.95) sepia(.08)}
+.ph .gr{position:absolute;inset:0;background:var(--grain);mix-blend-mode:overlay;opacity:.55}
+.ph .sheen{position:absolute;inset:0;background:linear-gradient(125deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%,rgba(255,255,255,0) 70%,rgba(255,255,255,.08))}
+.cap{height:calc(var(--w)*.26);display:flex;align-items:center;justify-content:center;font:500 calc(var(--w)*.13)/1 var(--hand);color:#2b2b30}
+.cap span{display:inline-block;transform:rotate(-1.5deg);transition:opacity .2s,transform .3s}
+.cap span.out{opacity:0;transform:translateY(5px) rotate(1deg)}
+.cap.bad{color:var(--red)}
+.mag{position:absolute;left:50%;top:calc(var(--w)*-.06);width:calc(var(--w)*.17);aspect-ratio:1;margin-left:calc(var(--w)*-.085);border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 36% 30%,#ffd56b,#f7b500 55%,#d99a00);box-shadow:0 2px 0 #c08600,0 6px 8px -2px rgba(0,0,0,.28)}
+.mag::after{content:"";position:absolute;left:24%;top:18%;width:26%;height:18%;border-radius:50%;background:rgba(255,255,255,.65)}
+.lt{position:absolute;left:0;top:0;width:var(--bw);height:var(--bh);display:flex;align-items:center;justify-content:center;will-change:transform;cursor:grab;z-index:3}
+.lt b{font:600 var(--fs)/1 var(--sans);color:var(--c);letter-spacing:0;
+  text-shadow:0 1px 0 rgba(255,255,255,.35),0 calc(var(--fs)*.05) 0 var(--d),0 calc(var(--fs)*.1) calc(var(--fs)*.12) rgba(0,0,0,.22)}
+</style>
+</head>
+<body>
+<main id="lk"></main>
+<div id="art" aria-hidden="true">
+  <div class="door" id="door">
+    <div class="pol" id="pol"><i class="mag"></i><div class="ph"><img id="img" alt="" draggable="false"><div class="gr"></div><div class="sheen"></div></div><div class="cap" id="cap"><span>hi, it's me</span></div></div>
+  </div>
+</div>
+<script src="base.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+<script type="module">
+const PHOTO='../../assets/datta.jpg';
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// headless review (?demo) gets no rAF under virtual time, so drive frames with timers there
+const DEMO=new URLSearchParams(location.search).has('demo'), frame=DEMO?f=>setTimeout(()=>f(performance.now()),16):requestAnimationFrame.bind(window), unframe=DEMO?clearTimeout:cancelAnimationFrame;
+const {Engine,Bodies,Body,Composite,Mouse,MouseConstraint,Events}=Matter;
+const $=id=>document.getElementById(id), art=$('art'), door=$('door'), pol=$('pol'), cap=$('cap');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+$('img').src=PHOTO;
+let capText="hi, it's me",capT;
+function say(t,bad){if(t===capText)return;capText=t;const s=cap.firstElementChild;s.classList.add('out');clearTimeout(capT);capT=setTimeout(()=>{s.textContent=t;cap.classList.toggle('bad',!!bad);s.classList.remove('out')},RM?0:170)}
+
+// letters in drop order, their plastic colours, and what each becomes on the right password
+const TYPED='DATTAV', FINAL='COMEIN';
+const COLS=[['#ef4b54','#b8323a'],['#3279f2','#1f56c4'],['#f7b500','#c08a00'],['#3db37a','#278a58'],['#f6853f','#c45f22'],['#8c6cf0','#6447c4']];
+const WID={D:.74,A:.76,T:.66,V:.74,C:.74,O:.8,M:.9,E:.64,I:.32,N:.76};
+
+const engine=Engine.create();engine.gravity.y=1;
+let W=0,H=0,D={x:0,y:0,w:0,h:0},FS=64,PW=180,statics=[],floor=null,letters=[],gone=[],mode='idle',photo={x:0,y:0,h:0};
+function layout(){
+  W=art.clientWidth;H=art.clientHeight;
+  const m=Math.max(20,W*.07);D={x:m,y:Math.max(40,H*.07),w:W-2*m,h:H-Math.max(40,H*.07)*2};
+  Object.assign(door.style,{left:D.x+'px',top:D.y+'px',width:D.w+'px',height:D.h+'px'});
+  PW=Math.round(cl(Math.min(D.w*.42,D.h*.3),140,220));FS=Math.round(cl(D.w*.11,40,70));
+  pol.style.setProperty('--w',PW+'px');const ph=PW*1.2;photo={x:D.w/2,y:Math.max(30,D.h*.08),h:ph};
+  pol.style.left=(photo.x-PW/2)+'px';pol.style.top=photo.y+'px';
+  Composite.remove(engine.world,statics);if(floor)Composite.remove(engine.world,floor);
+  const T=300,o={isStatic:true,friction:.6,restitution:.3};
+  statics=[Bodies.rectangle(-T/2,D.h/2,T,D.h*3,o),Bodies.rectangle(D.w+T/2,D.h/2,T,D.h*3,o),Bodies.rectangle(photo.x,photo.y+ph/2,PW*.98,ph,{...o,angle:-3*Math.PI/180})];
+  floor=Bodies.rectangle(D.w/2,D.h+T/2-8,D.w+2*T,T,o);
+  Composite.add(engine.world,statics);if(mode!=='wrong')Composite.add(engine.world,floor);
+  letters.forEach(l=>l.el.style.setProperty('--fs',FS+'px'));
+}
+function makeLetter(i){
+  const ch=TYPED[i],[c,d]=COLS[i],el=document.createElement('div');el.className='lt';
+  el.style.setProperty('--c',c);el.style.setProperty('--d',d);el.style.setProperty('--fs',FS+'px');
+  const bw=FS*WID[ch],bh=FS*.78;el.style.setProperty('--bw',bw+'px');el.style.setProperty('--bh',bh+'px');el.innerHTML=`<b>${ch}</b>`;door.appendChild(el);
+  const side=i%2?1:-1,x=D.w/2+side*(PW*.5+(D.w/2-PW*.5)*(.25+Math.random()*.5)),b=Bodies.rectangle(x,-bh,bw,bh,{chamfer:{radius:FS*.12},frictionAir:.035,friction:.5,restitution:.35,density:.002,angle:(Math.random()-.5)*1.2});
+  Body.setVelocity(b,{x:(Math.random()-.5)*5,y:2});Body.setAngularVelocity(b,(Math.random()-.5)*.25);Composite.add(engine.world,b);
+  const l={el,b,bw,bh,i};letters.push(l);return l;
+}
+function removeLast(){const l=letters.pop();Composite.remove(engine.world,l.b);l.el.style.transition='opacity .2s';l.el.style.opacity=0;setTimeout(()=>l.el.remove(),220)}
+
+const mouse=Mouse.create(door);['mousewheel','DOMMouseScroll'].forEach(e=>door.removeEventListener(e,mouse.mousewheel));
+const mc=MouseConstraint.create(engine,{mouse,constraint:{stiffness:.2,damping:.1,render:{visible:false}}});Composite.add(engine.world,mc);
+Events.on(mc,'startdrag',()=>art.classList.add('grab'));Events.on(mc,'enddrag',()=>art.classList.remove('grab'));
+
+function step(dt){
+  Engine.update(engine,dt);
+  for(let i=gone.length-1;i>=0;i--){const g=gone[i];if(g.b.position.y>D.h+200){Composite.remove(engine.world,g.b);g.el.remove();gone.splice(i,1)}}
+  if(mode!=='wrong'&&!gone.length&&floor&&!engine.world.bodies.includes(floor))Composite.add(engine.world,floor);
+}
+const put=(l,x,y,a,sx=1)=>l.el.style.transform=`translate(${(x-l.bw/2).toFixed(1)}px,${(y-l.bh/2).toFixed(1)}px) rotate(${a.toFixed(4)}rad) scaleX(${sx.toFixed(3)})`;
+function render(){letters.concat(gone).forEach(l=>{if(!l.snap)put(l,l.b.position.x,l.b.position.y,l.b.angle)})}
+function settleNow(n=300){for(let i=0;i<n;i++)step(1000/60);render()}
+
+// right: the letters lift off, flip over and snap into COME IN under the photo
+function snap(){
+  while(letters.length<6)makeLetter(letters.length);
+  const ws=[...FINAL].map(c=>FS*WID[c]),gap=FS*.08,space=FS*.34,total=ws.reduce((a,b)=>a+b,0)+gap*5+space,y=photo.y+photo.h+FS*.95;
+  let x=D.w/2-total/2;const tg=ws.map((w,i)=>{const cx=x+w/2;x+=w+gap+(i===3?space:0);return cx});
+  letters.forEach((l,i)=>{Composite.remove(engine.world,l.b);l.snap=true;l.el.style.cursor='default';
+    const from={x:l.b.position.x,y:l.b.position.y,a:l.b.angle},to={x:tg[i],y:y+((i*7)%3-1)*2,a:(((i*5)%5)-2)*.025},ch=FINAL[i],nw=ws[i];
+    const t0=performance.now()+(RM?0:i*90),Dur=RM?0:650;let swapped=false;
+    (function anim(now){const t=Dur?cl((now-t0)/Dur):1,e=t<1?1+2.2*Math.pow(t-1,3)+1.2*Math.pow(t-1,2):1,f=Math.cos(cl(t/.6)*Math.PI);
+      if(f<0&&!swapped){swapped=true;l.el.firstChild.textContent=ch;l.bw=nw;l.el.style.setProperty('--bw',nw+'px')}
+      put(l,from.x+(to.x-from.x)*e,from.y+(to.y-from.y)*e,from.a+(to.a-from.a)*e,t<1?Math.max(.04,Math.abs(f)):1);
+      if(t<1)frame(anim);})(performance.now());
+  });
+}
+
+lk.on('type',n=>{if(mode==='right')return;
+  if(mode==='wrong'){if(n)return;mode='idle';say("hi, it's me")}
+  while(letters.length<n)makeLetter(letters.length);
+  while(letters.length>n)removeLast();
+  if(RM)settleNow()});
+lk.on('wrong',()=>{mode='wrong';say('close, try again',true);Composite.remove(engine.world,floor);
+  letters.forEach(l=>{Body.setVelocity(l.b,{x:(Math.random()-.5)*3,y:3});l.b.frictionAir=.01});gone.push(...letters);letters=[];if(RM)settleNow(200)});
+lk.on('right',()=>{mode='right';say("hi, it's me");if(RM){settleNow();snap();return}setTimeout(snap,250)});
+
+let raf=0,last=0,acc=0;
+function tick(now){acc+=Math.min(120,now-last);last=now;while(acc>=1000/60){step(1000/60);acc-=1000/60}render();raf=frame(tick)}
+function start(){if(!raf&&!RM){last=performance.now();raf=frame(tick)}}
+function stop(){unframe(raf);raf=0}
+document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+addEventListener('resize',()=>{layout();render()});
+layout();start();
+
+// ?demo=N | wrong | right : replay typing for review
+const q=new URLSearchParams(location.search).get('demo');
+if(q){const full=q==='wrong'||q==='right',k=full?6:Math.min(6,parseInt(q)||0);
+  for(let i=1;i<=k;i++)setTimeout(()=>{lk.count=i;lk.emit('type',i)},200+i*220);
+  if(full)setTimeout(()=>{lk.state=q;lk.emit(q);if(q==='wrong')setTimeout(()=>{lk.count=0;lk.state='idle';lk.emit('type',0)},700)},200+7*220+600);}
+</script>
+</body>
+</html>

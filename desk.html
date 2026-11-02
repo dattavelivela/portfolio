@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datta Velivela - Desk</title>
+<!-- Profile variant. Structure and visual system studied from a reference
+     portfolio; all words, images and work are Gurudatta's own.
+     Typefaces substituted for free equivalents:
+       untitledSans -> Instrument Sans
+       compagnon    -> Space Mono
+       Miss Fajardose is itself free, so it is used as-is. -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Caveat:wght@600&family=Instrument+Sans:wght@400..700&family=Space+Mono:wght@400;700&family=Miss+Fajardose&display=swap" rel="stylesheet">
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}
+</script>
+<script>
+/* analytics hooks: wire window.dvTrack(name, props) to a real tracker */
+window.dvTrack=window.dvTrack||function(){};
+if(/[?&]exit=plain\b/.test(location.search)) document.documentElement.classList.add('exit-plain');
+window.dvEmit=function(n,p){
+  try{ window.dvTrack(n,p||{}); }catch(e){}
+  try{ window.dispatchEvent(new CustomEvent('dv:track',{detail:{name:n,props:p||{}}})); }catch(e){}
+};
+</script>
+<style>
+:root{
+  /* deep maroon ground, pink ink, enamel red - taken from the signpost */
+  --maroon:#3d1218;
+  --pink:#f7a6c3;
+  --red:#e8302c;
+  --ground:#3d1218;
+  --ink:#fbe6ee;
+  --ink-70:rgba(251,230,238,.74);
+  --ink-55:rgba(251,230,238,.58);
+  --ink-40:rgba(251,230,238,.42);
+  --ink-20:rgba(251,230,238,.2);
+  --ink-10:rgba(251,230,238,.1);
+  --ink-05:rgba(251,230,238,.05);
+  --haze:rgba(247,166,195,.16);
+  --white:rgba(255,255,255,.04);
+  --sans:"Instrument Sans",-apple-system,system-ui,sans-serif;
+  --mono:"Space Mono",ui-monospace,monospace;
+  --script:"Miss Fajardose",cursive;
+  --col:600px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background-color:var(--ground);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:27px;font-weight:400;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+.wrap{width:min(1400px,100% - 32px);margin:0 auto}
+.col{width:min(var(--col),100%);margin:0 auto}
+
+/* ── company hover card ───────────────────────────────────────────
+   Opens on hover and on keyboard focus, and stays open while the
+   pointer travels into it so the button is reachable.
+   ---------------------------------------------------------------- */
+.co-wrap{position:relative;display:inline-flex;align-items:center}
+.pop{
+  position:absolute;bottom:calc(100% + 12px);left:50%;
+  transform:translateX(-50%) translateY(5px);
+  width:288px;padding:15px 17px 14px;border-radius:13px;text-align:left;
+  background:#0e0e10;border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 22px 48px -18px rgba(0,0,0,.50),0 2px 8px -3px rgba(0,0,0,.32);
+  opacity:0;visibility:hidden;pointer-events:none;z-index:40;
+  display:flex;flex-flow:column;gap:7px;
+  transition:opacity .18s ease,transform .18s cubic-bezier(.2,.75,.25,1),visibility .18s;
+}
+.pop.pop-end{left:auto;right:0;transform:translateX(0) translateY(5px)}
+/* bridges the gap so the pointer can reach the card */
+.pop::after{content:"";position:absolute;left:0;right:0;top:100%;height:14px}
+.co-wrap:hover .pop,.co-wrap:focus-within .pop{
+  opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0);
+}
+.co-wrap:hover .pop.pop-end,.co-wrap:focus-within .pop.pop-end{transform:translateX(0) translateY(0)}
+.pop-head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#fff;line-height:1}
+.pop-head img{width:19px;height:19px;object-fit:contain}
+.pop-when{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:rgba(255,255,255,.52)}
+.pop-text{font-size:13px;line-height:20px;color:rgba(255,255,255,.80)}
+.pop-note{
+  font-size:12px;line-height:18px;color:#fff;
+  padding-left:10px;border-left:2px solid rgba(255,255,255,.35);
+}
+.pop-btn{
+  align-self:flex-start;margin-top:4px;padding:7px 13px;border-radius:999px;
+  background:#fff;color:#0e0e10;font-size:12px;font-weight:500;line-height:1;text-decoration:none;
+  transition:opacity .18s;
+}
+.pop-btn:hover{opacity:.86}
+/* flipped below when the link sits too near the top of the viewport */
+.co-wrap.pop-flip .pop{bottom:auto;top:calc(100% + 12px);transform:translateX(-50%) translateY(-5px)}
+.co-wrap.pop-flip .pop.pop-end{transform:translateX(0) translateY(-5px)}
+.co-wrap.pop-flip .pop::after{top:auto;bottom:100%}
+.co-wrap.pop-flip:hover .pop,.co-wrap.pop-flip:focus-within .pop{transform:translateX(-50%) translateY(0)}
+.co-wrap.pop-flip:hover .pop.pop-end,.co-wrap.pop-flip:focus-within .pop.pop-end{transform:translateX(0) translateY(0)}
+@media (hover:none){.pop{display:none}}
+
+/* ── sky ──────────────────────────────────────────────────────────
+   A dawn gradient behind the opening screens, resolving into a bank
+   of cloud that hands off to the page ground. Drawn, not an image,
+   so it costs nothing to load and scales to any width.
+   ---------------------------------------------------------------- */
+.sky{
+  position:absolute;top:0;left:0;right:0;z-index:0;pointer-events:none;
+  /* the box carries the artwork's own ratio, so 100% 100% never distorts it */
+  aspect-ratio:2000/899;
+  background:url(assets/sky.jpg) top center / 100% 100% no-repeat;
+}
+/* content rides above the sky */
+.wrap{position:relative;z-index:1}
+
+/* ── intro ────────────────────────────────────────────────────── */
+.intro{padding:104px 0 0}
+.intro p{margin:0 0 22px}
+.intro p:last-child{margin-bottom:0}
+.intro .muted{color:var(--ink-70)}
+/* the intro hands focus here; the move is announced, not outlined */
+.intro .hello:focus{outline:none}
+
+/* ── highlighted phrases, carried over from the Scroll variant ──── */
+.hl-yellow,.hl-green{
+  color:var(--ink);font-weight:500;border-radius:2px;
+  box-decoration-break:clone;-webkit-box-decoration-break:clone;
+  padding:1px 2px;margin:0 -1px;
+}
+.hl-yellow{background-color:rgba(247,166,195,.24)}
+.hl-green{background-color:rgba(232,48,44,.42)}
+/* the intro reads as one even paragraph: no marker, no bold, same ink */
+.intro .hl-yellow,.intro .hl-green{background:none;padding:0;margin:0;color:inherit;font-weight:inherit}
+.intro .hl-yellow{text-decoration:underline dotted var(--ink-40);text-decoration-thickness:1.5px;text-underline-offset:5px}
+
+/* ── section label ────────────────────────────────────────────── */
+.label{
+  display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;
+  color:var(--ink-40);font-size:15px;line-height:22px;margin:0;
+}
+.label b{font-weight:400;color:var(--ink-40)}
+.label a{color:inherit;text-decoration:none;border-bottom:1px solid var(--ink-20)}
+.label a:hover{color:var(--ink-70)}
+.label .sep{width:4px;height:4px;border-radius:50%;background-color:var(--ink-20)}
+
+/* ── work list ────────────────────────────────────────────────── */
+.work{padding:26px 0 40px}
+.entry{position:relative;margin:0 0 84px}
+.entry:last-child{margin-bottom:0}
+.entry h3{
+  margin:0 0 6px;font-size:17px;line-height:27px;font-weight:400;color:var(--ink-40);
+}
+.entry h3 b{font-weight:400;color:var(--ink)}
+.entry h3 .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background-color:var(--ink-20);vertical-align:middle;margin:0 9px}
+.entry p{margin:0;color:var(--ink-70)}
+.entry .media{
+  margin-top:26px;background-color:var(--ink-05);border-radius:11px;
+  padding:10px;display:flex;align-items:center;justify-content:center;
+}
+.entry .media.two{flex-flow:column;gap:10px}
+.tl{margin:-16px 0 34px;display:flex;flex-flow:column;align-items:center}
+.stack > .tl:first-child{margin:4px 0 46px}
+.tl-track{display:flex;align-items:center}
+.tl-seg{width:58px;height:2px;border-radius:2px;background:var(--ink-10)}
+.tl-seg.l{background:linear-gradient(90deg,rgba(47,53,87,0),rgba(47,53,87,.1))}
+.tl-seg.r{background:linear-gradient(90deg,rgba(47,53,87,.1),rgba(47,53,87,0))}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-20);flex:0 0 auto}
+.tl-mark{position:relative;display:flex;align-items:center;flex:0 0 auto}
+.tl-mark .tl-dot{width:12px;height:12px;background:#c0392b;
+  transform:scale(.4);transition:transform .5s cubic-bezier(.34,1.4,.5,1) .12s}
+.tl.in .tl-mark .tl-dot{transform:scale(1)}
+.tl-pill{position:absolute;bottom:calc(100% + 13px);left:50%;white-space:nowrap;
+  background:#0e0e10;color:#fff;border:1px solid rgba(255,255,255,.13);
+  font:400 10px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  padding:10px 14px;border-radius:11px;
+  opacity:0;transform:translateX(-50%) translateY(5px);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.3,0,.2,1)}
+.tl-pill::after{content:"";position:absolute;top:100%;left:50%;margin-left:-6px;
+  border:6px solid transparent;border-top-color:#0e0e10;border-bottom:0}
+.tl.in .tl-pill{opacity:1;transform:translateX(-50%) translateY(0)}
+.entry .media img{
+  width:100%;border-radius:6px;
+  box-shadow:0 14px 30px -14px rgba(47,53,87,.28);
+  transform:rotate(-.7deg) scale(.99);
+  transition:transform .9s cubic-bezier(.2,.7,.25,1);
+}
+.entry.in .media img{transform:rotate(0) scale(1)}
+/* work under NDA: hovering anywhere on the entry veils the screenshot and says why */
+.entry.nda .media{position:relative;overflow:hidden}
+.entry:has(>.case-cover){cursor:pointer}
+.entry .case-cover{position:absolute;inset:0;z-index:3}
+.entry .case-link{color:inherit;text-decoration:none}
+.entry .case-link:hover{text-decoration:underline;text-underline-offset:3px}
+.entry.nda .media img{transition:transform .9s cubic-bezier(.2,.7,.25,1),filter .35s ease}
+.entry.nda:hover .media img{filter:blur(6px) saturate(.8)}
+.nda-tag span{font-size:13px;line-height:1}
+.nda-tag{
+  position:absolute;top:50%;left:50%;z-index:2;pointer-events:none;white-space:nowrap;
+  background:#0e0e10;color:#fff;border:1px solid rgba(255,255,255,.13);
+  display:flex;align-items:center;gap:7px;
+  font:500 14px/1 var(--sans);letter-spacing:-.005em;
+  padding:10px 16px 10px 13px;border-radius:999px;
+  box-shadow:0 14px 30px -12px rgba(0,0,0,.45);
+  opacity:0;transform:translate(-50%,-50%) translateY(6px);
+  transition:opacity .3s ease,transform .3s cubic-bezier(.3,0,.2,1);
+}
+.entry.nda:hover .nda-tag{opacity:1;transform:translate(-50%,-50%)}
+/* touch has no hover, so the tag just sits on the screenshot */
+/* touch has no hover: a tap shakes the screenshot, buzzes, and shows the pill for a moment */
+@media (hover:none){
+  .entry.nda:hover .media img{filter:none}
+  .entry.nda:hover .nda-tag{opacity:0;transform:translate(-50%,-50%) translateY(6px)}
+  .entry.nda.nda-on .media img{filter:blur(6px) saturate(.8)}
+  .entry.nda.nda-on .nda-tag{opacity:1;transform:translate(-50%,-50%)}
+}
+@keyframes nda-shake{
+  0%,100%{transform:translateX(0)}
+  15%{transform:translateX(-9px)} 30%{transform:translateX(8px)}
+  45%{transform:translateX(-6px)} 60%{transform:translateX(5px)}
+  75%{transform:translateX(-3px)} 90%{transform:translateX(2px)}
+}
+.entry.nda .media.shake{animation:nda-shake .5s cubic-bezier(.36,.07,.19,.97)}
+/* a case study behind a password: the pill turns into the password field in place */
+.entry.case .lbl{display:flex;align-items:center;gap:7px}
+.entry.case .nda-tag .lbl-t{font-size:inherit}
+.entry.case .case-form{display:none;flex:1;align-items:center;gap:6px;margin:0}
+.entry.case .case-form input{flex:1;min-width:0;border:0;outline:0;background:none;color:#fff;font:500 15px/1 var(--sans);letter-spacing:.03em;padding:0}
+.entry.case .case-form input::placeholder{color:rgba(255,255,255,.45);letter-spacing:0}
+.entry.case .case-form button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#fff;color:#0e0e10;display:grid;place-items:center;cursor:pointer;padding:0}
+.entry.case .case-form .arr{width:15px;height:15px}
+.entry.case .spin{display:none;width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:case-spin .7s linear infinite}
+.entry.case .case-form.busy .spin{display:block}
+.entry.case .case-form.busy .arr{display:none}
+@keyframes case-spin{to{transform:rotate(360deg)}}
+.entry.nda.case.open .media img{filter:blur(6px) saturate(.8)}
+.entry.nda.case.open .nda-tag{opacity:1;transform:translate(-50%,-50%);pointer-events:auto;z-index:4;cursor:auto;width:min(340px,calc(100% - 40px));padding:5px 5px 5px 16px}
+.entry.case.open .lbl{display:none}
+.entry.case.open .case-form{display:flex}
+.entry.nda.case.done .nda-tag{opacity:1;transform:translate(-50%,-50%);background:#2d8a57;border-color:transparent}
+.entry.nda.case.done .media img{filter:none}
+.entry.case .case-msg{position:absolute;left:50%;top:calc(50% + 32px);z-index:4;transform:translateX(-50%);white-space:nowrap;
+  background:#fff;color:#c0392b;font:500 13px/1 var(--sans);padding:7px 11px;border-radius:999px;box-shadow:0 8px 20px -10px rgba(0,0,0,.35);
+  opacity:0;pointer-events:none;transition:opacity .2s}
+.entry.case .case-msg.on{opacity:1}
+.entry.case .nda-tag.shake{animation:case-shake .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes case-shake{0%,100%{translate:0}20%{translate:-8px}40%{translate:7px}60%{translate:-5px}80%{translate:3px}}
+
+.says{padding:120px 0 0}
+/* three across, wrapping to a second row - the full recommendations
+   need a real measure, so they no longer fit on one line */
+.says-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;width:min(920px,100%);margin:36px auto 0}
+/* the cards butt into one continuous strip; shared edges collapse to a single rule */
+.says-grid .tcard{padding:22px;gap:15px;border-radius:0}
+.says-grid .tcard{margin-left:-1px;margin-top:-1px}
+.says-grid .tcard:nth-child(3n+1){margin-left:0}
+.says-grid .tcard:nth-child(-n+3){margin-top:0}
+.says-grid .tcard blockquote{font-size:13px;line-height:21px}
+.says-grid .tcard blockquote p{margin:0 0 12px}
+.says-grid .tcard blockquote p:last-child{margin-bottom:0}
+.says-grid .tcard .av{width:28px;height:28px}
+.says-grid .tcard .nm{font-size:13px;line-height:18px}
+.says-grid .tcard .rl{font-size:12px;line-height:16px}
+
+/* ── github contributions ─────────────────────────────────────── */
+.gh{padding:120px 0 0}
+.gh-card{margin-top:36px;background-color:var(--white);border:1px solid var(--haze);border-radius:13px;padding:22px 24px 18px}
+.gh-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
+.gh-count{font-size:15px;color:var(--ink)}
+.gh-head a{font-family:var(--mono);font-size:12px;color:var(--ink-40);text-decoration:none}
+.gh-head a:hover{color:var(--ink-70)}
+.gh-months{display:grid;grid-template-columns:repeat(53,1fr);gap:3px;font-family:var(--mono);font-size:10px;color:var(--ink-40);margin-bottom:5px}
+.gh-months span{grid-row:1;white-space:nowrap}
+.gh-grid{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:3px}
+.gh-grid i{display:block;aspect-ratio:1;border-radius:2px;background-color:var(--ink-05)}
+.gh-grid i[data-l="1"]{background-color:#6b2a3a}
+.gh-grid i[data-l="2"]{background-color:#a8344d}
+.gh-grid i[data-l="3"]{background-color:#e04c6a}
+.gh-grid i[data-l="4"]{background-color:#f7a6c3}
+
+/* ── visual work ──────────────────────────────────────────────────
+   Dribbble shots on a horizontal track: native scroll with snap, so
+   trackpads, touch and keyboard all work; the arrows only nudge it.
+   ---------------------------------------------------------------- */
+.shots{padding:120px 0 0}
+.shots-track{
+  display:flex;gap:18px;margin:36px 0 0;padding:6px 0 30px;list-style:none;
+  overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+  scrollbar-width:none;
+}
+.shots-track::-webkit-scrollbar{display:none}
+/* one shared height; each card takes the width its image's own ratio gives it */
+.shot{flex:0 0 auto;scroll-snap-align:start}
+.shot a{display:block;color:inherit;text-decoration:none}
+.shot img{
+  height:320px;width:auto;max-width:none;border-radius:11px;
+  background-color:var(--ink-05);border:1px solid var(--haze);
+  box-shadow:0 14px 30px -18px rgba(47,53,87,.30);
+  transition:transform .45s cubic-bezier(.2,.75,.25,1),box-shadow .45s;
+}
+.shot a:hover img{transform:translateY(-6px);box-shadow:0 24px 44px -20px rgba(47,53,87,.36)}
+/* width:0 + min-width:100% keeps a long caption from widening the card past its image */
+.shot span{display:block;width:0;min-width:100%;margin-top:11px;font-size:14px;line-height:20px;color:var(--ink-55)}
+.shots-nav{display:flex;justify-content:center;gap:10px}
+.shots-nav button{
+  appearance:none;width:38px;height:38px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--white);border:1px solid var(--haze);color:var(--ink-70);
+  transition:color .18s,border-color .18s,opacity .18s;
+}
+.shots-nav button:hover{color:var(--ink);border-color:var(--ink-20)}
+.shots-nav button:disabled{opacity:.35;cursor:default}
+.shots-nav svg{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){.shot img{transition:none}}
+
+/* ── close: the suitcase ──────────────────────────────────────────
+   The last thing on the page is the case the work was packed into: a
+   3D aluminium cabin case, handle up, covered in the stickers collected
+   along the way,. The poster
+   is a render of the same scene; the WebGL stage replaces it on capable
+   desktops and it stays for everyone else. Words and links are HTML.
+   ---------------------------------------------------------------- */
+.trip{position:relative;z-index:1;margin-top:120px;overflow:hidden;text-align:center}
+.trip-stage{position:relative;width:min(880px,100%);aspect-ratio:4/5;margin:0 auto;touch-action:pan-y}
+/* a soft pool of shade behind the case so it sits on the page */
+.trip-stage::before{
+  content:"";position:absolute;left:18%;right:18%;top:38%;bottom:-4%;
+  background:radial-gradient(closest-side,rgba(90,74,40,.16),transparent);filter:blur(30px);
+}
+.trip-poster,.trip-canvas{position:absolute;inset:0;width:100%;height:100%}
+.trip-canvas{opacity:0;transition:opacity .6s ease}
+.trip-stage.is-3d .trip-canvas{opacity:1}
+.trip-stage.is-3d .trip-poster{visibility:hidden;transition:visibility 0s .6s}
+.trip-head{position:absolute;left:0;right:0;top:12.5%;z-index:2;padding:0 16px}
+.trip-head h2{
+  margin:0 auto;font:650 clamp(24px,3.3vw,38px)/1.12 var(--sans);
+  letter-spacing:-.035em;color:var(--ink);
+}
+.trip-mail{
+  display:inline-block;margin-top:16px;padding:7px 15px;border-radius:20px;
+  font:500 15px/1.2 var(--sans);color:var(--ink);text-decoration:none;
+  background:rgba(61,18,24,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  box-shadow:0 0 0 1px var(--ink-10);transition:box-shadow .2s;
+}
+.trip-mail:hover{box-shadow:0 0 0 1px var(--ink-40)}
+@media (prefers-reduced-motion:reduce){
+  .trip-canvas{transition:none}
+}
+/* phones: crop the case's margins so the stickers stay legible */
+@media (max-width:760px){
+  .trip{margin-top:80px}
+  .trip-stage{width:135vw;margin-left:calc(50% - 67.5vw)}
+  .trip-head{top:10.5%;padding:0 calc(17.5vw + 20px)}
+  .trip-head br{display:none}
+  .trip-mail{font-size:14px;margin-top:12px}
+}
+
+
+/* ── identity block ───────────────────────────────────────────────
+   A monogram tile in a dashed placeholder frame, then the name and
+   the run of companies with their marks set inline.
+   ---------------------------------------------------------------- */
+.ident{margin:0 0 26px}
+.ident .tile-frame{position:relative;display:inline-block}
+.ident .tile{
+  width:72px;height:72px;border-radius:12px;overflow:hidden;
+  background-color:var(--ink-05);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 26px -12px rgba(47,53,87,.35);
+}
+.ident .tile img{width:100%;height:100%;object-fit:cover;display:block}
+/* name, current role and past roles read as one block, a line each;
+   the company links run inline so every word shares one baseline */
+.hello-role{color:var(--ink-70)}
+.hello .co-wrap,.hello .co{display:inline}
+.hello .co img{display:inline-block;vertical-align:-4px;margin:0 5px 0 2px}
+.hello .co.wordmark img{vertical-align:-6px;transform:none;margin-left:3px}
+.co{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+a.co{text-decoration:none;color:inherit;border-bottom:1px solid transparent;transition:border-color .18s}
+a.co:hover{border-bottom-color:var(--ink-40)}
+.co img{width:20px;height:20px;object-fit:contain;display:block}
+/* the Pine Labs wordmark is set to match the run of text by cap height,
+   then nudged so its own baseline lands on the text baseline */
+.co.wordmark img{width:auto;height:23px;transform:translateY(2px)}
+
+
+/* ── work: sticky company rail + the scrolling stack ─────────────── */
+/* the stack is centred exactly like .col; the rail hangs in the left gutter,
+   so entry text lines up with the intro copy */
+.work-row{display:grid;grid-template-columns:1fr min(600px,100%) 1fr;align-items:start;margin-top:52px}
+.rail{grid-column:1;justify-self:end;margin-right:60px;position:sticky;top:70px;width:270px;display:flex;flex-flow:column;gap:60px}
+.rail-list{display:flex;flex-flow:column;gap:6px}
+.rail-btn{
+  appearance:none;background:none;border:0;padding:0;cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:11px;font-family:var(--sans);
+  font-size:19px;line-height:26px;font-weight:400;color:var(--ink-40);
+  transition:color .28s ease;
+}
+.rail-btn[aria-current="true"]{color:var(--ink)}
+.rail-btn .mark{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:24px;height:24px}
+.rail-btn .mark img{width:100%;height:100%;object-fit:contain;opacity:.35;transition:opacity .28s ease}
+.rail-btn[aria-current="true"] .mark img{opacity:1}
+.tcard{
+  margin:0;background-color:var(--white);border:1px solid var(--haze);border-radius:13px;
+  padding:20px;display:flex;flex-flow:column;gap:16px;
+}
+.tcard blockquote{margin:0;font-size:14px;line-height:23px;color:var(--ink-70)}
+.tcard figcaption{display:flex;align-items:center;gap:11px}
+.tcard .av{flex:0 0 auto;width:32px;height:32px;border-radius:5px;overflow:hidden;background-color:var(--ink-05)}
+.tcard .av img{width:100%;height:100%;object-fit:cover}
+.tcard .nm{display:block;font-size:14px;font-weight:600;line-height:19px;color:var(--ink)}
+.tcard .rl{display:block;font-size:13px;line-height:18px;color:var(--ink-40)}
+.stack{grid-column:2;width:100%;min-width:0}
+
+/* ── floating contact pill ────────────────────────────────────── */
+.pill{
+  position:fixed;
+  left:50%;
+  bottom:39px;
+  transform:translateX(-50%);
+  z-index:80;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:13px 20px 13px 24px;
+  border-radius:39px;
+  /* glass rather than a solid slab, so whatever it sits over stays readable */
+  background-color:rgba(20,22,36,.52);
+  backdrop-filter:blur(22px) saturate(180%);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),
+             0 2px 6px -2px rgba(20,22,36,.28),
+             0 14px 30px -8px rgba(20,22,36,.30);
+}
+/* a softer blur that reaches past the pill and fades out, so the glass
+   does not stop dead at its own edge */
+.pill::before{
+  content:"";position:absolute;inset:-30px;border-radius:72px;z-index:-1;
+  pointer-events:none;
+  backdrop-filter:blur(11px);
+  -webkit-backdrop-filter:blur(11px);
+  -webkit-mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 70%,transparent 100%);
+  mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 70%,transparent 100%);
+}
+.pill-mail{
+  display:flex;align-items:center;gap:16px;
+  font-family:var(--sans);font-size:15px;font-weight:400;
+  color:rgba(255,255,255,.74);text-decoration:none;white-space:nowrap;
+  transition:color .18s ease;
+}
+.pill-mail:hover{color:#fff}
+.pill-mail svg{width:19px;height:19px;flex:0 0 auto}
+.pill-div{width:1px;height:28px;background-color:rgba(255,255,255,.20);flex:0 0 auto}
+.pill-links{display:flex;align-items:center;gap:5px}
+.pill-links a{
+  display:flex;align-items:center;justify-content:center;
+  width:35px;height:35px;border-radius:50%;
+  color:rgba(255,255,255,.74);transition:color .18s ease,background-color .18s ease;
+}
+.pill-links a:hover{color:#fff;background-color:rgba(255,255,255,.14)}
+.pill-links svg{width:18px;height:18px}
+.pill a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* the gutter stops fitting the 270px rail + 60px gap before the page is properly narrow */
+@media screen and (max-width:1300px){
+  .says-grid{grid-template-columns:repeat(2,1fr)}
+  .says-grid .tcard:nth-child(3n+1){margin-left:-1px}
+  .says-grid .tcard:nth-child(odd){margin-left:0}
+  .says-grid .tcard:nth-child(-n+2){margin-top:0}
+  .says-grid .tcard:nth-child(3){margin-top:-1px}
+  .work-row{display:block}
+  .rail{position:static;width:min(600px,100%);margin:0 auto 34px}
+  .stack{width:min(600px,100%);margin:0 auto}
+}
+
+@media screen and (max-width:1000px){
+  :root{--col:100%}
+  .intro{padding-top:88px}
+  .entry .media{padding:8px}
+  .ident .tile{width:60px;height:60px;border-radius:10px}
+}
+/* phones: the 53-week calendar cannot fit, and full recommendations
+   are unreadable in a 179px column */
+@media screen and (max-width:700px){
+  .gh-card{overflow-x:auto;overscroll-behavior-x:contain}
+  .gh-months,.gh-grid{min-width:540px}
+  .shot img{height:180px}
+  .says-grid{grid-template-columns:1fr}
+  .says-grid .tcard{margin-left:0}
+  .says-grid .tcard + .tcard{margin-top:-1px}
+
+  .tl{position:relative}
+  .tl-seg{width:34px}
+  .tl-mark{position:static}
+  .tl-pill{left:50%;bottom:calc(100% + 12px);transform:translateX(-50%);
+    font-size:9px;letter-spacing:.05em;padding:8px 11px}
+  .tl.in .tl-pill{transform:translateX(-50%)}
+  .tl-pill::after{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .entry .media img,.entry.nda .media img,.nda-tag{transition:none}
+  .entry.nda .media.shake{animation:none}
+  .tl-pill,.tl-mark .tl-dot{transition:none}
+}
+
+/* ── the desk ─────────────────────────────────────────────────────
+   The site as one photographed desk, seen from above in hard afternoon
+   sun. Scrolling moves the camera down the desk through four spreads;
+   picking an object up opens its sheet of real HTML beside it, and
+   putting it back drops it onto the desk under physics. Without WebGL,
+   or with reduced motion, still renders of the spreads stand in and the
+   list of objects is shown as buttons.
+   ---------------------------------------------------------------- */
+body{background:#b9824b}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.desk{position:relative}
+.desk-stage{position:fixed;inset:0;z-index:1;background:#b9824b}
+.desk-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.desk-stills{display:none}
+.desk-tour{height:400vh}
+.desk.still .desk-stage{position:relative}
+.desk.still .desk-stills{display:block}
+.desk.still .desk-stills img{display:block;width:100%;height:auto}
+.desk.still .desk-tour{display:none}
+.desk-tip{position:fixed;left:50%;top:22px;z-index:3;transform:translateX(-50%);margin:0;padding:9px 15px;border-radius:20px;
+  background:rgba(32,22,14,.74);color:#fff6ea;font:500 14px/1 var(--sans);opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap}
+.desk-tip.on{opacity:1}
+.desk-nav{position:fixed;left:16px;top:16px;z-index:4;display:flex;flex-wrap:wrap;gap:6px;max-width:560px;
+  clip-path:inset(50%);height:1px;overflow:hidden}
+.desk-nav:focus-within{clip-path:none;height:auto;overflow:visible}
+.desk.still .desk-nav{position:static;clip-path:none;height:auto;overflow:visible;max-width:none;padding:18px 16px 120px;background:#b9824b}
+.desk-nav button,.desk-nav a{padding:9px 14px;border:0;border-radius:18px;cursor:pointer;background:#fbf8f1;color:#2a2420;
+  font:600 14px/1 var(--sans);text-decoration:none;box-shadow:0 6px 16px -8px rgba(40,20,0,.5)}
+.desk-nav button:focus-visible,.desk-nav a:focus-visible{outline:3px solid #e9482a;outline-offset:2px}
+
+/* sheets: what an object opens, on paper beside it */
+.sheets{position:fixed;inset:0;z-index:90;pointer-events:none}
+.sheets.open{pointer-events:auto}
+.sheet-shade{position:absolute;inset:0;background:rgba(28,16,6,.22);opacity:0;transition:opacity .35s}
+.sheets.open .sheet-shade{opacity:1}
+.sheet{position:absolute;top:0;right:0;bottom:0;width:min(620px,100%);display:flex;transform:translateX(104%);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.sheet[hidden]{display:none}
+.sheet.on{transform:none}
+.sheet-paper{
+  position:relative;flex:1;margin:16px;overflow:auto;overscroll-behavior:contain;padding:30px 34px 70px;border-radius:14px;
+  background:#fbf8f1;box-shadow:0 30px 60px -20px rgba(40,20,0,.55);
+  --ink:#2a2420;--ink-70:rgba(42,36,32,.76);--ink-55:rgba(42,36,32,.6);--ink-40:rgba(42,36,32,.46);
+  --ink-20:rgba(42,36,32,.22);--ink-10:rgba(42,36,32,.1);--ink-05:rgba(42,36,32,.05);--white:#fff;--haze:rgba(42,36,32,.12);
+  color:var(--ink);
+}
+.sheet-x{position:sticky;top:0;float:right;width:38px;height:38px;margin:-8px -12px 0 0;border:0;border-radius:50%;cursor:pointer;
+  background:#efe8da;color:#2a2420;font:400 22px/1 var(--sans)}
+.sheet-x:hover{background:#e6dcc8}
+.sheet-x:focus-visible{outline:3px solid #e9482a;outline-offset:2px}
+.sheet-kicker{margin:0 0 10px;font:400 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-55)}
+.sheet-title{margin:0 0 26px;font:400 44px/1 "Archivo Black",var(--sans);letter-spacing:-.015em;color:#2a2420}
+.sheet-intro{font-size:18px;line-height:1.6}
+.sheet-intro .ident{margin-bottom:18px}
+.sheet-work .entry{margin:0 0 44px}
+.sheet-work .entry .media{margin-top:16px}
+.sheet-says .says-grid{width:100%;margin:0;grid-template-columns:1fr}
+.sheet-says .tcard{padding:20px 0;border-width:0 0 1px;border-radius:0}
+.sheet-gh .gh-card{width:100%;margin:0}
+.sheet .gh-grid i[data-l="1"]{background-color:#9fd3b6}
+.sheet .gh-grid i[data-l="2"]{background-color:#4fae7f}
+.sheet .gh-grid i[data-l="3"]{background-color:#227a57}
+.sheet .gh-grid i[data-l="4"]{background-color:#11503a}
+.sheet-shots .shots-track{margin-top:0}
+.sheet-side a{display:block;margin:0 0 26px;color:inherit;text-decoration:none}
+.sheet-side img{width:100%;height:auto;border-radius:8px;margin-bottom:12px}
+.sheet-side b{display:block;font:400 30px/1.1 "Archivo Black",var(--sans)}
+.sheet-side span{font-size:17px;color:var(--ink-70)}
+.sheet-mail{display:block;font:400 32px/1.15 "Archivo Black",var(--sans);color:#e9482a;word-break:break-all;text-decoration:none}
+.sheet-mail:hover{text-decoration:underline}
+.sheet-links{display:flex;flex-wrap:wrap;gap:18px;margin:20px 0 0;font:600 16px/1 var(--sans)}
+.sheet-links a{color:inherit}
+@media (max-width:700px){
+  .sheet{top:auto;width:100%;height:84svh;transform:translateY(104%)}
+  .sheet.on{transform:none}
+  .sheet-paper{margin:0;border-radius:18px 18px 0 0;padding:24px 20px 90px}
+  .sheet-title{font-size:32px}
+}
+@media (prefers-reduced-motion:reduce){ .sheet,.sheet-shade{transition:none} }
+</style>
+</head>
+<body>
+
+
+<main class="desk" id="desk">
+  <h1 class="vh">Datta Velivela, Senior Product Designer: a desk of work</h1>
+  <div class="desk-stage" id="deskStage">
+    <div class="desk-stills" aria-hidden="true">
+      <img src="assets/desk/spread-1.webp" alt="" width="1600" height="1000"><img src="assets/desk/spread-2.webp" alt="" width="1600" height="1000">
+      <img src="assets/desk/spread-3.webp" alt="" width="1600" height="1000"><img src="assets/desk/spread-4.webp" alt="" width="1600" height="1000">
+    </div>
+    <p class="desk-tip" id="deskTip" aria-hidden="true"></p>
+  </div>
+  <nav class="desk-nav" aria-label="Things on the desk">
+    <button type="button" data-open="hello">Business card: hello</button>
+    <button type="button" data-open="notebook">Notebook: about</button>
+    <button type="button" data-open="work">Sticky note: work</button>
+    <button type="button" data-open="keys">Keys: case studies</button>
+    <a href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">Kraft notebook: resume</a>
+    <button type="button" data-open="people">Books: what people say</button>
+    <button type="button" data-open="pushed">Calendar: what I pushed</button>
+    <button type="button" data-open="visual">Prints: visual work</button>
+    <button type="button" data-open="side">Notes: Rinso and Slosh</button>
+    <button type="button" data-open="talk">Coffee: let's talk</button>
+  </nav>
+  <div class="desk-tour" id="deskTour" aria-hidden="true"></div>
+</main>
+<div class="sheets" id="sheets">
+<div class="sheet-shade" aria-hidden="true"></div>
+<aside class="sheet" id="sheet-hello" hidden aria-labelledby="t-hello">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Business card</p>
+    <h2 class="sheet-title" id="t-hello">Hello there</h2>
+    <div class="sheet-intro">
+    <div class="ident">
+      <span class="tile-frame"><span class="tile"><img decoding="async" src="assets/datta.jpg" alt="Gurudatta Velivela"></span></span>
+    </div>
+    <p class="hello">Hello there! I'm Datta Velivela<br>
+      <span class="hello-role">Senior Product Designer at <span class="co-wrap"><a class="co" href="https://www.procol.ai/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt="">Procol</a><span class="pop" role="tooltip"><span class="pop-head"><img src="assets/procol-mark.svg" alt="">Procol</span><span class="pop-when">Aug 2024 - present</span><span class="pop-text">A B2B procurement platform - sourcing, RFQs and e-auctions for enterprise buying teams.</span><span class="pop-note">Recognised and rewarded for 3 quarters, in a team of 5.</span><a class="pop-btn" href="https://www.procol.ai/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span><br>
+      ex <span class="co-wrap"><a class="co" href="https://mydukaan.io/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt="">Dukaan,</a><span class="pop" role="tooltip"><span class="pop-head"><img src="assets/dukaan.png" alt="">Dukaan</span><span class="pop-when">Jun 2023 - Jul 2024</span><span class="pop-text">An e-commerce platform that lets small sellers set up and run an online store.</span><a class="pop-btn" href="https://mydukaan.io/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span> ex <span class="co-wrap"><a class="co wordmark" href="https://www.pinelabs.com/" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/pinelabs.svg" alt="Pine Labs"></a><span class="pop pop-end" role="tooltip"><span class="pop-head"><img src="assets/pinelabs.svg" alt="">Pine Labs</span><span class="pop-when">Jan - Mar 2023</span><span class="pop-text">A merchant commerce and payments company - POS terminals and checkout for retailers.</span><a class="pop-btn" href="https://www.pinelabs.com/" target="_blank" rel="noopener">Visit website &rarr;</a></span></span></span></p>
+    <p class="muted" id="introLine">For the last 3.5 years, I've worked across <span class="hl-yellow">product and design</span>,
+      though my work extends into GTM engineering and frontend. At Procol, I work on
+      AI experiences.</p>
+
+    <p class="muted">Outside work, I've knocked on 2,000+ doors for our first laundry customers and
+      sold AI-generated visuals to brands. I like <span class="hl-green">messy problems, small teams,
+      and building from zero</span>.</p>
+
+    <p class="muted"><a class="resume" href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">Here is my resume</a></p>
+  </div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-work" hidden aria-labelledby="t-work">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Sticky note</p>
+    <h2 class="sheet-title" id="t-work">Work</h2>
+    <div class="sheet-work">
+<article id="case-clara" class="panel entry nda case" data-i="0" data-href="work/clara.html" data-case="clara">
+        <a class="case-cover" href="work/clara.html" aria-hidden="true" tabindex="-1"></a>
+        <h3><b><a class="case-link" href="work/clara.html">Agentic source-to-pay platform</a></b><span class="dot" aria-hidden="true"></span>Procol.in &rarr; Procol.ai</h3>
+        <p>Solely owned design for Procol&rsquo;s agentic products across source-to-pay and analytics, while leading
+          product solutioning with the PM. Worked closely with three engineers on system design and took these products
+          from concept to production, contributing &#8377;X crore in revenue with a team of five.</p>
+        <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><div class="nda-tag"><span class="lbl"><span class="ic" aria-hidden="true">🔒</span><span class="lbl-t">Read the case study</span></span><form class="case-form" novalidate><input type="text" placeholder="Password" aria-label="Case study password" autocomplete="off" autocapitalize="off" spellcheck="false"><button aria-label="Unlock"><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i class="spin"></i></button></form></div><span class="case-msg" role="status"></span></div>
+      </article>
+<article id="case-intake" class="panel entry nda case" data-i="0" data-href="work/intake.html" data-case="intake">
+        <a class="case-cover" href="work/intake.html" aria-hidden="true" tabindex="-1"></a>
+        <h3><b><a class="case-link" href="work/intake.html">AI Demo Platform</a></b><span class="dot" aria-hidden="true"></span>Procol, R&amp;D</h3>
+        <p>Solely built new AI ideas, including Intake AI, and Procol&rsquo;s demo platform. It let us experiment
+          faster without an engineering dependency, moved multiple deals forward, and contributed to a &#8377;X crore
+          enterprise win with a lean four-person team: one PM, two in sales, and myself.</p>
+        <div class="media"><img loading="lazy" decoding="async" src="assets/product-features.jpg" alt="Clara AI home, with recent tasks pending review"><div class="nda-tag"><span class="lbl"><span class="ic" aria-hidden="true">🔒</span><span class="lbl-t">Read the case study</span></span><form class="case-form" novalidate><input type="text" placeholder="Password" aria-label="Case study password" autocomplete="off" autocapitalize="off" spellcheck="false"><button aria-label="Unlock"><svg class="arr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i class="spin"></i></button></form></div><span class="case-msg" role="status"></span></div>
+      </article>
+<article id="case-dukaan" class="panel entry nda" data-i="1">
+        <h3><b>The app, the dashboard, and the design system</b><span class="dot" aria-hidden="true"></span>Dukaan, growth</h3>
+        <p>PM, design and support in a team of 15, owning the app and the web dashboard. The revamp
+          lifted activation, adoption and conversion, and NRR with them. One design system replaced
+          the separate web and mobile ones, and Mixpanel tracking on every tap meant the next call
+          had data behind it.</p>
+        <div class="media two">
+          <img loading="lazy" decoding="async" src="assets/dukaan-app-revamp.png" alt="The app revamp">
+          <img loading="lazy" decoding="async" src="assets/dukaan-design-system.png" alt="The design system">
+          <span class="nda-tag"><span aria-hidden="true">🔒</span>Under NDA</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-people" hidden aria-labelledby="t-people">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">The book stack</p>
+    <h2 class="sheet-title" id="t-people">What people say</h2>
+    <div class="sheet-says"><div class="says-grid">
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/aman-gupta.jpg" alt=""></span>
+        <span><span class="nm">Aman Gupta</span><span class="rl">Senior Product Designer at Mysa</span></span>
+      </figcaption>
+      <blockquote>
+        <p>He grew from a strong visual designer into someone who could own new modules, unlock business opportunities, and build AI experiences.</p>
+        <p>He is uncompromising when it comes to creating the best experiences and constantly pushes the team to experiment, move fast, and think bigger. Gurudatta brings a great mix of craft, ownership, and curiosity, and I'd highly recommend him.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/dawar-mir.jpg" alt=""></span>
+        <span><span class="nm">Dawar Mir</span><span class="rl">Staff Designer at PhonePe &middot; ex Head of Design Dukaan</span></span>
+      </figcaption>
+      <blockquote>
+        <p>What stood out most was his ability to combine strong design craft with deep curiosity and ownership. He was never limited by what he already knew, always eager to learn, pick people's brains, and take things forward on his own. Beyond being a strong designer, he showed genuine interest in the product and could be trusted to take responsibility and drive towards the goal without needing to be pushed.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/shubh-porwal.jpg" alt=""></span>
+        <span><span class="nm">Shubh Porwal</span><span class="rl">Senior Product Engineer @Supernova AI</span></span>
+      </figcaption>
+      <blockquote>
+        <p>His designs consistently struck the perfect balance between visual appeal and technical feasibility. He actively sought input from the engineering team, ensuring his designs were not just beautiful, but also implementable and efficient. His ability to wear multiple hats - from designer to quasi-product manager - truly sets him apart.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/saranya-devi.jpg" alt=""></span>
+        <span><span class="nm">Saranya Devi</span><span class="rl">Product Designer at Stitch</span></span>
+      </figcaption>
+      <blockquote>
+        <p>He's an exceptional product designer, blending technical skill with a deep understanding of user needs. He consistently creates intuitive designs and values feedback, making him a valuable team player. His ability to simplify complexity and balance aesthetics with functionality is impressive.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/ashmit-srivastava.jpg" alt=""></span>
+        <span><span class="nm">Ashmit Srivastava</span><span class="rl">Senior Product Manager | AutoMint</span></span>
+      </figcaption>
+      <blockquote>
+        <p>He brings exceptional design skills and a user-centric approach to any area he's working on, delivers high-quality designs and works collaboratively with cross-functional teams. A talented and dedicated designer who would be an asset to any organization.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/tanya-redkar.jpg" alt=""></span>
+        <span><span class="nm">Tanya Redkar</span><span class="rl">Senior Product Designer &middot; HighLevel</span></span>
+      </figcaption>
+      <blockquote>
+        <p>Right from the start he has shown a keen interest to learn new things. He is a keen observer and absorbs every detail of a brief provided before coming up with the design flow.</p>
+        <p>He is a reliable and curious and this is a great mix of personality traits for any organisation. He will do an extraordinary job wherever he goes.</p>
+      </blockquote>
+    </figure>
+  </div>
+</div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-pushed" hidden aria-labelledby="t-pushed">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Calendar, 2026</p>
+    <h2 class="sheet-title" id="t-pushed">What I pushed</h2>
+    <div class="sheet-gh"><div class="col gh-card">
+    <div class="gh-head">
+      <span class="gh-count" id="ghCount">contributions in the last year</span>
+      <a id="ghLink" href="https://github.com/" target="_blank" rel="noopener">github</a>
+    </div>
+    <div class="gh-months" id="ghMonths"></div>
+    <div class="gh-grid" id="ghGrid"></div>
+  </div>
+</div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-visual" hidden aria-labelledby="t-visual">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Prints</p>
+    <h2 class="sheet-title" id="t-visual">Visual work</h2>
+    <div class="sheet-shots"><ul class="shots-track" id="shotsTrack" aria-label="Dribbble shots">
+    <li class="shot"><a href="https://dribbble.com/shots/27623681-Explorations-Trust-Section" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/trust-section.jpg" alt="" width="1600" height="833"><span>Explorations - Trust Section</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620408-Agnost-ai-Pricing-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-pricing.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Pricing Page</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620398-Product-Announcements" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/product-announcements.jpg" alt="" width="1600" height="1000"><span>Product Announcements</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620380-Footer" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/footer.jpg" alt="" width="1600" height="900"><span>Footer</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/27620354-Agnost-ai-Login-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-login.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Login Page</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/26556909-Redesigned-Experience-for-Sellers-Dukaan-App" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-sellers.jpg" alt="" width="1600" height="1143"><span>Redesigned Experience for Sellers | Dukaan App</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/24509989-Settings-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-settings.jpg" alt="" width="1600" height="1200"><span>Settings - Dukaan</span></a></li>
+    <li class="shot"><a href="https://dribbble.com/shots/24509941-New-Home-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-home.jpg" alt="" width="1600" height="1200"><span>New Home - Dukaan</span></a></li>
+  </ul>
+  <div class="shots-nav">
+    <button type="button" id="shotsPrev" aria-label="Previous shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg></button>
+    <button type="button" id="shotsNext" aria-label="Next shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+  </div>
+</div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-side" hidden aria-labelledby="t-side">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Notes</p>
+    <h2 class="sheet-title" id="t-side">Rinso and Slosh</h2>
+    <div class="sheet-side">
+      <a href="https://www.rinsoindia.com/" target="_blank" rel="noopener"><img loading="lazy" src="assets/rinso-thumbnail.jpg" alt="" width="520" height="292"><b>Rinso</b><span>2,000 doors for the first 132 orders</span></a>
+      <a href="https://www.slosh.agency/" target="_blank" rel="noopener"><img loading="lazy" src="assets/slosh-thumbnail.jpg" alt="" width="520" height="292"><b>Slosh</b><span>700+ AI visuals for 11 brands</span></a>
+    </div>
+  </div>
+</aside>
+<aside class="sheet" id="sheet-talk" hidden aria-labelledby="t-talk">
+  <div class="sheet-paper">
+    <button class="sheet-x" type="button" aria-label="Put it back">&times;</button>
+    <p class="sheet-kicker">Espresso</p>
+    <h2 class="sheet-title" id="t-talk">Let's grab a coffee</h2>
+    <a class="sheet-mail" href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a>
+    <p class="sheet-links"><a href="https://www.linkedin.com/in/dattavelivela/" target="_blank" rel="noopener">LinkedIn</a><a href="https://x.com/wdattavelivela" target="_blank" rel="noopener">X</a><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">Dribbble</a><a href="https://github.com/dattavelivela" target="_blank" rel="noopener">GitHub</a><span>Gurgaon, India</span></p>
+  </div>
+</aside>
+</div>
+<nav class="pill" aria-label="Contact">
+  <a class="pill-mail" href="mailto:withgurudatta@gmail.com">Email me<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg></a>
+  <span class="pill-div"></span>
+  <span class="pill-links">
+    <a href="https://www.linkedin.com/in/dattavelivela/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM6.6 8.9H3.3V21h3.3V8.9Zm5.27 0H8.6V21h3.25v-6.35c0-3.02 3.93-3.27 3.93 0V21H19v-7.47c0-5.1-5.82-4.92-7.13-2.4V8.9Z"/></svg></a>
+    <a href="https://x.com/wdattavelivela" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.02l-6.6 7.54L21.7 21h-6.07l-4.76-6.22L5.42 21H2.4l7.05-8.06L2.3 3h6.22l4.3 5.69L17.53 3Zm-1.06 16.18h1.67L7.6 4.73H5.81l10.66 14.45Z"/></svg></a>
+  </span>
+</nav>
+
+<script>
+(function(){
+  var media=[].slice.call(document.querySelectorAll('.entry'));
+  if(!media.length) return;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.15});
+  media.forEach(function(m){ if(!m.classList.contains('in')) io.observe(m); });
+  [].slice.call(document.querySelectorAll('.tl')).forEach(function(x){ io.observe(x); });
+
+  /* the rail follows whichever entry owns the middle of the screen */
+  var btns=[].slice.call(document.querySelectorAll('.rail-btn')),
+      active=-1;
+  function mark(i){
+    if(i===active) return; active=i;
+    btns.forEach(function(b,k){ b.setAttribute('aria-current',k===i?'true':'false'); });
+  }
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting) mark(+e.target.dataset.i); });
+  },{rootMargin:'-45% 0px -45% 0px'});
+  media.forEach(function(m){ spy.observe(m); });
+
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=+b.dataset.i, t=media.filter(function(x){return +x.dataset.i===i;})[0];
+      if(t) t.scrollIntoView({block:'start'});
+    });
+  });
+
+})();
+
+/* ── github contributions ──────────────────────────────────────────
+   Set GH_USER to your handle. Until it is set the calendar renders
+   empty rather than showing invented numbers.
+   ------------------------------------------------------------------ */
+(function(){
+  var GH_USER = 'dattavelivela';
+  var grid=document.getElementById('ghGrid'),
+      months=document.getElementById('ghMonths'),
+      count=document.getElementById('ghCount'),
+      link=document.getElementById('ghLink');
+  if(!grid) return;
+
+  function draw(days,total){
+    grid.innerHTML='';
+    /* the feed starts on whatever weekday the year began, so pad the first
+       column - otherwise the rows do not line up with days of the week */
+    var lead=new Date(days[0].date+'T00:00:00').getDay();
+    for(var b=0;b<lead;b++){
+      var pad=document.createElement('i'); pad.style.visibility='hidden'; grid.appendChild(pad);
+    }
+    days.forEach(function(d){
+      var i=document.createElement('i');
+      if(d.level) i.dataset.l=d.level;
+      i.title=d.count+' on '+d.date;
+      grid.appendChild(i);
+    });
+    if(total!=null) count.textContent=total.toLocaleString()+' contributions in the last year';
+    /* month ticks, placed on the week each month starts in */
+    months.innerHTML='';
+    var seen={};
+    days.forEach(function(d,k){
+      var m=d.date.slice(0,7), week=Math.floor((k+lead)/7)+1;
+      if(seen[m]||week>52) return; seen[m]=1;
+      var s=document.createElement('span');
+      s.style.gridColumn=week;
+      s.textContent=new Date(d.date+'T00:00:00').toLocaleString('en',{month:'short'});
+      months.appendChild(s);
+    });
+  }
+
+  /* empty year, so the shape of the thing is visible before it is wired up */
+  var blank=[], t=new Date(); t.setDate(t.getDate()-370);
+  for(var k=0;k<371;k++){ blank.push({date:t.toISOString().slice(0,10),count:0,level:0}); t.setDate(t.getDate()+1); }
+  draw(blank,null);
+
+  if(!GH_USER){ count.textContent='set GH_USER to load contributions'; return; }
+  link.href='https://github.com/'+GH_USER; link.textContent='github.com/'+GH_USER;
+  fetch('https://github-contributions-api.jogruber.de/v4/'+GH_USER+'?y=last')
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var days=j.contributions.slice(-371);
+      draw(days, j.total && (j.total.lastYear!=null?j.total.lastYear:Object.values(j.total)[0]));
+    })
+    .catch(function(){ count.textContent='could not reach github'; });
+})();
+
+/* ── NDA taps on touch ─────────────────────────────────────────────
+   Touch has no hover, so a tap on an NDA entry answers the way a wrong
+   passcode does on iPhone: the screenshot shakes, the phone buzzes
+   three times, and the NDA pill shows over it for a moment. Android gets navigator.vibrate;
+   iOS Safari has no vibrate API, but toggling a hidden switch input
+   (iOS 18+) plays the system haptic, so three toggles make the pattern.
+   ------------------------------------------------------------------ */
+(function(){
+  if(!matchMedia('(hover:none)').matches) return;
+  var sw=document.createElement('label');
+  sw.setAttribute('aria-hidden','true');
+  sw.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none';
+  sw.innerHTML='<input type="checkbox" switch tabindex="-1">';
+  document.body.appendChild(sw);
+
+  function buzz(){
+    if(navigator.vibrate){ navigator.vibrate([45,70,45,70,45]); return; }
+    [0,115,230].forEach(function(t){ setTimeout(function(){ sw.click(); },t); });
+  }
+  [].slice.call(document.querySelectorAll('.entry.nda')).forEach(function(e){
+    var m=e.querySelector('.media'), hide;
+    e.addEventListener('click',function(ev){
+      /* a case study behind a password is a plain link (see .case-cover) */
+      if(e.dataset.href) return;
+      buzz();
+      e.classList.add('nda-on');
+      clearTimeout(hide);
+      hide=setTimeout(function(){ e.classList.remove('nda-on'); },2200);
+      m.classList.remove('shake'); void m.offsetWidth; m.classList.add('shake');
+    });
+    m.addEventListener('animationend',function(){ m.classList.remove('shake'); });
+  });
+})();
+
+/* ── visual work carousel ──────────────────────────────────────────
+   The arrows page by roughly one card width and grey out at the ends.
+   ------------------------------------------------------------------ */
+(function(){
+  var track=document.getElementById('shotsTrack'); if(!track) return;
+  var prev=document.getElementById('shotsPrev'), next=document.getElementById('shotsNext');
+  function step(){ var s=track.querySelector('.shot'); return s ? s.offsetWidth+18 : 300; }
+  function sync(){
+    prev.disabled=track.scrollLeft<=2;
+    next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;
+  }
+  prev.addEventListener('click',function(){ track.scrollBy({left:-step(),behavior:'smooth'}); });
+  next.addEventListener('click',function(){ track.scrollBy({left:step(),behavior:'smooth'}); });
+  track.addEventListener('scroll',sync,{passive:true});
+  addEventListener('resize',sync);
+  sync();
+})();
+
+/* ── case study password, typed on this page ──────────────────────
+   The first click turns the pill into a field. The password is checked
+   here; the case study then opens in this tab with the page handed
+   over, so it shows at once. Once unlocked, the card is a plain link.
+   ------------------------------------------------------------------ */
+[].slice.call(document.querySelectorAll('.entry.case')).forEach(function(e){
+  var ENDPOINT='https://auiuyzhptbtxcpqvlnsw.supabase.co/functions/v1/unlock', CASE=e.dataset.case,
+      KEEP='unlocked:'+CASE, HAND='handoff:'+CASE, URL=e.dataset.href,
+      tag=e.querySelector('.nda-tag'), form=e.querySelector('.case-form'), input=form.querySelector('input'),
+      lblT=e.querySelector('.lbl-t'), ic=e.querySelector('.lbl .ic'), msg=e.querySelector('.case-msg'), warm=false;
+  function get(k){ try{ return localStorage.getItem(k); }catch(x){ return null; } }
+  function set(k,v){ try{ localStorage.setItem(k,v); }catch(x){} }
+  function mark(){ if(get(KEEP)){ ic.textContent='🔓'; } }
+  mark();
+  function say(t){ msg.textContent=t; msg.classList.toggle('on',!!t); }
+  function open(){
+    if(!warm){ warm=true; fetch(ENDPOINT).catch(function(){}); }
+    e.classList.add('open'); say('');
+    setTimeout(function(){ input.focus(); },60);
+  }
+  function close(){ if(form.classList.contains('busy')) return; e.classList.remove('open'); input.value=''; say(''); }
+  e.addEventListener('mouseenter',function(){ if(!warm && !get(KEEP)){ warm=true; fetch(ENDPOINT).catch(function(){}); } });
+  [].slice.call(e.querySelectorAll('.case-cover,.case-link')).forEach(function(a){
+    a.addEventListener('click',function(ev){
+      if(get(KEEP)) return;              /* already unlocked: let the link open it */
+      ev.preventDefault(); open();
+    });
+  });
+  tag.addEventListener('click',function(ev){ ev.stopPropagation(); });
+  document.addEventListener('click',function(ev){ if(e.classList.contains('open') && !e.contains(ev.target)) close(); });
+  input.addEventListener('keydown',function(ev){ if(ev.key==='Escape') close(); });
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var pw=input.value.trim(); if(!pw){ input.focus(); return; }
+    form.classList.add('busy'); say('');
+    fetch(ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({case:CASE,password:pw})})
+      .then(function(r){ if(r.status===401) throw new Error('password'); if(!r.ok) throw new Error('server'); return r.json(); })
+      .then(function(j){
+        set(KEEP,pw); set(HAND,JSON.stringify({t:Date.now(),html:j.html}));
+        form.classList.remove('busy'); e.classList.remove('open'); e.classList.add('done');
+        ic.textContent='🔓'; lblT.textContent='Unlocked · opening…';
+        setTimeout(function(){ location.href=URL; },350);
+      })
+      .catch(function(err){
+        form.classList.remove('busy');
+        say(err.message==='password'?'Not quite. Try again.':'Couldn’t connect. Try again.');
+        tag.classList.remove('shake'); void tag.offsetWidth; tag.classList.add('shake');
+        input.select();
+      });
+  });
+  tag.addEventListener('animationend',function(){ tag.classList.remove('shake'); });
+  /* sent back from the case study link without a password: open the field here */
+  if(new URLSearchParams(location.search).get('unlock')===CASE){
+    history.replaceState(null,'',location.pathname+location.hash);
+    e.scrollIntoView({block:'center'}); open();
+  }
+});
+
+/* email clicks, wherever they come from */
+document.addEventListener('click',function(e){
+  var a=e.target.closest && e.target.closest('a[href^="mailto:"]');
+  if(a) window.dvEmit('email_clicked',{where:a.closest('footer')?'footer':a.closest('.pill')?'pill':'page'});
+});
+
+/* ── the suitcase stage ────────────────────────────────────────────
+   The poster is always there. On a desktop with WebGL and motion
+   allowed, the live scene loads as the footer comes near and fades
+   in over it; phones, slow machines and reduced motion keep the poster.
+   ------------------------------------------------------------------ */
+(function(){
+  var stage=document.getElementById('tripStage'); if(!stage) return;
+  var url='./assets/trip/suitcase.js';
+  if(/[?&]trip-poster\b/.test(location.search)){
+    import(url).then(function(m){ return m.mount(stage,{poster:true}); })
+      .then(function(c){ window.__tripPoster=c.toDataURL('image/webp',.9); });
+    return;
+  }
+  var still=matchMedia('(prefers-reduced-motion: reduce)').matches||matchMedia('(max-width: 760px)').matches||
+            (navigator.hardwareConcurrency||8)<4||(navigator.deviceMemory||8)<4||
+            (navigator.connection&&navigator.connection.saveData);
+  var gl=false;
+  try{ gl=!!document.createElement('canvas').getContext('webgl2'); }catch(e){}
+  if(still||!gl||!('IntersectionObserver' in window)) return;
+  var io=new IntersectionObserver(function(es){
+    if(!es[0].isIntersecting) return;
+    io.disconnect();
+    import(url).then(function(m){ return m.mount(stage); }).catch(function(){});
+  },{rootMargin:'900px 0px'});
+  io.observe(stage);
+})();
+
+/* ── company cards ─────────────────────────────────────────────────
+   Open above the link, or below it when the link is near the top of
+   the viewport and the card would be clipped.
+   ------------------------------------------------------------------ */
+(function(){
+  var wraps=[].slice.call(document.querySelectorAll('.co-wrap'));
+  wraps.forEach(function(w){
+    var pop=w.querySelector('.pop');
+    function place(){
+      var r=w.getBoundingClientRect();
+      w.classList.toggle('pop-flip', r.top < pop.offsetHeight + 26);
+    }
+    w.addEventListener('mouseenter',place);
+    w.addEventListener('focusin',place);
+  });
+})();
+</script>
+<script type="module" src="assets/desk/desk.js"></script>
+</body>
+</html>
