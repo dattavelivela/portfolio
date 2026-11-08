@@ -258,50 +258,36 @@ a{color:inherit}
 .says-notes .tcard blockquote span.p{color:var(--ink)}
 @media (prefers-reduced-motion:reduce){.says-notes .tcard blockquote{color:var(--ink)}}
 
-/* ── github contributions ─────────────────────────────────────── */
-.gh{padding:120px 0 0}
-.gh-line{margin:0 auto;color:var(--ink-70)}
-.gh-line a{color:var(--ink);text-decoration:underline dotted var(--ink-40);text-decoration-thickness:1.5px;text-underline-offset:5px}
-
-
-/* ── close ────────────────────────────────────────────────────── */
-.close{padding:130px 0 110px;text-align:center}
-.clock{
-  display:block;margin:0 auto 22px;padding:0;border:0;background:none;
-  cursor:pointer;color:var(--ink);font-family:var(--mono);
+/* ── close ──────────────────────────────────────────────────────
+   The page ends where it began: back in the sky, with "let's talk"
+   standing on a bank of cloud. It opens an email. Hover a letter
+   and it stands up, like the people above.
+   ---------------------------------------------------------------- */
+.close{position:relative;z-index:1;padding:120px 0 110px;text-align:center;overflow:hidden}
+/* the sky: the opening's colours, the other way up */
+.close-sky{
+  position:relative;padding-top:70px;
+  background:linear-gradient(#fff,#eaf3fd 34%,#f3f1fb 62%,#fdf1f5 82%,#fff);
 }
-.clock svg{
-  width:96px;height:96px;display:block;margin:0 auto;
-  filter:drop-shadow(0 12px 22px rgba(47,53,87,.20));
-  transition:transform .5s cubic-bezier(.2,.75,.25,1);
+.close-name{
+  position:relative;z-index:1;display:flex;justify-content:center;margin:0;
+  font-size:20vw;line-height:.8;font-weight:600;letter-spacing:-.055em;color:#e3e7f3;
+  text-shadow:0 2px 0 #fff,0 -1px 0 rgba(47,53,87,.07);
+  user-select:none;
 }
-.clock:hover svg{transform:scale(1.04)}
-.clock.reset svg{transform:rotate(-360deg) scale(.94);transition:transform .55s cubic-bezier(.3,.7,.3,1)}
-.clock-body{fill:#fbfbfb}
-.clock-face{fill:url(#clockFace)}
-.clock-hour,.clock-min,.clock-sec{transform-origin:50px 50px;stroke-linecap:round}
-.clock-hour{stroke:#fff;stroke-width:6.4}
-.clock-min{stroke:#fff;stroke-width:5.4}
-.clock-sec{stroke:#c0392b;stroke-width:1.9}
-.clock-cap{fill:#f4f4f4}
-.clock-pin{fill:#c0392b}
-.clock-time{
-  display:block;margin-top:14px;font-size:13px;letter-spacing:.12em;
-  color:var(--ink-40);transition:color .18s;
+.close-name a{display:flex;color:inherit;text-decoration:none}
+.close-name span{display:block;white-space:pre;transform:translateY(-4%);transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.close-name span:hover{transform:translateY(-16%)}
+/* drawn clouds in front of the letters, in two layers. kept still: the glass pill blurs whatever is under it, and moving clouds made it flicker */
+.close-clouds{position:relative;z-index:2;height:clamp(56px,8vw,120px);margin-top:calc(clamp(56px,8vw,120px) * -.5);pointer-events:none}
+.close-clouds svg{position:absolute;left:-10%;bottom:0;width:120%;height:100%;fill:#fff}
+.close-clouds .back{fill:#f7f8fc;bottom:22%}
+@media (prefers-reduced-motion:reduce){.close-name span{transition:none}}
+@media screen and (max-width:700px){
+  .close{padding-top:80px;padding-bottom:100px}
+  .close-sky{padding-top:24px}
+  .close-clouds{height:30px;margin-top:-12px}
 }
-.clock:hover .clock-time{color:var(--ink-70)}
-@media (prefers-reduced-motion:reduce){
-  .clock svg,.clock.reset svg{transition:none}
-}
-.close p{margin:0 0 26px;color:var(--ink-70)}
-.close .mail{
-  display:inline-block;font-size:20px;text-decoration:none;
-  border-bottom:1px solid var(--ink-20);padding-bottom:3px;transition:border-color .2s;
-}
-.close .mail:hover{border-bottom-color:var(--ink)}
-.close .row{display:flex;gap:20px;justify-content:center;margin-top:30px;font-family:var(--mono);font-size:12px;color:var(--ink-40)}
-
-
 /* ── identity block ───────────────────────────────────────────────
    A monogram tile in a dashed placeholder frame, then the name and
    the run of companies with their marks set inline.
@@ -903,39 +889,13 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   </div>
 </section>
 
-<!-- 5 · contributions -->
-<section class="wrap gh">
-  <p class="col gh-line" id="ghLine">My work extends past design and into code, and <a href="https://github.com/dattavelivela" target="_blank" rel="noopener">it&rsquo;s all on GitHub</a>.</p>
-</section>
-
-<!-- 6 · visual work -->
 <!-- 7 · close -->
-<section class="wrap close">
-  <button class="clock" type="button" id="clock"
-          aria-label="Time you have spent here. Activate to reset it.">
-    <svg viewBox="0 0 100 100" aria-hidden="true">
-      <defs>
-        <radialGradient id="clockFace" cx="36%" cy="30%" r="82%">
-          <stop offset="0" stop-color="#4c4c4c"/>
-          <stop offset="1" stop-color="#333"/>
-        </radialGradient>
-      </defs>
-      <rect class="clock-body" x="3" y="3" width="94" height="94" rx="27"/>
-      <circle class="clock-face" cx="50" cy="50" r="36"/>
-      <line class="clock-hour" x1="50" y1="50" x2="50" y2="34"/>
-      <line class="clock-min"  x1="50" y1="50" x2="50" y2="25"/>
-      <line class="clock-sec"  x1="50" y1="59" x2="50" y2="18"/>
-      <circle class="clock-cap" cx="50" cy="50" r="6.4"/>
-      <circle class="clock-pin" cx="50" cy="50" r="3.4"/>
-    </svg>
-    <span class="clock-time" id="clockTime">0:00</span>
-  </button>
-  <p>Let's talk?</p>
-  <a class="mail" href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a>
-  <div class="row">
-    <span>Gurgaon, India</span>
+<footer class="close" id="close">
+  <div class="close-sky">
+    <h2 class="close-name"><a href="mailto:withgurudatta@gmail.com" aria-label="Let's talk. Email me"><span aria-hidden="true">l</span><span aria-hidden="true">e</span><span aria-hidden="true">t</span><span aria-hidden="true">&rsquo;</span><span aria-hidden="true">s</span><span aria-hidden="true" class="sp"> </span><span aria-hidden="true">t</span><span aria-hidden="true">a</span><span aria-hidden="true">l</span><span aria-hidden="true">k</span><span aria-hidden="true">.</span></a></h2>
+    <div class="close-clouds" aria-hidden="true"><svg class="back" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0 120V60c30-34 96-40 124-6 30-50 120-52 150-2 22-26 72-24 88 6 36-46 120-48 152 4 20-22 62-22 80 4 34-42 108-44 138 0 26-30 82-30 104 6 28-36 90-38 116-2 30-40 104-42 132 2 18-14 50-16 64-6 22-28 60-30 80-6V120Z"/></svg><svg class="front" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0 120V70c40-30 90-34 120-8 18-40 80-50 110-14 30-44 110-46 140 2 26-30 80-28 100 6 30-36 100-40 130 0 26-26 70-22 92 8 30-46 112-50 146-2 24-24 66-24 86 4 28-38 96-40 126-4 22-22 60-20 80 6 14-18 40-22 50-12V120Z"/></svg></div>
   </div>
-</section>
+</footer>
 
 <nav class="pill" aria-label="Contact">
   <a class="pill-mail" href="mailto:withgurudatta@gmail.com">Email me<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg></a>
@@ -1222,26 +1182,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   settle();
 })();
 
-/* ── github, in a sentence ─────────────────────────────────────────
-   The numbers come live from GitHub. If they cannot be reached, the
-   plain sentence already in the page stands, with no invented figures.
-   ------------------------------------------------------------------ */
-(function(){
-  var line=document.getElementById('ghLine'),USER='dattavelivela';
-  if(!line) return;
-  fetch('https://github-contributions-api.jogruber.de/v4/'+USER+'?y=last')
-    .then(function(r){ return r.json(); })
-    .then(function(j){
-      var total=j.total&&(j.total.lastYear!=null?j.total.lastYear:Object.values(j.total)[0]);
-      if(!total) return;
-      var by={},top=null;
-      j.contributions.forEach(function(d){ var m=d.date.slice(0,7); by[m]=(by[m]||0)+d.count; if(!top||by[m]>by[top]) top=m; });
-      var name=new Date(top+'-15T00:00:00').toLocaleString('en',{month:'long'});
-      line.innerHTML='My work extends past design and into code. In the last year that came to <a href="https://github.com/'+USER+'" target="_blank" rel="noopener">'+total.toLocaleString()+' contributions on GitHub</a>, and '+name+' was the busiest month.';
-    })
-    .catch(function(){});
-})();
-
 /* ── NDA taps on touch ─────────────────────────────────────────────
    Touch has no hover, so a tap on an NDA entry answers the way a wrong
    passcode does on iPhone: the screenshot shakes, the phone buzzes
@@ -1276,51 +1216,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   });
 })();
 
-/* ── time spent here ───────────────────────────────────────────────
-   Counts only while the tab is actually visible, carries across
-   visits, and resets when the clock is clicked.
-   ------------------------------------------------------------------ */
-(function(){
-  var btn=document.getElementById('clock'); if(!btn) return;
-  var out=document.getElementById('clockTime'),
-      hour=btn.querySelector('.clock-hour'),
-      min=btn.querySelector('.clock-min'),
-      sec=btn.querySelector('.clock-sec'),
-      KEY='datta.timeSpent';
-
-  function read(){ try{ return parseFloat(localStorage.getItem(KEY))||0; }catch(e){ return 0; } }
-  function write(v){ try{ localStorage.setItem(KEY,String(Math.round(v))); }catch(e){} }
-
-  var total=read(), last=performance.now();
-
-  function label(t){
-    var s=Math.floor(t%60), m=Math.floor(t/60)%60, h=Math.floor(t/3600);
-    var mm=(h?String(m).padStart(2,'0'):String(m));
-    return (h?h+':':'')+mm+':'+String(s).padStart(2,'0');
-  }
-  function paint(){
-    out.textContent=label(total);
-    sec.style.transform='rotate('+(total%60)*6+'deg)';
-    min.style.transform='rotate('+(total/60%60)*6+'deg)';
-    hour.style.transform='rotate('+(total/3600%12)*30+'deg)';
-  }
-  function tick(){
-    var now=performance.now();
-    if(document.visibilityState==='visible') total+=(now-last)/1000;
-    last=now;
-    paint(); write(total);
-  }
-  document.addEventListener('visibilitychange',function(){ last=performance.now(); });
-  paint();
-  setInterval(tick,1000);
-
-  btn.addEventListener('click',function(){
-    total=0; last=performance.now(); write(0); paint();
-    btn.classList.add('reset');
-    setTimeout(function(){ btn.classList.remove('reset'); },560);
-  });
-})();
-
 /* ── company cards ─────────────────────────────────────────────────
    Open above the link, or below it when the link is near the top of
    the viewport and the card would be clipped.
@@ -1337,6 +1232,7 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     w.addEventListener('focusin',place);
   });
 })();
+
 </script>
 </body>
 </html>
