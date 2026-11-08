@@ -216,72 +216,53 @@ a{color:inherit}
 .entry.case .lbl{display:flex;align-items:center;gap:7px}
 .entry.case .nda-tag .lbl-t{font-size:inherit}
 
-.says{padding:120px 0 0}
-/* three across, wrapping to a second row - the full recommendations
-   need a real measure, so they no longer fit on one line */
-.says-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;width:min(920px,100%);margin:36px auto 0}
-/* the cards butt into one continuous strip; shared edges collapse to a single rule */
-.says-grid .tcard{padding:22px;gap:15px;border-radius:0}
-.says-grid .tcard{margin-left:-1px;margin-top:-1px}
-.says-grid .tcard:nth-child(3n+1){margin-left:0}
-.says-grid .tcard:nth-child(-n+3){margin-top:0}
-.says-grid .tcard blockquote{font-size:13px;line-height:21px}
-.says-grid .tcard blockquote p{margin:0 0 12px}
-.says-grid .tcard blockquote p:last-child{margin-bottom:0}
-.says-grid .tcard .av{width:28px;height:28px}
-.says-grid .tcard .nm{font-size:13px;line-height:18px}
-.says-grid .tcard .rl{font-size:12px;line-height:16px}
+/* a little character for each person peeks over the coloured line; each note sits in a
+   window on grid paper. the section pins and scroll drives it: each person gets one
+   stretch, and their words ink in as you go */
+.says{position:relative;z-index:1;padding:120px 0 0}
+.says-track{height:calc(100vh + 8 * 60vh)}
+.says-room{--s:min(230px,27vh,18vw);--gap:-.17;position:sticky;top:0;height:100vh;display:flex;flex-flow:column;background-color:var(--ground)}
+.says-peek{flex:none;height:calc(var(--s) * .96);display:flex;justify-content:center;overflow:clip}
+/* everyone peeks over the line, eyes showing, shoulder to shoulder */
+.says-char{
+  position:relative;flex:none;width:var(--s);height:var(--s);margin:0 calc(var(--s) * var(--gap));padding:0;border:0;background:none;appearance:none;cursor:pointer;
+  transform:translateY(calc(var(--s) * .42));transition:transform .55s cubic-bezier(.2,.9,.25,1.12);
+}
+.says-char:hover{transform:translateY(calc(var(--s) * .36))}
+/* the one speaking stands up, in front of the others */
+.says-char.on{z-index:2;transform:translateY(calc(var(--s) * .08))}
+/* rendered 3D heads: five angles each, and the visible one is whichever way they face */
+.says-char img{position:absolute;inset:0;width:100%;height:100%;max-width:none;visibility:hidden}
+.says-char img.v{visibility:visible}
+.says-label{flex:none;padding:22px 16px 0}
+.says-line{flex:none;height:2px;background-color:#e8e8eb}
+.says-paper{
+  position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px 16px;overflow:hidden;
+  background-color:var(--white);
+}
+.says-glow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* no card: a soft clearing in the grid keeps the words readable */
+.says-note{position:relative;width:min(var(--col),100%);max-height:100%}
+.says-notes{display:grid}
+.says-notes .tcard{
+  grid-area:1/1;padding:0;border:0;border-radius:0;background:none;gap:12px;
+  opacity:0;visibility:hidden;transform:translateY(6px);
+  transition:opacity .24s ease,transform .4s cubic-bezier(.2,.8,.2,1),visibility 0s .24s;
+}
+.says-notes .tcard.on{opacity:1;visibility:visible;transform:none;transition:opacity .24s ease .06s,transform .4s cubic-bezier(.2,.8,.2,1) .06s}
+/* short screens: the note needs the space the contact pill floats over */
+@media (max-height:800px){.at-says .pill{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px)}}
+.says-notes .tcard blockquote{margin:4px 2px 0;font-size:17px;line-height:27px;color:var(--ink-20)}
+.says-notes .tcard blockquote p{margin:0 0 12px}
+.says-notes .tcard blockquote p:last-child{margin-bottom:0}
+.says-notes .tcard blockquote span.p{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.says-notes .tcard blockquote{color:var(--ink)}}
 
 /* ── github contributions ─────────────────────────────────────── */
 .gh{padding:120px 0 0}
-.gh-card{margin-top:36px;background-color:var(--white);border:1px solid var(--haze);border-radius:13px;padding:22px 24px 18px}
-.gh-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
-.gh-count{font-size:15px;color:var(--ink)}
-.gh-head a{font-family:var(--mono);font-size:12px;color:var(--ink-40);text-decoration:none}
-.gh-head a:hover{color:var(--ink-70)}
-.gh-months{display:grid;grid-template-columns:repeat(53,1fr);gap:3px;font-family:var(--mono);font-size:10px;color:var(--ink-40);margin-bottom:5px}
-.gh-months span{grid-row:1;white-space:nowrap}
-.gh-grid{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:3px}
-.gh-grid i{display:block;aspect-ratio:1;border-radius:2px;background-color:var(--ink-05)}
-.gh-grid i[data-l="1"]{background-color:#9be9a8}
-.gh-grid i[data-l="2"]{background-color:#40c463}
-.gh-grid i[data-l="3"]{background-color:#30a14e}
-.gh-grid i[data-l="4"]{background-color:#216e39}
+.gh-line{margin:0 auto;color:var(--ink-70)}
+.gh-line a{color:var(--ink);text-decoration:underline dotted var(--ink-40);text-decoration-thickness:1.5px;text-underline-offset:5px}
 
-/* ── visual work ──────────────────────────────────────────────────
-   Dribbble shots on a horizontal track: native scroll with snap, so
-   trackpads, touch and keyboard all work; the arrows only nudge it.
-   ---------------------------------------------------------------- */
-.shots{padding:120px 0 0}
-.shots-track{
-  display:flex;gap:18px;margin:36px 0 0;padding:6px 0 30px;list-style:none;
-  overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
-  scrollbar-width:none;
-}
-.shots-track::-webkit-scrollbar{display:none}
-/* one shared height; each card takes the width its image's own ratio gives it */
-.shot{flex:0 0 auto;scroll-snap-align:start}
-.shot a{display:block;color:inherit;text-decoration:none}
-.shot img{
-  height:320px;width:auto;max-width:none;border-radius:11px;
-  background-color:var(--ink-05);border:1px solid var(--haze);
-  box-shadow:0 14px 30px -18px rgba(47,53,87,.30);
-  transition:transform .45s cubic-bezier(.2,.75,.25,1),box-shadow .45s;
-}
-.shot a:hover img{transform:translateY(-6px);box-shadow:0 24px 44px -20px rgba(47,53,87,.36)}
-/* width:0 + min-width:100% keeps a long caption from widening the card past its image */
-.shot span{display:block;width:0;min-width:100%;margin-top:11px;font-size:14px;line-height:20px;color:var(--ink-55)}
-.shots-nav{display:flex;justify-content:center;gap:10px}
-.shots-nav button{
-  appearance:none;width:38px;height:38px;border-radius:50%;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--white);border:1px solid var(--haze);color:var(--ink-70);
-  transition:color .18s,border-color .18s,opacity .18s;
-}
-.shots-nav button:hover{color:var(--ink);border-color:var(--ink-20)}
-.shots-nav button:disabled{opacity:.35;cursor:default}
-.shots-nav svg{width:16px;height:16px}
-@media (prefers-reduced-motion:reduce){.shot img{transition:none}}
 
 /* ── close ────────────────────────────────────────────────────── */
 .close{padding:130px 0 110px;text-align:center}
@@ -377,6 +358,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 .tcard .rl{display:block;font-size:13px;line-height:18px;color:var(--ink-40)}
 .stack{grid-column:2;width:100%;min-width:0}
 
+/* the contact pill steps aside when a section needs the room */
+.pill{transition:opacity .25s ease,transform .25s ease}
 /* ── floating contact pill ────────────────────────────────────── */
 .pill{
   position:fixed;
@@ -429,11 +412,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 
 /* the gutter stops fitting the 270px rail + 60px gap before the page is properly narrow */
 @media screen and (max-width:1300px){
-  .says-grid{grid-template-columns:repeat(2,1fr)}
-  .says-grid .tcard:nth-child(3n+1){margin-left:-1px}
-  .says-grid .tcard:nth-child(odd){margin-left:0}
-  .says-grid .tcard:nth-child(-n+2){margin-top:0}
-  .says-grid .tcard:nth-child(3){margin-top:-1px}
   .work-row{display:block}
   .rail{position:static;width:min(600px,100%);margin:0 auto 34px}
   .stack{width:min(600px,100%);margin:0 auto}
@@ -448,12 +426,10 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 /* phones: the 53-week calendar cannot fit, and full recommendations
    are unreadable in a 179px column */
 @media screen and (max-width:700px){
-  .gh-card{overflow-x:auto;overscroll-behavior-x:contain}
-  .gh-months,.gh-grid{min-width:540px}
-  .shot img{height:180px}
-  .says-grid{grid-template-columns:1fr}
-  .says-grid .tcard{margin-left:0}
-  .says-grid .tcard + .tcard{margin-top:-1px}
+  .says-room{--s:20vw;--gap:-.2}
+  .says-label{padding-top:14px}
+  .says-paper{padding:12px 16px}
+  .says-notes .tcard blockquote{font-size:15px;line-height:23px}
 
   .tl{position:relative}
   .tl-seg{width:34px}
@@ -798,7 +774,8 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <div class="rail">
       <div class="rail-list">
         <button class="rail-btn" type="button" data-i="0" aria-current="true"><span class="mark"><img loading="lazy" decoding="async" src="assets/procol-mark.svg" alt=""></span><span>Procol</span></button>
-        <button class="rail-btn" type="button" data-i="1" aria-current="false"><span class="mark"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt=""></span><span>Dukaan</span></button>
+        <button class="rail-btn" type="button" data-i="1" aria-current="false"><span class="mark"><img loading="lazy" decoding="async" src="assets/agnost.jpg" alt=""></span><span>Agnost AI</span></button>
+        <button class="rail-btn" type="button" data-i="2" aria-current="false"><span class="mark"><img loading="lazy" decoding="async" src="assets/dukaan.png" alt=""></span><span>Dukaan</span></button>
       </div>
     </div>
     <div class="stack">
@@ -819,7 +796,13 @@ a.co:hover{border-bottom-color:var(--ink-40)}
           freeing their buyers to focus on strategic sourcing.</p>
         <div class="media"><img loading="lazy" decoding="async" src="assets/agentic-s2p.jpg" alt="Agentic source-to-pay platform"><div class="nda-tag"><span class="lbl"><span class="ic" aria-hidden="true">🔒</span><span class="lbl-t">Read the case study</span></span></div></div>
       </article>
-      <article class="entry nda" data-i="1">
+      <article class="entry nda case" data-i="1" data-href="https://dribbble.com/wdattavelivela">
+        <a class="case-cover" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1"></a>
+        <h3><b><a class="case-link" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">Agnost AI</a></b><span class="dot" aria-hidden="true"></span>Dribbble</h3>
+        <p>The Agnost.ai pricing and login pages, with more of my visual work on Dribbble.</p>
+        <div class="media"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-pricing.jpg" alt="Agnost.ai pricing page"><div class="nda-tag"><span class="lbl"><span class="lbl-t">See it on Dribbble</span></span></div></div>
+      </article>
+      <article class="entry nda" data-i="2">
         <h3><b>The app, the dashboard, and the design system</b><span class="dot" aria-hidden="true"></span>Dukaan, growth</h3>
         <p>PM, design and support in a team of 15, owning the app and the web dashboard. The revamp
           lifted activation, adoption and conversion, and NRR with them. One design system replaced
@@ -837,9 +820,36 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 
 
 <!-- 4 · what people say -->
-<section class="wrap says">
-  <p class="label"><b>what people say</b><span class="sep"></span><b>after working with me</b></p>
-  <div class="says-grid">
+<section class="says">
+  <div class="says-track" id="saysTrack">
+    <div class="says-room" id="saysRoom">
+      <p class="label says-label"><b>what people say</b><span class="sep"></span><b>after working with me</b></p>
+      <div class="says-peek"><button class="says-char" type="button" data-say="0" aria-label="Suumit"><img class="" decoding="async" src="assets/people-2/suumit-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/suumit-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/suumit-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/suumit-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/suumit-4.webp" alt=""></button><button class="says-char" type="button" data-say="1" aria-label="Shubham"><img class="" decoding="async" src="assets/people-2/shubham-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubham-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/shubham-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubham-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubham-4.webp" alt=""></button><button class="says-char" type="button" data-say="2" aria-label="Aman Gupta"><img class="" decoding="async" src="assets/people-2/aman-gupta-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/aman-gupta-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/aman-gupta-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/aman-gupta-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/aman-gupta-4.webp" alt=""></button><button class="says-char" type="button" data-say="3" aria-label="Dawar Mir"><img class="" decoding="async" src="assets/people-2/dawar-mir-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/dawar-mir-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/dawar-mir-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/dawar-mir-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/dawar-mir-4.webp" alt=""></button><button class="says-char" type="button" data-say="4" aria-label="Shubh Porwal"><img class="" decoding="async" src="assets/people-2/shubh-porwal-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubh-porwal-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/shubh-porwal-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubh-porwal-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/shubh-porwal-4.webp" alt=""></button><button class="says-char" type="button" data-say="5" aria-label="Saranya Devi"><img class="" decoding="async" src="assets/people-2/saranya-devi-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/saranya-devi-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/saranya-devi-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/saranya-devi-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/saranya-devi-4.webp" alt=""></button><button class="says-char" type="button" data-say="6" aria-label="Ashmit Srivastava"><img class="" decoding="async" src="assets/people-2/ashmit-srivastava-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/ashmit-srivastava-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/ashmit-srivastava-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/ashmit-srivastava-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/ashmit-srivastava-4.webp" alt=""></button><button class="says-char" type="button" data-say="7" aria-label="Tanya Redkar"><img class="" decoding="async" src="assets/people-2/tanya-redkar-0.webp" alt=""><img class="" decoding="async" src="assets/people-2/tanya-redkar-1.webp" alt=""><img class="v" decoding="async" src="assets/people-2/tanya-redkar-2.webp" alt=""><img class="" decoding="async" src="assets/people-2/tanya-redkar-3.webp" alt=""><img class="" decoding="async" src="assets/people-2/tanya-redkar-4.webp" alt=""></button></div>
+      <div class="says-line"></div>
+      <div class="says-paper" id="saysPaper">
+        <canvas class="says-glow" id="saysGlow" aria-hidden="true"></canvas>
+        <div class="says-note">
+          <div class="says-notes" id="saysNotes">
+    <figure class="tcard on">
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/suumit.jpg" alt=""></span>
+        <span><span class="nm">Suumit</span><span class="rl">CEO &amp; Co-founder, Dukaan</span></span>
+      </figcaption>
+      <blockquote>
+        <p>You did Dukaan almost single-handedly, and very well!</p>
+        <p>With such limited resources and tons of work, only the toughest person could do it. Anyone else would have run away long ago.</p>
+      </blockquote>
+    </figure>
+    <figure class="tcard" data-pending>
+      <figcaption>
+        <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/shubham.jpg" alt=""></span>
+        <span><span class="nm">Shubham</span><span class="rl">CEO &amp; Co-founder, Agnost AI</span></span>
+      </figcaption>
+      <blockquote>
+        <!-- PLACEHOLDER: replace with Shubham's real words before publishing -->
+        <p>Placeholder: Shubham's recommendation will go here once it has been shared. This is dummy text and not a real quote.</p>
+      </blockquote>
+    </figure>
     <figure class="tcard">
       <figcaption>
         <span class="av"><img loading="lazy" decoding="async" src="assets/avatars/aman-gupta.jpg" alt=""></span>
@@ -896,41 +906,19 @@ a.co:hover{border-bottom-color:var(--ink-40)}
         <p>He is a reliable and curious and this is a great mix of personality traits for any organisation. He will do an extraordinary job wherever he goes.</p>
       </blockquote>
     </figure>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- 5 · contributions -->
 <section class="wrap gh">
-  <p class="label"><b>What I pushed</b><span class="sep"></span><b>2026</b></p>
-  <div class="col gh-card">
-    <div class="gh-head">
-      <span class="gh-count" id="ghCount">contributions in the last year</span>
-      <a id="ghLink" href="https://github.com/" target="_blank" rel="noopener">github</a>
-    </div>
-    <div class="gh-months" id="ghMonths"></div>
-    <div class="gh-grid" id="ghGrid"></div>
-  </div>
+  <p class="col gh-line" id="ghLine">My work extends past design and into code, and <a href="https://github.com/dattavelivela" target="_blank" rel="noopener">it&rsquo;s all on GitHub</a>.</p>
 </section>
 
 <!-- 6 · visual work -->
-<section class="wrap shots">
-  <p class="label"><b>Visual work</b><span class="sep"></span><b><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">dribbble</a></b></p>
-  <ul class="shots-track" id="shotsTrack" aria-label="Dribbble shots">
-    <li class="shot"><a href="https://dribbble.com/shots/27623681-Explorations-Trust-Section" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/trust-section.jpg" alt="" width="1600" height="833"><span>Explorations - Trust Section</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/27620408-Agnost-ai-Pricing-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-pricing.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Pricing Page</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/27620398-Product-Announcements" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/product-announcements.jpg" alt="" width="1600" height="1000"><span>Product Announcements</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/27620380-Footer" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/footer.jpg" alt="" width="1600" height="900"><span>Footer</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/27620354-Agnost-ai-Login-Page" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/agnost-login.jpg" alt="" width="1600" height="1000"><span>Agnost.ai - Login Page</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/26556909-Redesigned-Experience-for-Sellers-Dukaan-App" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-sellers.jpg" alt="" width="1600" height="1143"><span>Redesigned Experience for Sellers | Dukaan App</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/24509989-Settings-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-settings.jpg" alt="" width="1600" height="1200"><span>Settings - Dukaan</span></a></li>
-    <li class="shot"><a href="https://dribbble.com/shots/24509941-New-Home-Dukaan" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="assets/dribbble/dukaan-home.jpg" alt="" width="1600" height="1200"><span>New Home - Dukaan</span></a></li>
-  </ul>
-  <div class="shots-nav">
-    <button type="button" id="shotsPrev" aria-label="Previous shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg></button>
-    <button type="button" id="shotsNext" aria-label="Next shots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
-  </div>
-</section>
-
 <!-- 7 · close -->
 <section class="wrap close">
   <button class="clock" type="button" id="clock"
@@ -967,6 +955,134 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     <a href="https://x.com/wdattavelivela" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.02l-6.6 7.54L21.7 21h-6.07l-4.76-6.22L5.42 21H2.4l7.05-8.06L2.3 3h6.22l4.3 5.69L17.53 3Zm-1.06 16.18h1.67L7.6 4.73H5.81l10.66 14.45Z"/></svg></a>
   </span>
 </nav>
+
+<script>
+/* what people say, alive: heads turn toward the cursor, and grey boxes appear under it */
+(function(){
+  var room=document.getElementById('saysRoom');
+  if(!room) return;
+  var chars=[].slice.call(room.querySelectorAll('.says-char'));
+  function face(c,f){
+    var im=c.children;
+    for(var k=0;k<im.length;k++) im[k].classList.toggle('v',k===f);
+  }
+  function look(x){
+    chars.forEach(function(c){
+      var r=c.getBoundingClientRect();
+      face(c,Math.max(0,Math.min(4,Math.round(2+(x-(r.left+r.width/2))/170))));
+    });
+  }
+  /* when someone new speaks, the others turn to them */
+  function toSpeaker(i){
+    chars.forEach(function(c,k){face(c,k===i?2:(k<i?(i-k>1?4:3):(k-i>1?0:1)))});
+  }
+  /* the boxes: lit under the cursor, then they fade */
+  var cv=document.getElementById('saysGlow'),paper=document.getElementById('saysPaper'),ctx=cv.getContext('2d'),
+      CELL=26,GREY='#e6e7ea',cells={},seen=false,raf=0,w=0,h=0;
+  function size(){
+    var d=window.devicePixelRatio||1;
+    w=paper.clientWidth;h=paper.clientHeight;
+    cv.width=w*d;cv.height=h*d;ctx.setTransform(d,0,0,d,0,0);
+  }
+  function light(cx,cy,a){
+    var k=cx+','+cy,o=cells[k];
+    if(!o||o.a<a) cells[k]={x:cx,y:cy,a:a};
+  }
+  function frame(){
+    raf=0;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=GREY;
+    var alive=false;
+    for(var k in cells){
+      var o=cells[k];
+      ctx.globalAlpha=o.a;
+      ctx.fillRect(o.x*CELL+1,o.y*CELL+1,CELL-2,CELL-2);
+      o.a*=.93;
+      if(o.a<.012) delete cells[k]; else alive=true;
+    }
+    ctx.globalAlpha=1;
+    if(seen&&alive) raf=requestAnimationFrame(frame);
+  }
+  function wake(){if(seen&&!raf) raf=requestAnimationFrame(frame)}
+  room.addEventListener('pointermove',function(e){
+    if(e.pointerType==='mouse') look(e.clientX);
+    var r=paper.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    if(y<0||y>r.height) return;
+    var cx=Math.floor(x/CELL),cy=Math.floor(y/CELL);
+    for(var i=-1;i<=1;i++)for(var j=-1;j<=1;j++){
+      var d=Math.sqrt(i*i+j*j);
+      light(cx+i,cy+j,d?.34/d:1);
+    }
+    wake();
+  },{passive:true});
+  room.addEventListener('says-change',function(e){toSpeaker(e.detail)});
+  new IntersectionObserver(function(es){
+    seen=es[0].isIntersecting;
+    if(seen){size();wake()}
+  }).observe(room);
+  window.addEventListener('resize',size);
+  size();
+})();
+</script>
+
+<script>
+/* what people say: scroll moves through each person, and their words ink in */
+(function(){
+  var track=document.getElementById('saysTrack');
+  if(!track) return;
+  var notes=[].slice.call(document.getElementById('saysNotes').children),
+      chars=[].slice.call(track.querySelectorAll('.says-char')),
+      room=document.getElementById('saysRoom'),
+      n=notes.length,active=-1,queued=false,
+      calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* one span per word */
+  var parts=notes.map(function(note){
+    var words=[];
+    [].forEach.call(note.querySelectorAll('blockquote p'),function(p){
+      var list=p.textContent.split(' ');
+      p.textContent='';
+      list.forEach(function(w,k){
+        var sp=document.createElement('span');
+        sp.textContent=w;
+        p.appendChild(sp);
+        if(k<list.length-1) p.appendChild(document.createTextNode(' '));
+        words.push(sp);
+      });
+    });
+    return {words:words};
+  });
+  function range(){return track.offsetHeight-window.innerHeight}
+  function paint(i,f){
+    /* finished a little before the stretch ends, so the last words get read */
+    var d=Math.min(1,f/.85),part=parts[i];
+    part.words.forEach(function(w,k,all){w.classList.toggle('p',calm||k/all.length<d)});
+  }
+  function show(i){
+    if(i===active) return;
+    active=i;
+    notes.forEach(function(x,k){x.classList.toggle('on',k===i)});
+    chars.forEach(function(c,k){c.classList.toggle('on',k===i);c.setAttribute('aria-current',k===i?'true':'false')});
+    room.dispatchEvent(new CustomEvent('says-change',{detail:i}));
+  }
+  function onScroll(){
+    queued=false;
+    var x=Math.min(.999,Math.max(0,-track.getBoundingClientRect().top/range()))*n,i=Math.floor(x);
+    show(i);
+    paint(i,x-i);
+    var box=track.getBoundingClientRect();
+    document.body.classList.toggle('at-says',box.top<=1&&box.bottom>=window.innerHeight-1);
+  }
+  function startOf(i){return window.scrollY+track.getBoundingClientRect().top+range()*i/n+1}
+  track.addEventListener('click',function(e){
+    var p=e.target.closest('[data-say]');
+    /* a jump, not a glide: images loading above would move the target mid-scroll */
+    if(p) window.scrollTo({top:startOf(+p.dataset.say),behavior:'instant'});
+  });
+  window.addEventListener('scroll',function(){if(!queued){queued=true;requestAnimationFrame(onScroll)}},{passive:true});
+  window.addEventListener('resize',onScroll);
+  onScroll();
+})();
+</script>
 
 <script>
 (function(){
@@ -1116,60 +1232,24 @@ a.co:hover{border-bottom-color:var(--ink-40)}
   settle();
 })();
 
-/* ── github contributions ──────────────────────────────────────────
-   Set GH_USER to your handle. Until it is set the calendar renders
-   empty rather than showing invented numbers.
+/* ── github, in a sentence ─────────────────────────────────────────
+   The numbers come live from GitHub. If they cannot be reached, the
+   plain sentence already in the page stands, with no invented figures.
    ------------------------------------------------------------------ */
 (function(){
-  var GH_USER = 'dattavelivela';
-  var grid=document.getElementById('ghGrid'),
-      months=document.getElementById('ghMonths'),
-      count=document.getElementById('ghCount'),
-      link=document.getElementById('ghLink');
-  if(!grid) return;
-
-  function draw(days,total){
-    grid.innerHTML='';
-    /* the feed starts on whatever weekday the year began, so pad the first
-       column - otherwise the rows do not line up with days of the week */
-    var lead=new Date(days[0].date+'T00:00:00').getDay();
-    for(var b=0;b<lead;b++){
-      var pad=document.createElement('i'); pad.style.visibility='hidden'; grid.appendChild(pad);
-    }
-    days.forEach(function(d){
-      var i=document.createElement('i');
-      if(d.level) i.dataset.l=d.level;
-      i.title=d.count+' on '+d.date;
-      grid.appendChild(i);
-    });
-    if(total!=null) count.textContent=total.toLocaleString()+' contributions in the last year';
-    /* month ticks, placed on the week each month starts in */
-    months.innerHTML='';
-    var seen={};
-    days.forEach(function(d,k){
-      var m=d.date.slice(0,7), week=Math.floor((k+lead)/7)+1;
-      if(seen[m]||week>52) return; seen[m]=1;
-      var s=document.createElement('span');
-      s.style.gridColumn=week;
-      s.textContent=new Date(d.date+'T00:00:00').toLocaleString('en',{month:'short'});
-      months.appendChild(s);
-    });
-  }
-
-  /* empty year, so the shape of the thing is visible before it is wired up */
-  var blank=[], t=new Date(); t.setDate(t.getDate()-370);
-  for(var k=0;k<371;k++){ blank.push({date:t.toISOString().slice(0,10),count:0,level:0}); t.setDate(t.getDate()+1); }
-  draw(blank,null);
-
-  if(!GH_USER){ count.textContent='set GH_USER to load contributions'; return; }
-  link.href='https://github.com/'+GH_USER; link.textContent='github.com/'+GH_USER;
-  fetch('https://github-contributions-api.jogruber.de/v4/'+GH_USER+'?y=last')
+  var line=document.getElementById('ghLine'),USER='dattavelivela';
+  if(!line) return;
+  fetch('https://github-contributions-api.jogruber.de/v4/'+USER+'?y=last')
     .then(function(r){ return r.json(); })
     .then(function(j){
-      var days=j.contributions.slice(-371);
-      draw(days, j.total && (j.total.lastYear!=null?j.total.lastYear:Object.values(j.total)[0]));
+      var total=j.total&&(j.total.lastYear!=null?j.total.lastYear:Object.values(j.total)[0]);
+      if(!total) return;
+      var by={},top=null;
+      j.contributions.forEach(function(d){ var m=d.date.slice(0,7); by[m]=(by[m]||0)+d.count; if(!top||by[m]>by[top]) top=m; });
+      var name=new Date(top+'-15T00:00:00').toLocaleString('en',{month:'long'});
+      line.innerHTML='My work extends past design and into code. In the last year that came to <a href="https://github.com/'+USER+'" target="_blank" rel="noopener">'+total.toLocaleString()+' contributions on GitHub</a>, and '+name+' was the busiest month.';
     })
-    .catch(function(){ count.textContent='could not reach github'; });
+    .catch(function(){});
 })();
 
 /* ── NDA taps on touch ─────────────────────────────────────────────
@@ -1204,24 +1284,6 @@ a.co:hover{border-bottom-color:var(--ink-40)}
     });
     m.addEventListener('animationend',function(){ m.classList.remove('shake'); });
   });
-})();
-
-/* ── visual work carousel ──────────────────────────────────────────
-   The arrows page by roughly one card width and grey out at the ends.
-   ------------------------------------------------------------------ */
-(function(){
-  var track=document.getElementById('shotsTrack'); if(!track) return;
-  var prev=document.getElementById('shotsPrev'), next=document.getElementById('shotsNext');
-  function step(){ var s=track.querySelector('.shot'); return s ? s.offsetWidth+18 : 300; }
-  function sync(){
-    prev.disabled=track.scrollLeft<=2;
-    next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-2;
-  }
-  prev.addEventListener('click',function(){ track.scrollBy({left:-step(),behavior:'smooth'}); });
-  next.addEventListener('click',function(){ track.scrollBy({left:step(),behavior:'smooth'}); });
-  track.addEventListener('scroll',sync,{passive:true});
-  addEventListener('resize',sync);
-  sync();
 })();
 
 /* ── time spent here ───────────────────────────────────────────────

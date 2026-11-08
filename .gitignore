@@ -5,3 +5,5 @@ reference-source.html
 .vercel/
 work/src/
 supabase/.temp/
+.env.local
+node_modules/
