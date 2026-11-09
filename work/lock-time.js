@@ -16,8 +16,8 @@ function size(){
   dpr=Math.min(devicePixelRatio||1,2); w=innerWidth; h=innerHeight;
   cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
   cx=w/2;
-  if(w<760){ R=Math.max(300,w*.95); cy=h*.78+R; }  /* portrait: a smaller dome, low on the screen */
-  else { R=Math.max(520,h*.62); cy=h+(R-h*.26); }  /* wide: centre below the viewport, apex rides the lower third */
+  if(w<760){ R=Math.max(300,w*.95); cy=h*.88+R; }  /* portrait: a smaller dome, low on the screen */
+  else { R=Math.max(520,h*.62); cy=h+(R-h*.15); }  /* wide: centre below the viewport, apex rides the lower third */
 }
 size(); addEventListener('resize',size);
 /* once the case study replaces the lock page this canvas is detached: stop drawing and resizing it */
@@ -33,6 +33,7 @@ const DAYMS=86400000;
 function dayParts(){ const d=new Date(readMs()); return {di:Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/DAYMS, frac:(d.getHours()*3600+d.getMinutes()*60+d.getSeconds())/86400}; }
 
 let offset=0, spin=0, dragging=false, lastA=0, shudder=0, landing=null, wasBad=false, winding=false;
+let hoverA=null, hovT=-1e9;
 
 /* reading = now, wound back by (offset / DEG) days: one tick, one day */
 function readMs(){ return istNow().getTime()-(offset/DEG)*DAYMS; }
@@ -45,12 +46,21 @@ function near(e){
 }
 cv.addEventListener('pointerdown',e=>{ if(landing||!near(e)) return; dragging=true; lastA=angleAt(e); spin=0; lastTick=Math.round(offset/DEG); audioOn(); cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing'; });
 cv.addEventListener('pointermove',e=>{
-  if(!dragging){ cv.style.cursor=near(e)?'grab':''; return; }
+  if(!dragging){
+    const n=near(e); cv.style.cursor=n?'grab':'';
+    /* hover scrub: gliding the pointer along the arc turns the dial and it ticks as it goes */
+    if(n&&!landing&&!winding){ const a=angleAt(e); if(hoverA!==null){ let d=a-hoverA; if(d>Math.PI)d-=2*Math.PI; if(d<-Math.PI)d+=2*Math.PI; offset+=d*.7; spin=0; } hoverA=a; hovT=performance.now(); audioOn(); }
+    else hoverA=null;
+    return;
+  }
   let a=angleAt(e), d=a-lastA; if(d>Math.PI)d-=2*Math.PI; if(d<-Math.PI)d+=2*Math.PI; lastA=a;
   offset+=d; spin=d*60;
 });
 function up(){ dragging=false; cv.style.cursor=''; }
 cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+cv.addEventListener('pointerleave',()=>{hoverA=null;});
+/* browsers only allow sound after a click or key press; arm it on the first one anywhere */
+addEventListener('pointerdown',audioOn,{once:true}); addEventListener('keydown',audioOn,{once:true});
 
 let AC=null, lastTick=0;
 function audioOn(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended') AC.resume(); }catch(e){ AC=null; } }
@@ -128,7 +138,7 @@ let prev=performance.now();
     if(t-landing.start<700) offset+=7*dt;                          /* a quick whirr back through the months */
   } else if(winding){
     offset+=6*dt;                                                  /* winding back while the password is checked */
-  } else if(!dragging){
+  } else if(!dragging && performance.now()-hovT>450){
     offset+=spin*dt; spin*=Math.pow(.04,dt);                       /* coast */
     if(Math.abs(spin)<.4) offset+=(0-offset)*Math.min(1,dt*2.2);   /* a wrong password lets it ease home to today */
   }

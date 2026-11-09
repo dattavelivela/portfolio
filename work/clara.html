@@ -10,8 +10,11 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://auiuyzhptbtxcpqvlnsw.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..600&family=Geist+Mono:wght@400;500;700&family=Fragment+Mono&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:Lausanne;src:url(../fonts/lausanne-400.otf) format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Lausanne;src:url(../fonts/lausanne-500.otf) format("opentype");font-weight:500;font-display:swap}
+
 /* a quiet spinner while the case study loads; the lock page only shows without a password */
 html,body{margin:0;height:100%;background:#f8f8f8;overflow-x:hidden}
 .wait{position:fixed;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid rgba(60,56,48,.15);border-top-color:rgba(60,56,48,.55);animation:r .8s linear infinite}
@@ -66,11 +69,35 @@ html,body{margin:0;height:100%;background:#f8f8f8;overflow-x:hidden}
   .lk-box .dash{width:12px}
 }
 @media (prefers-reduced-motion:reduce){.lk-box,.lk-art{animation:none;opacity:1;transform:none}}
+
+/* homepage look: live pixel sky across the top, the sky switcher, Lausanne + Fragment Mono, navy ink */
+.lk-sky{position:absolute;top:0;left:0;right:0;height:320px;z-index:0;pointer-events:none;-webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent)}
+.lk-sky canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+#lock{background:#F4F4F2;color:rgba(13,34,69,.72);font-family:Lausanne,Arial,sans-serif}
+#lock::before{display:none}
+.lk-box p{color:#0D2245}
+.lk-back{color:rgba(13,34,69,.6)}.lk-back:hover{color:#0D2245}
+.lk-help{font-family:"Fragment Mono",ui-monospace,monospace!important;color:rgba(13,34,69,.55)!important}.lk-help a{color:#0D2245}
+.lk-box .bx{font-family:Lausanne,Arial,sans-serif;color:#0D2245;border-color:rgba(13,34,69,.14);border-radius:0;caret-color:#0D2245}
+.lk-box .bx:focus{border-color:#0D2245;box-shadow:0 0 0 3px rgba(13,34,69,.12)}
+.lk-box .dash{color:rgba(13,34,69,.35)}
+#lock{padding-top:clamp(270px,36vh,330px)}
+@media (max-width:760px){#lock{padding-top:250px}}
+.skysw{position:fixed;top:20px;right:40px;z-index:30;display:flex;align-items:center;gap:7px;padding:0;background:none}
+.skysw button{all:unset;position:relative;cursor:pointer;width:16px;height:16px;display:grid;place-items:center;background:linear-gradient(var(--a,#fff),var(--b,#fff));box-shadow:0 0 0 1px rgba(255,255,255,.55),0 2px 6px -2px rgba(13,34,69,.35);font:400 10px/1 "Fragment Mono",ui-monospace,monospace;color:#0D2245}
+.skysw button[data-k="auto"]{background:#fff}
+.skysw button.on{outline:1.5px solid #0D2245;outline-offset:2px}.skysw button:focus-visible{outline:2px solid #0D2245;outline-offset:2px}
+.skysw button::after{content:attr(data-n);position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,-3px);padding:6px 8px 5px;white-space:nowrap;background:#0D2245;color:#fff;font:400 11px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .15s,transform .2s}
+.skysw button:hover::after,.skysw button:focus-visible::after{opacity:1;transform:translate(-50%,0)}
+.skysw button[data-k="night"]::after{left:auto;right:-6px;transform:translateY(-3px)}.skysw button[data-k="night"]:hover::after,.skysw button[data-k="night"]:focus-visible::after{transform:none}
+@media (max-width:720px){.skysw{top:14px;right:16px;gap:6px}.skysw button{width:14px;height:14px}}
 </style>
 </head>
 <body>
 <div class="wait" role="status" aria-label="Loading the case study"></div>
 <main id="lock" hidden>
+  <div class="lk-sky" aria-hidden="true"><canvas class="sky live"></canvas></div>
+  <div class="skysw" role="group" aria-label="Sky"><button type="button" data-k="auto" data-n="Auto · India time" aria-label="Auto">A</button><button type="button" data-k="dawn" data-n="Dawn" aria-label="Dawn" style="--a:#5a60aa;--b:#e6968c"></button><button type="button" data-k="day" data-n="Day" aria-label="Day" style="--a:#286ed2;--b:#6eaaf0"></button><button type="button" data-k="golden" data-n="Golden hour" aria-label="Golden hour" style="--a:#c8783c;--b:#f6b464"></button><button type="button" data-k="dusk" data-n="Dusk" aria-label="Dusk" style="--a:#2e226c;--b:#965caa"></button><button type="button" data-k="night" data-n="Night" aria-label="Night" style="--a:#080a22;--b:#182054"></button></div>
   <div class="lk-box">
     <p>This work is for professional viewing only.</p>
     <p class="lk-help">The password is at the top of my resume. Or email <a href="mailto:withgurudatta@gmail.com?subject=Password%20for%20the%20Clara%20case%20study">withgurudatta@gmail.com</a>.</p>
@@ -85,5 +112,30 @@ html,body{margin:0;height:100%;background:#f8f8f8;overflow-x:hidden}
 <script src="lock.js"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
 <script type="module" src="lock-desk.js"></script>
+<script>
+(function(){const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+let s=9;const r=()=>(s=(s*16807)%2147483647)/2147483647,G=64,g=[];for(let i=0;i<G*G;i++)g.push(r());
+const n=(u,v)=>{const xi=Math.floor(u)&63,yi=Math.floor(v)&63,xf=u-Math.floor(u),yf=v-Math.floor(v),a=g[yi*G+xi],b=g[yi*G+((xi+1)&63)],c=g[((yi+1)&63)*G+xi],d=g[((yi+1)&63)*G+((xi+1)&63)],sx=xf*xf*(3-2*xf),sy=yf*yf*(3-2*yf);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy};
+const grad=(st,t)=>{t=Math.max(0,Math.min(.9999,t));const m=st.length-1,i=Math.floor(t*m),f=t*m-i;return st[i].map((v,k)=>v+(st[i+1][k]-v)*f)};
+const PAL={night:[[8,10,34],[24,32,84],[56,66,128],[230,232,240]],dawn:[[90,96,170],[230,150,140],[250,210,170],[248,244,238]],day:[[40,110,210],[110,170,240],[200,226,250],[246,248,250]],golden:[[200,120,60],[246,180,100],[252,226,180],[250,246,238]],dusk:[[46,34,108],[150,92,170],[240,160,150],[246,240,240]]};
+const nowH=()=>+new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata',hour:'numeric',hour12:false})%24;
+const modeFor=h=>h<5||h>=20?'night':h<8?'dawn':h<16?'day':h<18?'golden':'dusk';
+let pick=new URLSearchParams(location.search).get('sky');if(!(pick in PAL)){try{pick=localStorage.getItem('sky')||'auto'}catch(e){pick='auto'}}if(!(pick in PAL))pick='auto';
+let P=PAL[pick==='auto'?modeFor(nowH()):pick];
+window.__sky={get:()=>pick,set(k){pick=(k in PAL)?k:'auto';try{localStorage.setItem('sky',pick)}catch(e){}P=PAL[pick==='auto'?modeFor(nowH()):pick];d();document.dispatchEvent(new CustomEvent('skychange'))}};
+const cvs=[...document.querySelectorAll('canvas.live')];
+let T=0;const SZ=new Map();function size(cv){const R=cv.getBoundingClientRect(),W=Math.max(1,Math.ceil(R.width/4)),H=Math.max(1,Math.ceil(R.height/4));if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}SZ.set(cv,[W,H])}
+function one(cv){const fl=cv.dataset.flip;if(!SZ.has(cv))size(cv);const[W,H]=SZ.get(cv);const x=cv.getContext('2d'),im=x.createImageData(W,H);
+for(let j=0;j<H;j++)for(let i=0;i<W;i++){const f=n((i+T)/22,j/10+T*.012)*.6+n((i+T*1.8)/8,j/5)*.4,c=grad(P,(fl?1-j/H:j/H)*1.1-(f-.5)*.35).map((v,q)=>v+([244,244,242][q]-v)*.45),t=(B[(j%4)*4+i%4]/16-.5)*18,k=(j*W+i)*4;for(let q=0;q<3;q++)im.data[k+q]=Math.round((c[q]+t)/18)*18;im.data[k+3]=255}x.putImageData(im,0,0)}
+function d(){cvs.forEach(one)}
+function rs(){cvs.forEach(size);d()}
+/* the clouds drift: ~15 frames a second, only while a sky is on screen, and not at all for reduced motion */
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;const vis=new Set();
+const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target):vis.delete(e.target)));cvs.forEach(c=>io.observe(c));
+let last=0;function tick(ts){if(!document.hidden&&ts-last>66){last=ts;T+=.22;vis.forEach(one)}requestAnimationFrame(tick)}
+addEventListener('load',()=>{rs();if(!still)requestAnimationFrame(tick)});addEventListener('resize',rs);})();
+</script>
+<script>(function(){const b=[...document.querySelectorAll('.skysw button')];if(!b.length||!window.__sky)return;const mark=()=>{const k=window.__sky.get();b.forEach(x=>{x.classList.toggle('on',x.dataset.k===k);x.setAttribute('aria-pressed',x.dataset.k===k)})};b.forEach(x=>x.addEventListener('click',()=>window.__sky.set(x.dataset.k)));document.addEventListener('skychange',mark);mark()})();</script>
+<script>(function(){const l=document.getElementById("lock");const t=setInterval(()=>{if(l&&!l.hidden&&l.offsetWidth){clearInterval(t);dispatchEvent(new Event("resize"))}},150);setTimeout(()=>clearInterval(t),15000)})();</script>
 </body>
 </html>
