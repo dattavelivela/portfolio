@@ -46,7 +46,7 @@
       function submit(){
         var pw=value(); if(pw.length<bx.length) return;
         form.classList.add('busy'); msg.textContent='';
-        check(pw).then(function(j){ root.classList.add('unlocking'); setTimeout(function(){ reveal(j.html); },2000); })
+        check(pw).then(function(j){ root.classList.add('unlocking'); remember(j.html); setTimeout(function(){ reveal(j.html); },2000); })
           .catch(function(err){
             form.classList.remove('busy');
             msg.textContent=err.message==='password'?'':'Couldn’t connect. Try again.';
@@ -79,8 +79,15 @@
   }
 
   /* ── start ─────────────────────────────────────────────────────── */
+  /* The unlocked page is kept for this tab only (sessionStorage), so a reload, a restored tab or the
+     browser reloading a heavy page mid-scroll reopens the case study instead of the password page.
+     A new tab or a new visit still asks for the password. 100 min stays inside the 2-hour signed asset URLs. */
+  var SESS='open:'+CASE, TTL=100*60000;
+  function remember(html){ try{ sessionStorage.setItem(SESS,JSON.stringify({html:html,t:Date.now()})); }catch(e){} }
   var hand=null; try{ hand=JSON.parse(localStorage.getItem(HAND)); localStorage.removeItem(HAND); }catch(e){}
-  if(hand && hand.html && Date.now()-hand.t<120000){ reveal(hand.html); return; }
-  drop(KEEP);          /* never remember an unlock: every fresh visit asks for the password again */
+  if(hand && hand.html && Date.now()-hand.t<120000){ CFG.open=true; remember(hand.html); reveal(hand.html); return; }
+  var kept=null; try{ kept=JSON.parse(sessionStorage.getItem(SESS)); }catch(e){}
+  if(kept && kept.html && Date.now()-kept.t<TTL){ CFG.open=true; reveal(kept.html); return; }
+  drop(KEEP);          /* never remember an unlock across visits: every fresh visit asks for the password again */
   lock();
 })();

@@ -173,6 +173,7 @@ if(!still){
 
 let last=performance.now(), shown=false;
 renderer.setAnimationLoop(now=>{
+  if(!renderer.domElement.isConnected){ renderer.setAnimationLoop(null); renderer.dispose(); return; }  /* lock page replaced by the case study */
   const dt=Math.min((now-last)/1000,1/30); last=now;
   if(rattle>0) rattle-=dt;
   if(wave>-99){ wave+=dt*22; if(wave>BW/2+2) wave=-99; }

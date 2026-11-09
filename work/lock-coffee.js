@@ -178,6 +178,7 @@ function step(dt){
 holder.classList.add('ready');
 let prev=performance.now();
 renderer.setAnimationLoop(now=>{
+  if(!renderer.domElement.isConnected){ renderer.setAnimationLoop(null); renderer.dispose(); return; }  /* lock page replaced by the case study */
   const dt=Math.min((now-prev)/1000,1/30); prev=now;
   const sub=3; for(let s=0;s<sub;s++) step(dt/sub);
   mug.position.set(pos.x,0,pos.y);

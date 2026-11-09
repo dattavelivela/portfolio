@@ -12,6 +12,7 @@ const STEP=10, DEG=2.5*Math.PI/180;              /* one tick every 10 minutes, 2
 const APEX=-Math.PI/2;                            /* now sits at the top of the dome; past left, future right */
 let w,h,R,cx,cy,dpr;
 function size(){
+  if(!cv.isConnected) return;
   dpr=Math.min(devicePixelRatio||1,2); w=innerWidth; h=innerHeight;
   cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
   cx=w/2;
@@ -19,6 +20,8 @@ function size(){
   else { R=Math.max(520,h*.62); cy=h+(R-h*.26); }  /* wide: centre below the viewport, apex rides the lower third */
 }
 size(); addEventListener('resize',size);
+/* once the case study replaces the lock page this canvas is detached: stop drawing and resizing it */
+function gone(){ if(cv.isConnected) return false; removeEventListener('resize',size); return true; }
 
 /* the clock in Gurgaon (IST), whatever the viewer's own zone */
 function istNow(){ return new Date(Date.now()+(330+new Date().getTimezoneOffset())*60000); }
@@ -118,6 +121,7 @@ function draw(t){
 holder.classList.add('ready');
 let prev=performance.now();
 (function loop(t){
+  if(gone()) return;
   const dt=Math.min((t-prev)/1000,1/30); prev=t;
   if(shudder>0) shudder-=dt;
   if(landing){

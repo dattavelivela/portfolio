@@ -255,6 +255,7 @@ async function start(){
   holder.classList.add('ready');
   let prev=performance.now();
   renderer.setAnimationLoop(now=>{
+  if(!renderer.domElement.isConnected){ renderer.setAnimationLoop(null); renderer.dispose(); return; }  /* lock page replaced by the case study */
     const dt=Math.min((now-prev)/1000,1/30); prev=now;
     if(ruffle>0) ruffle-=dt;
     if(breath>=0) breath+=dt;
