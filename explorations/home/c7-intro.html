@@ -1,4 +1,8 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C7 · Live intro</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Datta Velivela</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../../assets/apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Fragment+Mono&family=Instrument+Sans:wght@400..700&family=Space+Mono&display=swap" rel="stylesheet">
 <style>
@@ -259,6 +263,24 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 .pi .pop-end .pop-head img{display:none}
 .media .role{position:absolute;top:14px;left:14px;z-index:2;padding:6px 9px 5px;background:#fff;color:#0D2245;font:400 11px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 0 0 1px rgba(13,34,69,.08),0 4px 10px -6px rgba(13,34,69,.25)}
 .cap .yr{margin-left:auto;font-style:normal;color:rgba(50,64,79,.45)}
+
+@media (hover:none){.pi .pop{display:none}}
+/* ── phones ─────────────────────────────────────────────── */
+@media (max-width:720px){
+ .main,.ts,.f5 .row{width:calc(100vw - 40px)}
+ .main{margin-top:-150px}
+ .tiles{grid-template-columns:1fr;gap:28px}.col{gap:28px}
+ .cap{flex-wrap:wrap;font-size:14px;line-height:20px;column-gap:6px}
+ h1.rc,.main h1.rc{font-size:32px;line-height:40px;max-width:none}
+ .meta{flex-direction:column;gap:18px;margin:28px 0 40px}
+ .pi .pop{display:none}
+ .pi{font-size:16px;line-height:25px;margin-bottom:44px}.pi .hello-role{white-space:normal}.pi .hello{margin-bottom:22px}
+ .ts{margin-top:72px}
+ .g32{margin:0 -20px;padding:6px 20px 18px;scroll-padding-left:20px;gap:10px}.g32 .w{width:min(300px,80vw);padding:18px}
+ .f5{padding-top:90px}.f5 .tk{padding:16px 0}.f5 .tk span,.f5 .tk a{font-size:44px}.f5 .tk i{font-size:18px}.f5 .tk div{gap:22px;padding-right:22px}
+ .f5 .row{flex-direction:column;gap:12px;align-items:flex-start;padding:60px 0 26px}.f5 .row .flinks{gap:16px}
+ .media .role{top:10px;left:10px;font-size:10px}
+}
 </style></head><body><div class="band"><canvas class="sky live"></canvas></div>
 <main class="main" id="work"><div class="pi">    <div class="ident">
       <span class="tile-frame"><span class="tile"><img decoding="async" src="../../assets/datta.jpg" alt="Gurudatta Velivela"></span></span>
