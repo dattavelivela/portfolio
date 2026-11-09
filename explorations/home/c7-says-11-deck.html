@@ -1,0 +1,183 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Testimonials 11 · Card deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Fragment+Mono&family=Instrument+Sans:wght@400..700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Lausanne;src:url(../../fonts/lausanne-400.otf) format("opentype");font-weight:400}
+:root{--ink:#29496F;--grey:#929FB0;--soft:#738399;--paper:#F4F4F2;--acc:#E65F2E;--lime:#C2FF61}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--paper);color:var(--ink);font:400 15px/1.5 Lausanne,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.sky{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.mono{font:400 13px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.02em;text-transform:uppercase}
+.knav{display:flex;gap:18px}.knav a{color:#fff;opacity:1;text-shadow:0 1px 2px rgba(13,34,69,.55),0 0 12px rgba(13,34,69,.35)}.knav a.on{color:var(--lime);text-shadow:0 1px 2px rgba(13,34,69,.7),0 0 12px rgba(13,34,69,.45)}.knav a.on span{text-decoration:underline wavy;text-underline-offset:3px}
+.stmt{font:400 40px/48px "Instrument Serif",Georgia,serif;color:var(--grey)}.stmt em{color:var(--ink);font-style:italic}
+.bio{font:400 15px/22px Lausanne,Arial;color:var(--soft)}.bio a{color:var(--ink);text-decoration:underline wavy rgba(41,73,111,.45);text-underline-offset:3px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.col{display:flex;flex-direction:column;gap:30px}
+.tile{display:block}.media{position:relative;overflow:hidden;display:grid;place-items:center;padding:7%;background:var(--t)}
+.media img{position:relative;z-index:1;max-width:100%;max-height:100%;width:auto;height:auto;border-radius:6px;box-shadow:0 10px 30px -14px rgba(30,40,60,.35);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tile:hover .media img{transform:scale(1.025)}.r1{aspect-ratio:453/285}.r2{aspect-ratio:453/360}
+.cap{display:flex;gap:8px;margin-top:10px;font:400 15px/22px Lausanne,Arial;color:#32404F}.cap span{color:rgba(50,64,79,.45)}.cap i{font-style:normal;color:rgba(50,64,79,.35)}
+.cur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;display:flex;align-items:center;gap:6px;font:400 13px/1 Lausanne,Arial;color:var(--acc);opacity:0;transition:opacity .15s}.cur::before{content:"";width:6px;height:6px;background:var(--acc)}.cur.show{opacity:1}
+a.tile{cursor:none}
+
+.band{position:relative;height:300px;margin-top:-60px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent)}
+.top{position:absolute;top:22px;left:40px;right:40px;display:flex;justify-content:space-between;z-index:3;color:#fff;font-size:14px}.top .mono{font-size:14px;text-shadow:0 1px 2px rgba(13,34,69,.55),0 0 12px rgba(13,34,69,.35)}:root{--hd:#0D2245}.main h1.rc{margin:0;max-width:720px;font:400 48px/58px "Libre Baskerville",Georgia,serif;letter-spacing:-.025em;color:var(--hd)}
+.meta{display:flex;gap:107px;margin:48px 0 56px;font:400 15px/22.5px Lausanne,Arial,sans-serif}.meta small{display:block;margin-bottom:8px;font-size:15px;color:color-mix(in srgb,var(--hd) 45%,transparent)}.meta p{margin:0;color:color-mix(in srgb,var(--hd) 82%,transparent)}.meta a{color:inherit}.meta a:hover{color:var(--hd)}
+.close{position:relative;z-index:1;padding:120px 0 0;text-align:center;overflow:hidden}
+/* the sky: the opening's colours, the other way up */
+.close-sky{
+  position:relative;padding-top:70px;
+  background:none;overflow:hidden;
+}
+.close-name{
+  font-family:"Instrument Sans",-apple-system,system-ui,sans-serif;
+  position:relative;z-index:1;display:flex;justify-content:center;margin:0;
+  font-size:17vw;line-height:.8;font-weight:600;letter-spacing:-.055em;color:#fff;
+  text-shadow:none;
+  user-select:none;
+}
+.close-name a{display:flex;color:inherit;text-decoration:none}
+.close-name span{display:block;white-space:pre;transform:translateY(-4%);transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.close-name span:hover{transform:translateY(-16%)}
+/* drawn clouds in front of the letters, in two layers. kept still: the glass pill blurs whatever is under it, and moving clouds made it flicker */
+.close-clouds{position:relative;z-index:2;height:clamp(56px,8vw,120px);margin-top:calc(clamp(56px,8vw,120px) * -.5);pointer-events:none}
+.close-clouds svg{position:absolute;left:-10%;bottom:0;width:120%;height:100%;fill:var(--paper)}
+.close-clouds .back{fill:rgba(255,255,255,.75);bottom:22%}.close-sky>canvas{transform:none;position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;z-index:0;-webkit-mask-image:linear-gradient(transparent,#000 45%);mask-image:linear-gradient(transparent,#000 40%)}.close-sky{padding:220px 0 170px}
+@media (prefers-reduced-motion:reduce){.close-name span{transition:none}}
+@media screen and (max-width:700px){
+  .close{padding-top:80px;padding-bottom:100px}
+  .close-sky{padding-top:24px}
+  .close-clouds{height:30px;margin-top:-12px}
+}
+.palx{display:none!important}
+.name{position:fixed;left:24px;top:330px;font-size:15px;color:rgba(50,64,79,.45)}
+.main{width:min(922px,calc(100vw - 80px));margin:-120px auto 0;position:relative;z-index:2;padding-bottom:0}
+.main .stmt{font-size:60px;line-height:70px;margin:0 0 36px;max-width:900px}.main .bio{margin:0 0 56px;max-width:520px}
+.ft{display:flex;justify-content:space-between;width:min(922px,calc(100vw - 80px));margin:0 auto;padding:0 0 30px;color:rgba(50,64,79,.45)}.ft nav{display:flex;gap:20px}
+
+.close-name{position:relative;z-index:1}:is(.says){--ground:#F4F4F2;--ink:#2f3557;--ink-70:rgba(47,53,87,.7);--ink-55:rgba(47,53,87,.55);--ink-40:rgba(47,53,87,.4);--ink-20:rgba(47,53,87,.2);--ink-10:rgba(47,53,87,.1);--ink-05:rgba(47,53,87,.05);--haze:rgba(198,199,210,.3);--white:#F4F4F2;--sans:"Instrument Sans",-apple-system,system-ui,sans-serif;--mono:"Space Mono",ui-monospace,monospace;--col:600px;font-family:var(--sans);color:var(--ink);font-size:16px;line-height:1.55}
+.label{
+  display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;
+  color:var(--ink-40);font-size:15px;line-height:22px;margin:0;
+}
+.label b{font-weight:400;color:var(--ink-40)}
+.label a{color:inherit;text-decoration:none;border-bottom:1px solid var(--ink-20)}
+.label a:hover{color:var(--ink-70)}
+.label .sep{width:4px;height:4px;border-radius:50%;background-color:var(--ink-20)}
+.says{position:relative;z-index:1;padding:120px 0 0}
+.says-track{height:calc(100vh + 7 * 60vh)}
+.says-room{--s:min(230px,27vh,18vw);--gap:-.17;position:sticky;top:0;height:100vh;display:flex;flex-flow:column;background-color:var(--ground)}
+.says-peek{flex:none;height:calc(var(--s) * .96);display:flex;justify-content:center;overflow:clip}
+/* everyone peeks over the line, eyes showing, shoulder to shoulder */
+.says-char{
+  position:relative;flex:none;width:var(--s);height:var(--s);margin:0 calc(var(--s) * var(--gap));padding:0;border:0;background:none;appearance:none;cursor:pointer;
+  transform:translateY(calc(var(--s) * .42));transition:transform .55s cubic-bezier(.2,.9,.25,1.12);
+}
+.says-char:hover{transform:translateY(calc(var(--s) * .36))}
+/* the one speaking stands up, in front of the others */
+.says-char.on{z-index:2;transform:translateY(calc(var(--s) * .08))}
+/* rendered 3D heads: five angles each, and the visible one is whichever way they face */
+.says-char img{position:absolute;inset:0;width:100%;height:100%;max-width:none;visibility:hidden}
+.says-char img.v{visibility:visible}
+.says-label{flex:none;padding:22px 16px 0}
+.says-line{flex:none;height:2px;background-color:#e8e8eb}
+.says-paper{
+  position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px 16px;overflow:hidden;
+  background-color:var(--white);
+}
+.says-glow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* no card: a soft clearing in the grid keeps the words readable */
+.says-note{position:relative;width:min(var(--col),100%);max-height:100%}
+.says-notes{display:grid}
+.says-notes .tcard{
+  grid-area:1/1;padding:0;border:0;border-radius:0;background:none;gap:12px;
+  opacity:0;visibility:hidden;transform:translateY(6px);
+  transition:opacity .24s ease,transform .4s cubic-bezier(.2,.8,.2,1),visibility 0s .24s;
+}
+.says-notes .tcard.on{opacity:1;visibility:visible;transform:none;transition:opacity .24s ease .06s,transform .4s cubic-bezier(.2,.8,.2,1) .06s}
+/* short screens: the note needs the space the contact pill floats over */
+@media (max-height:800px){.at-says .pill{opacity:0;pointer-events:none;transform:translateX(-50%) translateY(16px)}}
+.says-notes .tcard blockquote{margin:4px 2px 0;font-size:17px;line-height:27px;color:var(--ink-20)}
+.says-notes .tcard blockquote p{margin:0 0 12px}
+.says-notes .tcard blockquote p:last-child{margin-bottom:0}
+.says-notes .tcard blockquote span.p{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.says-notes .tcard blockquote{color:var(--ink)}}
+.tcard{
+  margin:0;background-color:var(--white);border:1px solid var(--haze);border-radius:13px;
+  padding:20px;display:flex;flex-flow:column;gap:16px;
+}
+.tcard blockquote{margin:0;font-size:14px;line-height:23px;color:var(--ink-70)}
+.tcard figcaption{display:flex;align-items:center;gap:11px}
+.tcard .av{flex:0 0 auto;width:32px;height:32px;border-radius:5px;overflow:hidden;background-color:var(--ink-05)}
+.tcard .av img{width:100%;height:100%;object-fit:cover}
+.tcard .nm{display:block;font-size:14px;font-weight:600;line-height:19px;color:var(--ink)}
+.tcard .rl{display:block;font-size:13px;line-height:18px;color:var(--ink-40)}
+@media screen and (max-width:700px){
+  .says-room{--s:20vw;--gap:-.2}
+  .says-label{padding-top:14px}
+  .says-paper{padding:12px 16px}
+  .says-notes .tcard blockquote{font-size:15px;line-height:23px}
+}
+
+/* testimonials, restyled to sit in the C7 column */
+.says{--ink:#0D2245;--ink-70:rgba(13,34,69,.72);--ink-55:rgba(13,34,69,.55);--ink-40:rgba(13,34,69,.45);--ink-20:rgba(13,34,69,.18);--ink-10:rgba(13,34,69,.1);--ink-05:rgba(13,34,69,.05);padding-top:40px}
+.says-room{width:min(922px,calc(100vw - 80px));margin:0 auto;--s:min(150px,16vw,20vh);--gap:-.12}
+.says-label{display:flex;justify-content:flex-start;gap:107px;align-items:baseline;margin:0;padding:96px 0 28px;text-align:left;font:400 15px/22.5px Lausanne,Arial,sans-serif}
+.says-label small{display:block;min-width:165px;font-size:15px;color:rgba(13,34,69,.45)}.says-label span{color:rgba(13,34,69,.45)}
+.says-peek{justify-content:flex-start}
+.says-line{background-color:rgba(13,34,69,.1);height:1px}
+.says-paper{align-items:flex-start;justify-content:flex-start;padding:48px 0 0;background:transparent}
+.says-note{width:min(720px,100%)}
+.says-notes .tcard{padding:0;gap:22px;background:transparent;border:0}
+.says-notes .tcard blockquote{margin:0;font:400 22px/34px "Libre Baskerville",Georgia,serif;letter-spacing:-.015em;color:var(--ink-20)}
+.says-notes .tcard blockquote span.p{color:#0D2245}
+.says-notes .tcard blockquote p{margin:0 0 18px}
+.says .tcard figcaption{order:2;font-family:Lausanne,Arial,sans-serif}.says .tcard .nm{font-weight:400;font-size:15px;color:#0D2245}.says .tcard .rl{font-size:15px;color:rgba(13,34,69,.45)}
+.says .tcard .av{width:36px;height:36px;border-radius:50%}
+@media screen and (max-width:700px){.says-label{gap:20px;flex-direction:column;padding-top:60px}.says-notes .tcard blockquote{font-size:19px;line-height:29px}}
+.says-notes .tcard blockquote,.says-notes .tcard blockquote span{color:#0D2245!important}
+.fx{position:relative;margin-top:140px;overflow:hidden}.fx>canvas.live{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;-webkit-mask-image:linear-gradient(transparent,#000 40%);mask-image:linear-gradient(transparent,#000 40%)}
+.fx .in{position:relative;z-index:2;width:min(922px,calc(100vw - 80px));margin:0 auto}
+.fmono{font:400 13px/1.4 "Fragment Mono",ui-monospace,monospace;letter-spacing:.02em;text-transform:uppercase}
+.flinks{display:flex;gap:22px;flex-wrap:wrap}.flinks a{color:inherit}.flinks a:hover{text-decoration:underline;text-underline-offset:4px}
+.fclk{font-variant-numeric:tabular-nums}
+.f5{padding:150px 0 0}.f5 .tk{position:relative;z-index:2;display:flex;overflow:hidden;padding:26px 0;border-top:1px solid rgba(13,34,69,.15);border-bottom:1px solid rgba(13,34,69,.15)}.f5 .tk div{display:flex;gap:40px;align-items:center;flex:none;padding-right:40px;animation:tk 40s linear infinite;white-space:nowrap}.f5 .tk:hover div{animation-play-state:paused}
+.f5 .tk span,.f5 .tk a{font:400 84px/1 "Libre Baskerville",Georgia,serif;letter-spacing:-.03em;color:#0D2245}.f5 .tk a{font-style:italic;color:rgba(13,34,69,.55)}.f5 .tk a:hover{color:#0D2245}.f5 .tk i{font-style:normal;font-size:30px;color:rgba(13,34,69,.35)}@keyframes tk{to{transform:translateX(-100%)}}
+.f5 .row{position:relative;z-index:2;display:flex;justify-content:space-between;width:min(922px,calc(100vw - 80px));margin:0 auto;padding:110px 0 30px;color:rgba(13,34,69,.7)}.ts{width:min(922px,calc(100vw - 80px));margin:120px auto 0;color:#0D2245}
+.ts-lbl{display:flex;gap:107px;margin:0 0 36px;font:400 15px/22.5px Lausanne,Arial,sans-serif;color:rgba(13,34,69,.45)}.ts-lbl span:first-child{min-width:165px}
+.ts .q{font:400 20px/31px "Libre Baskerville",Georgia,serif;letter-spacing:-.01em;color:#0D2245}.ts .q p{margin:0 0 14px}.ts .q p:last-child{margin:0}
+.fm{font:400 12px "Fragment Mono",monospace}.who{display:flex;align-items:center;gap:12px;margin-top:18px;font:400 15px/21px Lausanne,Arial,sans-serif}.who img{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:none}.who b{display:block;font-weight:400;color:#0D2245}.who i{display:block;font-style:normal;color:rgba(13,34,69,.45)}.g11{position:relative;height:440px;max-width:640px}.g11 .dk{position:absolute;inset:0;margin:0;padding:34px 34px 28px;background:#fff;border-radius:16px;box-shadow:0 20px 40px -26px rgba(13,34,69,.45),0 0 0 1px rgba(13,34,69,.06);display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s}.g11 .q{font-size:19px;line-height:30px;overflow:hidden}.g11 .cnt{margin-top:16px;font:400 13px "Fragment Mono",monospace;letter-spacing:.02em;text-transform:uppercase;color:rgba(13,34,69,.45)}</style></head><body><div class="band"><canvas class="sky live"></canvas></div>
+<main class="main" id="work"><h1 class="rc">Datta Velivela is a product designer who designs and builds AI products.</h1><div class="meta"><div><small>Currently</small><p>Senior Product Designer<br>@ <a href="https://www.procol.ai/" target="_blank" rel="noopener">Procol</a>, on AI</p></div><div><small>Previously</small><p>Designed @ Dukaan and Pine Labs,<br>knocked on 2,000+ doors for Rinso, and more.</p></div></div><div class="tiles"><div class="col"><a class="tile" href="../../work/intake.html"><div class="media r1" style="--t:#E4E1F2"><img src="../../assets/product-features.jpg" alt="Intake AI" loading="lazy" decoding="async"></div><div class="cap">Intake AI <i>/</i> <span>Procol · R&D 2026</span></div></a><div class="tile"><div class="media r2" style="--t:#E2E9EF"><img src="../../assets/toa-hero.png" alt="Transfer Ownership" loading="lazy" decoding="async"></div><div class="cap">Transfer Ownership <i>/</i> <span>Procol · admin tools</span></div></div><div class="tile"><div class="media r1" style="--t:#EFE7DD"><img src="../../assets/dukaan-app-revamp.png" alt="Dukaan" loading="lazy" decoding="async"></div><div class="cap">Dukaan <i>/</i> <span>App + design system 2024</span></div></div><a class="tile" href="https://www.rinsoindia.com/" target="_blank" rel="noopener"><div class="media r2" style="--t:#E5EDE7"><img src="../../assets/rinso-thumbnail.jpg" alt="Rinso" loading="lazy" decoding="async"></div><div class="cap">Rinso <i>/</i> <span>Side project</span></div></a></div><div class="col"><a class="tile" href="../../work/clara.html"><div class="media r2" style="--t:#DCE6F2"><img src="../../assets/agentic-s2p.jpg" alt="Clara" loading="lazy" decoding="async"></div><div class="cap">Clara <i>/</i> <span>Procol · agentic S2P 2025</span></div></a><a class="tile" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener"><div class="media r1" style="--t:#ECE4EE"><img src="../../assets/dribbble/agnost-pricing.jpg" alt="Agnost AI" loading="lazy" decoding="async"></div><div class="cap">Agnost AI <i>/</i> <span>Design</span></div></a><div class="tile"><div class="media r2" style="--t:#E6E8EC"><img src="../../assets/pinelabs-one-app.jpg" alt="Pine Labs" loading="lazy" decoding="async"></div><div class="cap">Pine Labs <i>/</i> <span>Product design 2023</span></div></div><div class="tile"><div class="media r1" style="--t:#F1E6E4"><img src="../../assets/slosh-thumbnail.jpg" alt="Slosh" loading="lazy" decoding="async"></div><div class="cap">Slosh <i>/</i> <span>Side project</span></div></div></div></main><!-- 4 · what people say -->
+<section class="ts"><div class="ts-lbl"><span>What people say</span><span>after working with me</span></div><div class="g11"><figure class="dk" data-i="0"><blockquote class="q"><p>You did Dukaan almost single-handedly, and very well!</p><p>With such limited resources and tons of work, only the toughest person could do it. Anyone else would have run away long ago.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/suumit.jpg" alt=""><span><b>Suumit</b><i>CEO &amp; Co-founder, Dukaan</i></span></figcaption></figure><figure class="dk" data-i="1"><blockquote class="q"><p>He grew from a strong visual designer into someone who could own new modules, unlock business opportunities, and build AI experiences.</p><p>He is uncompromising when it comes to creating the best experiences and constantly pushes the team to experiment, move fast, and think bigger. Gurudatta brings a great mix of craft, ownership, and curiosity, and I'd highly recommend him.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/aman-gupta.jpg" alt=""><span><b>Aman Gupta</b><i>Senior Product Designer at Mysa</i></span></figcaption></figure><figure class="dk" data-i="2"><blockquote class="q"><p>What stood out most was his ability to combine strong design craft with deep curiosity and ownership. He was never limited by what he already knew, always eager to learn, pick people's brains, and take things forward on his own. Beyond being a strong designer, he showed genuine interest in the product and could be trusted to take responsibility and drive towards the goal without needing to be pushed.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/dawar-mir.jpg" alt=""><span><b>Dawar Mir</b><i>Staff Designer at PhonePe &middot; ex Head of Design Dukaan</i></span></figcaption></figure><figure class="dk" data-i="3"><blockquote class="q"><p>His designs consistently struck the perfect balance between visual appeal and technical feasibility. He actively sought input from the engineering team, ensuring his designs were not just beautiful, but also implementable and efficient. His ability to wear multiple hats - from designer to quasi-product manager - truly sets him apart.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/shubh-porwal.jpg" alt=""><span><b>Shubh Porwal</b><i>Senior Product Engineer @Supernova AI</i></span></figcaption></figure><figure class="dk" data-i="4"><blockquote class="q"><p>He's an exceptional product designer, blending technical skill with a deep understanding of user needs. He consistently creates intuitive designs and values feedback, making him a valuable team player. His ability to simplify complexity and balance aesthetics with functionality is impressive.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/saranya-devi.jpg" alt=""><span><b>Saranya Devi</b><i>Product Designer at Stitch</i></span></figcaption></figure><figure class="dk" data-i="5"><blockquote class="q"><p>He brings exceptional design skills and a user-centric approach to any area he's working on, delivers high-quality designs and works collaboratively with cross-functional teams. A talented and dedicated designer who would be an asset to any organization.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/ashmit-srivastava.jpg" alt=""><span><b>Ashmit Srivastava</b><i>Senior Product Manager | AutoMint</i></span></figcaption></figure><figure class="dk" data-i="6"><blockquote class="q"><p>Right from the start he has shown a keen interest to learn new things. He is a keen observer and absorbs every detail of a brief provided before coming up with the design flow.</p><p>He is a reliable and curious and this is a great mix of personality traits for any organisation. He will do an extraordinary job wherever he goes.</p></blockquote><figcaption class="who"><img src="../../assets/avatars/tanya-redkar.jpg" alt=""><span><b>Tanya Redkar</b><i>Senior Product Designer &middot; HighLevel</i></span></figcaption></figure></div><p class="cnt">Click the card · <span class="n">1</span> of 7</p></section>
+<footer class="fx f5"><canvas class="sky live" data-flip="1"></canvas><div class="tk"><div><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i></div><div aria-hidden="true"><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i><span>Let’s talk</span><i>✦</i><a href="mailto:withgurudatta@gmail.com">withgurudatta@gmail.com</a><i>✦</i></div></div><div class="row fmono"><span><span class="fclk"></span> IST</span><div class="flinks"><a href="https://www.linkedin.com/in/dattavelivela/" target="_blank" rel="noopener">LinkedIn</a><a href="https://x.com/wdattavelivela" target="_blank" rel="noopener">X</a><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">Dribbble</a><a href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">Resume</a></div></div></footer><div class="cur" aria-hidden="true">View project</div><script src="palettes.js"></script><script>
+/* Kelly-style pixel sky: value-noise clouds over a blue->white gradient, ordered (Bayer 4x4) dither */
+function drawSky(cv,o){o=Object.assign({cell:4,top:[54,62,186],mid:[118,166,232],bottom:[236,240,246],seed:7,cloud:.55,dark:0},o||{});
+ const r=cv.getBoundingClientRect(),W=Math.max(1,Math.ceil(r.width/o.cell)),H=Math.max(1,Math.ceil(r.height/o.cell));cv.width=W;cv.height=H;
+ const x=cv.getContext('2d'),im=x.createImageData(W,H),B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+ let s=o.seed;const rnd=()=>(s=(s*16807)%2147483647)/2147483647,G=64,g=[];for(let i=0;i<G*G;i++)g.push(rnd());
+ const n=(u,v)=>{const xi=Math.floor(u)&(G-1),yi=Math.floor(v)&(G-1),xf=u-Math.floor(u),yf=v-Math.floor(v),a=g[yi*G+xi],b=g[yi*G+((xi+1)&(G-1))],c=g[((yi+1)&(G-1))*G+xi],d=g[((yi+1)&(G-1))*G+((xi+1)&(G-1))],sx=xf*xf*(3-2*xf),sy=yf*yf*(3-2*yf);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy};
+ const mix=(p,q,t)=>p.map((v,i)=>v+(q[i]-v)*t);
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){const fb=n(i/22,j/14)*.55+n(i/9,j/6)*.3+n(i/4,j/3)*.15;let t=j/H;t=Math.min(1,Math.max(0,t*1.35-(fb-.5)*o.cloud));
+  const c=t<.45?mix(o.top,o.mid,t/.45):mix(o.mid,o.bottom,(t-.45)/.55),th=(B[(j%4)*4+(i%4)]/16-.5)*34,k=(j*W+i)*4;
+  for(let q=0;q<3;q++){const v=c[q]+th;im.data[k+q]=Math.round(v/34)*34}im.data[k+3]=255}
+ x.putImageData(im,0,0)}
+function skyAll(){document.querySelectorAll('canvas[data-sky]').forEach(c=>drawSky(c,JSON.parse(c.dataset.sky||'{}')))}
+addEventListener('load',skyAll);addEventListener('resize',()=>{clearTimeout(window.__sk);window.__sk=setTimeout(skyAll,150)});
+/* IST clock */
+function tick(){document.querySelectorAll('.clock').forEach(e=>e.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'numeric',minute:'2-digit',second:'2-digit'}).toUpperCase())}setInterval(tick,1000);tick();
+/* View project cursor */
+const cur=document.querySelector('.cur');if(cur){document.querySelectorAll('a.tile').forEach(t=>{t.addEventListener('mouseenter',()=>cur.classList.add('show'));t.addEventListener('mouseleave',()=>cur.classList.remove('show'))});addEventListener('mousemove',e=>{cur.style.transform=`translate(${e.clientX+8}px,${e.clientY-6}px)`},{passive:true})}
+</script><script>
+(function(){const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+let s=9;const r=()=>(s=(s*16807)%2147483647)/2147483647,G=64,g=[];for(let i=0;i<G*G;i++)g.push(r());
+const n=(u,v)=>{const xi=Math.floor(u)&63,yi=Math.floor(v)&63,xf=u-Math.floor(u),yf=v-Math.floor(v),a=g[yi*G+xi],b=g[yi*G+((xi+1)&63)],c=g[((yi+1)&63)*G+xi],d=g[((yi+1)&63)*G+((xi+1)&63)],sx=xf*xf*(3-2*xf),sy=yf*yf*(3-2*yf);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy};
+const grad=(st,t)=>{t=Math.max(0,Math.min(.9999,t));const m=st.length-1,i=Math.floor(t*m),f=t*m-i;return st[i].map((v,k)=>v+(st[i+1][k]-v)*f)};
+const h=+new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata',hour:'numeric',hour12:false})%24;
+const P=h<5||h>=20?[[8,10,34],[24,32,84],[56,66,128],[230,232,240]]:h<8?[[90,96,170],[230,150,140],[250,210,170],[248,244,238]]:h<16?[[40,110,210],[110,170,240],[200,226,250],[246,248,250]]:h<18?[[200,120,60],[246,180,100],[252,226,180],[250,246,238]]:[[46,34,108],[150,92,170],[240,160,150],[246,240,240]];
+const cvs=[...document.querySelectorAll('canvas.live')];
+function one(cv){const fl=cv.dataset.flip;const R=cv.getBoundingClientRect(),W=Math.ceil(R.width/4),H=Math.ceil(R.height/4);cv.width=W;cv.height=H;const x=cv.getContext('2d'),im=x.createImageData(W,H);
+for(let j=0;j<H;j++)for(let i=0;i<W;i++){const f=n(i/22,j/10)*.6+n(i/8,j/5)*.4,c=grad(P,(fl?1-j/H:j/H)*1.1-(f-.5)*.35).map((v,q)=>v+([244,244,242][q]-v)*.45),t=(B[(j%4)*4+i%4]/16-.5)*18,k=(j*W+i)*4;for(let q=0;q<3;q++)im.data[k+q]=Math.round((c[q]+t)/18)*18;im.data[k+3]=255}x.putImageData(im,0,0)}
+function d(){cvs.forEach(one)}
+addEventListener('load',d);addEventListener('resize',d);})();
+</script>
+
+<script>(function(){const t=()=>document.querySelectorAll('.fclk').forEach(e=>e.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'numeric',minute:'2-digit',second:'2-digit'}).toUpperCase());t();setInterval(t,1000)})();</script><script>(function(){const c=[...document.querySelectorAll('.g11 .dk')],n=document.querySelector('.cnt .n');let o=c.map((_,i)=>i);function lay(){o.forEach((k,p)=>{const e=c[k];e.style.zIndex=99-p;e.style.transform=`translate(${p*12}px,${p*10}px) rotate(${p?(p%2?1.2:-1.2):0}deg)`;e.style.opacity=p<4?1:0});n.textContent=o[0]+1}c.forEach(e=>e.onclick=()=>{o.push(o.shift());lay()});lay()})();</script></body></html>

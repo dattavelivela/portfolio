@@ -1,0 +1,46 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C12 · Polaroids on sky</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Lausanne;src:url(../../fonts/lausanne-400.otf) format("opentype");font-weight:400}
+:root{--ink:#29496F;--grey:#929FB0;--soft:#738399;--paper:#F4F4F2;--acc:#E65F2E;--lime:#C2FF61}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--paper);color:var(--ink);font:400 15px/1.5 Lausanne,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.sky{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.mono{font:400 13px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.02em;text-transform:uppercase}
+.knav{display:flex;gap:18px}.knav a{color:#fff;opacity:.9}.knav a.on{color:var(--lime)}.knav a.on span{text-decoration:underline wavy;text-underline-offset:3px}
+.stmt{font:400 40px/48px "Instrument Serif",Georgia,serif;color:var(--grey)}.stmt em{color:var(--ink);font-style:italic}
+.bio{font:400 15px/22px Lausanne,Arial;color:var(--soft)}.bio a{color:var(--ink);text-decoration:underline wavy rgba(41,73,111,.45);text-underline-offset:3px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.col{display:flex;flex-direction:column;gap:30px}
+.tile{display:block}.media{position:relative;overflow:hidden;display:grid;place-items:center;padding:7%;background:var(--t)}
+.media img{position:relative;z-index:1;max-width:100%;max-height:100%;width:auto;height:auto;border-radius:6px;box-shadow:0 10px 30px -14px rgba(30,40,60,.35);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tile:hover .media img{transform:scale(1.025)}.r1{aspect-ratio:453/285}.r2{aspect-ratio:453/360}
+.cap{display:flex;gap:8px;margin-top:10px;font:400 15px/22px Lausanne,Arial;color:#32404F}.cap span{color:rgba(50,64,79,.45)}.cap i{font-style:normal;color:rgba(50,64,79,.35)}
+.cur{position:fixed;left:0;top:0;z-index:90;pointer-events:none;display:flex;align-items:center;gap:6px;font:400 13px/1 Lausanne,Arial;color:var(--acc);opacity:0;transition:opacity .15s}.cur::before{content:"";width:6px;height:6px;background:var(--acc)}.cur.show{opacity:1}
+a.tile{cursor:none}
+
+.bgsky{position:fixed;inset:0;z-index:0}.top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:22px 40px;color:#fff;z-index:6}
+.hero{position:relative;z-index:2;padding:130px 40px 0;max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,620px) 320px;gap:56px;align-items:end}.hero .stmt{margin:0}.hero .stmt{color:#DDE6F6}.hero .stmt em{color:#fff}.hero .bio{color:#EEF3FB}.hero .bio a{color:#fff;text-decoration-color:rgba(255,255,255,.6)}
+.board{position:relative;z-index:2;height:1100px;max-width:1240px;margin:60px auto 0}
+.pol{position:absolute;width:300px;padding:12px 12px 16px;background:#FCFCFA;box-shadow:0 20px 40px -20px rgba(10,20,60,.55);transform:rotate(var(--r));cursor:grab;user-select:none;touch-action:none}.pol:active{cursor:grabbing}
+.pol img{display:block;width:100%;aspect-ratio:4/3;object-fit:contain;background:#EEF0F4}.pol span{display:block;margin-top:12px;font:400 italic 24px/1 "Instrument Serif",serif;color:var(--ink)}
+.hint{position:fixed;bottom:22px;left:40px;color:#fff;z-index:6}
+</style></head><body><div class="bgsky"><canvas class="sky" data-sky='{"cell": 4, "seed": 81}'></canvas></div><div class="top"><nav class="knav mono"><a class="on" href="#">🏠 <span>Home</span></a><a href="#work">💻 Work</a><a href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">📄 Resume</a><a href="mailto:withgurudatta@gmail.com">💌 Contact</a></nav><span class="mono"><span class="clock"></span> | IST</span></div><section class="hero"><p class="stmt"><em>Datta Velivela</em> is a product designer <em>designing</em> and <em>building</em> AI products.</p><div class="bio">Senior Product Designer @ <a href="https://www.procol.ai/" target="_blank" rel="noopener">Procol</a>, on AI.<br>Previously Dukaan and Pine Labs.<br>Knocked on 2,000+ doors for Rinso.<br><a href="mailto:withgurudatta@gmail.com">Reach out</a> for roles or collaborations.</div></section><section class="board" id="work"><div class="pol" style="left:4%;top:4%;--r:-4deg"><img src="../../assets/product-features.jpg" alt="Intake AI" draggable="false"><span>Intake AI</span></div><div class="pol" style="left:36%;top:0%;--r:3deg"><img src="../../assets/agentic-s2p.jpg" alt="Clara" draggable="false"><span>Clara</span></div><div class="pol" style="left:66%;top:6%;--r:-2deg"><img src="../../assets/toa-hero.png" alt="Transfer Ownership" draggable="false"><span>Transfer Ownership</span></div><div class="pol" style="left:12%;top:30%;--r:5deg"><img src="../../assets/dribbble/agnost-pricing.jpg" alt="Agnost AI" draggable="false"><span>Agnost AI</span></div><div class="pol" style="left:44%;top:28%;--r:-3deg"><img src="../../assets/dukaan-app-revamp.png" alt="Dukaan" draggable="false"><span>Dukaan</span></div><div class="pol" style="left:72%;top:34%;--r:4deg"><img src="../../assets/pinelabs-one-app.jpg" alt="Pine Labs" draggable="false"><span>Pine Labs</span></div><div class="pol" style="left:20%;top:58%;--r:-5deg"><img src="../../assets/rinso-thumbnail.jpg" alt="Rinso" draggable="false"><span>Rinso</span></div><div class="pol" style="left:54%;top:60%;--r:2deg"><img src="../../assets/slosh-thumbnail.jpg" alt="Slosh" draggable="false"><span>Slosh</span></div></section><span class="hint mono">Drag the photos around</span><div class="cur" aria-hidden="true">View project</div><script>let z=10;document.querySelectorAll('.pol').forEach(p=>{p.addEventListener('pointerdown',e=>{p.setPointerCapture(e.pointerId);p.style.zIndex=++z;const sx=e.clientX-p.offsetLeft,sy=e.clientY-p.offsetTop;const mv=ev=>{p.style.left=(ev.clientX-sx)+'px';p.style.top=(ev.clientY-sy)+'px'};p.addEventListener('pointermove',mv);p.addEventListener('pointerup',()=>p.removeEventListener('pointermove',mv),{once:true})})});</script><script src="palettes.js"></script><script>
+/* Kelly-style pixel sky: value-noise clouds over a blue->white gradient, ordered (Bayer 4x4) dither */
+function drawSky(cv,o){o=Object.assign({cell:4,top:[54,62,186],mid:[118,166,232],bottom:[236,240,246],seed:7,cloud:.55,dark:0},o||{});
+ const r=cv.getBoundingClientRect(),W=Math.max(1,Math.ceil(r.width/o.cell)),H=Math.max(1,Math.ceil(r.height/o.cell));cv.width=W;cv.height=H;
+ const x=cv.getContext('2d'),im=x.createImageData(W,H),B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+ let s=o.seed;const rnd=()=>(s=(s*16807)%2147483647)/2147483647,G=64,g=[];for(let i=0;i<G*G;i++)g.push(rnd());
+ const n=(u,v)=>{const xi=Math.floor(u)&(G-1),yi=Math.floor(v)&(G-1),xf=u-Math.floor(u),yf=v-Math.floor(v),a=g[yi*G+xi],b=g[yi*G+((xi+1)&(G-1))],c=g[((yi+1)&(G-1))*G+xi],d=g[((yi+1)&(G-1))*G+((xi+1)&(G-1))],sx=xf*xf*(3-2*xf),sy=yf*yf*(3-2*yf);return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy};
+ const mix=(p,q,t)=>p.map((v,i)=>v+(q[i]-v)*t);
+ for(let j=0;j<H;j++)for(let i=0;i<W;i++){const fb=n(i/22,j/14)*.55+n(i/9,j/6)*.3+n(i/4,j/3)*.15;let t=j/H;t=Math.min(1,Math.max(0,t*1.35-(fb-.5)*o.cloud));
+  const c=t<.45?mix(o.top,o.mid,t/.45):mix(o.mid,o.bottom,(t-.45)/.55),th=(B[(j%4)*4+(i%4)]/16-.5)*34,k=(j*W+i)*4;
+  for(let q=0;q<3;q++){const v=c[q]+th;im.data[k+q]=Math.round(v/34)*34}im.data[k+3]=255}
+ x.putImageData(im,0,0)}
+function skyAll(){document.querySelectorAll('canvas[data-sky]').forEach(c=>drawSky(c,JSON.parse(c.dataset.sky||'{}')))}
+addEventListener('load',skyAll);addEventListener('resize',()=>{clearTimeout(window.__sk);window.__sk=setTimeout(skyAll,150)});
+/* IST clock */
+function tick(){document.querySelectorAll('.clock').forEach(e=>e.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour:'numeric',minute:'2-digit',second:'2-digit'}).toUpperCase())}setInterval(tick,1000);tick();
+/* View project cursor */
+const cur=document.querySelector('.cur');if(cur){document.querySelectorAll('a.tile').forEach(t=>{t.addEventListener('mouseenter',()=>cur.classList.add('show'));t.addEventListener('mouseleave',()=>cur.classList.remove('show'))});addEventListener('mousemove',e=>{cur.style.transform=`translate(${e.clientX+8}px,${e.clientY-6}px)`},{passive:true})}
+</script></body></html>

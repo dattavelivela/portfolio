@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datta Velivela | Product Designer</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout after rachelchen.tech: fixed frame (name, vertical nav, theme toggle, footer), a scrolling centre
+   column with a serif statement, a Currently / Previously pair and a two-column grid of project tiles. */
+@font-face{font-family:Lausanne;src:url(fonts/lausanne-400.otf) format("opentype");font-weight:400;font-display:swap}
+@font-face{font-family:Lausanne;src:url(fonts/lausanne-500.otf) format("opentype");font-weight:500;font-display:swap}
+:root{--bg:#F4F4F2;--ink:#32404F;--ink80:rgba(50,64,79,.8);--ink45:rgba(50,64,79,.45);--ink40:rgba(50,64,79,.4);--acc:#E65F2E;--tile-shadow:0 1px 0 rgba(0,0,0,.02)}
+html[data-theme="dark"]{--bg:#16181C;--ink:#E7E9EE;--ink80:rgba(231,233,238,.8);--ink45:rgba(231,233,238,.5);--ink40:rgba(231,233,238,.42)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 16px/24px Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 0 0.5  0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+html[data-theme="dark"] body::before{mix-blend-mode:screen;opacity:.12}
+a{color:inherit;text-decoration:none}
+
+/* fixed frame */
+.name{position:fixed;top:24px;left:24px;z-index:20;font-size:15px;line-height:22.5px;color:var(--ink45)}
+.toggle{position:fixed;top:24px;right:24px;z-index:20;width:32px;height:32px;display:grid;place-items:center;border:0;background:none;color:var(--ink40);cursor:pointer;border-radius:8px}
+.toggle:hover{color:var(--ink)}
+.nav{position:fixed;left:24px;top:240px;z-index:20;display:flex;flex-direction:column;gap:12px;font-size:15px;line-height:15px}
+.nav a{position:relative;color:var(--ink40);transition:color .2s}
+.nav a:hover{color:var(--ink80)}
+.nav a.on{color:var(--acc)}
+.nav a.on::before{content:"";position:absolute;left:-12px;top:5px;width:5px;height:5px;background:var(--acc)}
+.foot{position:fixed;left:24px;right:24px;bottom:20px;z-index:20;display:flex;justify-content:space-between;align-items:center;font-size:15px;line-height:22.5px;color:var(--ink40)}
+.foot .here{display:flex;align-items:center;gap:8px}
+.foot .here::before{content:"";width:5px;height:5px;background:var(--acc)}
+.foot nav{display:flex;gap:22px}.foot nav a:hover{color:var(--ink80)}
+
+/* scrolling centre */
+.scroll{position:fixed;inset:0;overflow-y:auto;overscroll-behavior:contain;z-index:10}
+.main{width:min(922px,calc(100vw - 340px));margin:0 0 0 258px;padding:240px 0 160px}
+h1{margin:0;font:400 64px/80px "Libre Baskerville",Georgia,serif;letter-spacing:-.01em;color:var(--ink);max-width:880px}
+.meta{display:flex;gap:107px;margin:48px 0 56px;font:400 15px/22.5px Lausanne,Arial,sans-serif}
+.meta small{display:block;margin-bottom:8px;font-size:15px;color:var(--ink45)}
+.meta p{margin:0;color:var(--ink80)}
+.meta a{color:var(--ink80)}.meta a:hover{color:var(--ink)}
+
+/* work grid: two staggered columns */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.col{display:flex;flex-direction:column;gap:32px}
+.tile{display:block;cursor:none}
+.media{position:relative;overflow:hidden;display:grid;place-items:center;padding:7%;background:var(--t,#E6E7EC);box-shadow:var(--tile-shadow)}
+.media img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:6px;box-shadow:0 10px 30px -14px rgba(30,40,60,.35);transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tile:hover .media img{transform:scale(1.025)}
+.r-wide{aspect-ratio:453/285}.r-tall{aspect-ratio:453/400}.r-mid{aspect-ratio:453/330}
+.cap{display:flex;gap:8px;margin-top:10px;font:400 15px/22.5px Lausanne,Arial,sans-serif;color:var(--ink)}
+.cap span{color:var(--ink45)}.cap i{font-style:normal;color:var(--ink40)}
+html[data-theme="dark"] .media{filter:brightness(.92)}
+
+/* "View project" cursor */
+.cur{position:fixed;left:0;top:0;z-index:60;pointer-events:none;display:flex;align-items:center;gap:6px;font:400 13px/1 Lausanne,Arial,sans-serif;color:var(--acc);opacity:0;transform:translate(-50%,-50%);transition:opacity .15s}
+.cur::before{content:"";width:6px;height:6px;background:var(--acc)}
+.cur.show{opacity:1}
+
+@media (max-width:900px){
+  html,body{overflow:auto}.scroll{position:static}
+  .nav{position:static;flex-direction:row;padding:72px 20px 0}
+  .main{width:auto;margin:0;padding:48px 20px 120px}
+  h1{font-size:38px;line-height:50px}.meta{flex-direction:column;gap:20px}
+  .grid{grid-template-columns:1fr}.foot{position:static;padding:0 20px 24px;flex-direction:column;gap:10px;align-items:flex-start}
+  .cur{display:none}.tile{cursor:pointer}
+}
+</style>
+</head>
+<body>
+<a class="name" href="./">Datta Velivela</a>
+<button class="toggle" type="button" aria-label="Toggle theme"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+<nav class="nav" aria-label="Sections"><a class="on" href="#work">Work</a><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">Dribbble</a><a href="https://drive.google.com/file/d/1GrxufCc-0qrAGlAs6X_98Efg1V-69fZb/view?usp=sharing" target="_blank" rel="noopener">Resume</a><a href="./">About</a></nav>
+
+<div class="scroll"><main class="main" id="work">
+  <h1>Datta Velivela is a product designer who designs and builds AI products.</h1>
+  <div class="meta">
+    <div><small>Currently</small><p>Senior Product Designer<br>@ <a href="https://www.procol.ai/" target="_blank" rel="noopener">Procol</a>, on AI</p></div>
+    <div><small>Previously</small><p>Designed @ Dukaan and Pine Labs,<br>knocked on 2,000+ doors for Rinso, and more.</p></div>
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <a class="tile" href="work/intake.html"><div class="media r-wide" style="--t:#E4E1F2"><img src="assets/product-features.jpg" alt="Intake AI home with recent tasks" loading="lazy" decoding="async"></div><div class="cap">Intake AI <i>/</i> <span>R&amp;D 2026</span></div></a>
+      <div class="tile"><div class="media r-mid" style="--t:#E2E9EF"><img src="assets/toa-hero.png" alt="Transfer Ownership drawer listing everything one person owns" loading="lazy" decoding="async"></div><div class="cap">Transfer Ownership <i>/</i> <span>Procol</span></div></div>
+      <div class="tile"><div class="media r-wide" style="--t:#EFE7DD"><img src="assets/dukaan-app-revamp.png" alt="Dukaan app revamp" loading="lazy" decoding="async"></div><div class="cap">Dukaan <i>/</i> <span>Shipped 2024</span></div></div>
+      <a class="tile" href="https://www.rinsoindia.com/" target="_blank" rel="noopener"><div class="media r-mid" style="--t:#E5EDE7"><img src="assets/rinso-thumbnail.jpg" alt="Rinso" loading="lazy" decoding="async"></div><div class="cap">Rinso <i>/</i> <span>Side project</span></div></a>
+    </div>
+    <div class="col">
+      <a class="tile" href="work/clara.html"><div class="media r-tall" style="--t:#DCE6F2"><img src="assets/agentic-s2p.jpg" alt="Clara, agentic source-to-pay" loading="lazy" decoding="async"></div><div class="cap">Clara <i>/</i> <span>Shipped 2025</span></div></a>
+      <a class="tile" href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener"><div class="media r-wide" style="--t:#ECE4EE"><img src="assets/dribbble/agnost-pricing.jpg" alt="Agnost AI pricing design" loading="lazy" decoding="async"></div><div class="cap">Agnost AI <i>/</i> <span>Design</span></div></a>
+      <div class="tile"><div class="media r-mid" style="--t:#E6E8EC"><img src="assets/pinelabs-one-app.jpg" alt="Pine Labs One app" loading="lazy" decoding="async"></div><div class="cap">Pine Labs <i>/</i> <span>2023</span></div></div>
+      <div class="tile"><div class="media r-wide" style="--t:#F1E6E4"><img src="assets/slosh-thumbnail.jpg" alt="Slosh" loading="lazy" decoding="async"></div><div class="cap">Slosh <i>/</i> <span>Side project</span></div></div>
+    </div>
+  </div>
+</main></div>
+
+<footer class="foot"><a class="here" href="mailto:withgurudatta@gmail.com">Say hi</a>
+  <nav><a href="https://www.linkedin.com/in/dattavelivela/" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:withgurudatta@gmail.com">Email</a><a href="https://x.com/wdattavelivela" target="_blank" rel="noopener">X</a><a href="https://dribbble.com/wdattavelivela" target="_blank" rel="noopener">Dribbble</a></nav></footer>
+
+<div class="cur" aria-hidden="true">View project</div>
+<script>
+// theme toggle (per-viewer convenience)
+const root=document.documentElement;
+try{const t=localStorage.getItem('theme');if(t)root.dataset.theme=t;}catch(e){}
+document.querySelector('.toggle').addEventListener('click',()=>{const t=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=t;try{localStorage.setItem('theme',t)}catch(e){}});
+// "View project" cursor on linked tiles
+const cur=document.querySelector('.cur');
+document.querySelectorAll('a.tile').forEach(t=>{t.addEventListener('mouseenter',()=>cur.classList.add('show'));t.addEventListener('mouseleave',()=>cur.classList.remove('show'));});
+addEventListener('mousemove',e=>{cur.style.transform=`translate(${e.clientX+8}px,${e.clientY-6}px)`},{passive:true});
+</script>
+</body>
+</html>
