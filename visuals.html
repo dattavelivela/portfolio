@@ -322,6 +322,12 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 /* visuals: the shot is the box, no grey mat around it */
 .tiles .media{padding:0;aspect-ratio:auto;background:none!important;border-radius:10px}
 .tiles .media img{width:100%;height:auto;border-radius:10px;box-shadow:0 0 0 1px rgba(13,34,69,.06)}
+/* visuals: no hover effects at all on the shots */
+.tiles .tile,.tiles a.tile{cursor:pointer!important;outline:none!important}
+.tiles .tile .media img,.tiles .tile:hover .media img{transform:none!important;transition:none!important;box-shadow:0 0 0 1px rgba(13,34,69,.06)!important}
+.tiles .tile .media::after,.tiles .tile .cap::after{display:none!important}
+.tiles .tile:focus,.tiles .tile:focus-visible{outline:none!important;box-shadow:none!important}
+.cur{display:none!important}
 </style></head><body><div class="skysw" role="group" aria-label="Sky"><button type="button" data-k="auto" data-n="Auto · India time" aria-label="Auto">A</button><button type="button" data-k="dawn" data-n="Dawn" aria-label="Dawn" style="--a:#5a60aa;--b:#e6968c"></button><button type="button" data-k="day" data-n="Day" aria-label="Day" style="--a:#286ed2;--b:#6eaaf0"></button><button type="button" data-k="golden" data-n="Golden hour" aria-label="Golden hour" style="--a:#c8783c;--b:#f6b464"></button><button type="button" data-k="dusk" data-n="Dusk" aria-label="Dusk" style="--a:#2e226c;--b:#965caa"></button><button type="button" data-k="night" data-n="Night" aria-label="Night" style="--a:#080a22;--b:#182054"></button></div><div class="band"><canvas class="sky live"></canvas></div>
 <main class="main" id="work"><div class="pi">    <div class="ident">
       <span class="tile-frame"><span class="tile"><img decoding="async" src="assets/datta.jpg" alt="Gurudatta Velivela"></span></span>
