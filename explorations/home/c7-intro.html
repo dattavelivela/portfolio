@@ -293,6 +293,9 @@ a.co:hover{border-bottom-color:var(--ink-40)}
 @media (max-width:720px){.skysw{top:14px;right:16px;gap:6px}.skysw-l{display:none}.skysw button{width:14px;height:14px}}
 .skysw button{position:relative}.skysw button::after{content:attr(data-n);position:absolute;top:calc(100% + 10px);left:50%;transform:translate(-50%,-3px);padding:6px 8px 5px;white-space:nowrap;background:#0D2245;color:#fff;font:400 11px/1 "Fragment Mono",ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .15s,transform .2s}.skysw button:hover::after,.skysw button:focus-visible::after{opacity:1;transform:translate(-50%,0)}.skysw button[data-k="night"]::after{left:auto;right:-6px;transform:translateY(-3px)}.skysw button[data-k="night"]:hover::after,.skysw button[data-k="night"]:focus-visible::after{transform:none}
 .f5 .tk a.lt{font-style:normal;color:#0D2245;text-decoration:underline;text-decoration-color:transparent;text-decoration-thickness:2px;text-underline-offset:10px;transition:color .2s,text-decoration-color .2s}.f5 .tk a.lt:hover{color:#0D2245;text-decoration-color:#0D2245}
+/* work tiles: pixel shimmer on hover (hover lab T1). Paper pixels sweep across the shot in Bayer order; no zoom. */
+.tiles .tile .media img,.tiles .tile:hover .media img{transform:none!important}
+.tiles .media canvas.shim{position:absolute;inset:0;width:100%;height:100%;z-index:2;image-rendering:pixelated;pointer-events:none}
 </style></head><body><div class="skysw" role="group" aria-label="Sky"><button type="button" data-k="auto" data-n="Auto · India time" aria-label="Auto">A</button><button type="button" data-k="dawn" data-n="Dawn" aria-label="Dawn" style="--a:#5a60aa;--b:#e6968c"></button><button type="button" data-k="day" data-n="Day" aria-label="Day" style="--a:#286ed2;--b:#6eaaf0"></button><button type="button" data-k="golden" data-n="Golden hour" aria-label="Golden hour" style="--a:#c8783c;--b:#f6b464"></button><button type="button" data-k="dusk" data-n="Dusk" aria-label="Dusk" style="--a:#2e226c;--b:#965caa"></button><button type="button" data-k="night" data-n="Night" aria-label="Night" style="--a:#080a22;--b:#182054"></button></div><div class="band"><canvas class="sky live"></canvas></div>
 <main class="main" id="work"><div class="pi">    <div class="ident">
       <span class="tile-frame"><span class="tile"><img decoding="async" src="../../assets/datta.jpg" alt="Gurudatta Velivela"></span></span>
@@ -376,4 +379,13 @@ function step(){x.clearRect(0,0,innerWidth,innerHeight);P=P.filter(p=>p.life>0);
  x.globalAlpha=1;raf=P.length?requestAnimationFrame(step):0}
 addEventListener('pointermove',e=>{if(e.pointerType&&e.pointerType!=='mouse')return;const px=e.clientX,py=e.clientY,dist=lx===null?6:Math.hypot(px-lx,py-ly);lx=px;ly=py;add(px,py,Math.min(6,Math.max(1,Math.round(dist/8))))},{passive:true});
 addEventListener('pointerleave',()=>{lx=null});document.addEventListener('mouseleave',()=>{lx=null});
-})();</script><script>(function(){const b=[...document.querySelectorAll('.skysw button')];if(!b.length||!window.__sky)return;const mark=()=>{const k=window.__sky.get();b.forEach(x=>{x.classList.toggle('on',x.dataset.k===k);x.setAttribute('aria-pressed',x.dataset.k===k)})};b.forEach(x=>x.addEventListener('click',()=>window.__sky.set(x.dataset.k)));document.addEventListener('skychange',mark);mark()})();</script></body></html>
+})();</script><script>(function(){const b=[...document.querySelectorAll('.skysw button')];if(!b.length||!window.__sky)return;const mark=()=>{const k=window.__sky.get();b.forEach(x=>{x.classList.toggle('on',x.dataset.k===k);x.setAttribute('aria-pressed',x.dataset.k===k)})};b.forEach(x=>x.addEventListener('click',()=>window.__sky.set(x.dataset.k)));document.addEventListener('skychange',mark);mark()})();</script><script>/* pixel shimmer on work tiles (hover lab T1) */
+(function(){if(matchMedia('(prefers-reduced-motion: reduce)').matches||matchMedia('(hover: none)').matches)return;
+const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+document.querySelectorAll('.tiles .tile').forEach(t=>{const m=t.querySelector('.media');if(!m)return;const cv=document.createElement('canvas');cv.className='shim';cv.setAttribute('aria-hidden','true');m.appendChild(cv);const x=cv.getContext('2d');let raf=0,t0=0;
+ const size=()=>{const r=m.getBoundingClientRect();cv.width=Math.max(1,Math.ceil(r.width/8));cv.height=Math.max(1,Math.ceil(r.height/8))};
+ function draw(now){const p=Math.min(1,(now-t0)/700),W=cv.width,H=cv.height,c=p*1.5-.25;x.clearRect(0,0,W,H);x.fillStyle='rgba(244,244,242,.92)';
+  for(let i=0;i<W;i++){const band=1-Math.abs(i/W-c)*4;if(band<=0)continue;for(let j=0;j<H;j++)if(band>B[(j%4)*4+i%4]/16)x.fillRect(i,j,1,1)}
+  if(p<1)raf=requestAnimationFrame(draw);else x.clearRect(0,0,W,H)}
+ t.addEventListener('mouseenter',()=>{cancelAnimationFrame(raf);size();t0=performance.now();raf=requestAnimationFrame(draw)});});
+})();</script></body></html>
