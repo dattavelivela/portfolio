@@ -1,0 +1,114 @@
+/* Noteweave theme for the case studies (cs-a / clara / toa).
+   Same markup, new skin: paper background, Reckless headings, grey grotesk body,
+   uppercase eyebrows, grey cards, framed figures, two-tone table headers,
+   a "Navigate to" rail and grey stat panels. Remove the <link> to revert. */
+@font-face{font-family:reckless;src:url(fonts/reckless-s.p.13fm9k8jxh.i8.woff2) format("woff2");font-display:swap}
+
+:root{
+  --ink:#262B47; --ink55:#5F6575; --ink40:rgba(38,43,71,.55); --body:#474D5C;
+  --hair:#E2E1DA; --panel:#ECECE6; --serif:reckless,Georgia,serif;
+  --sans:"Schibsted Grotesk",Inter,system-ui,sans-serif;
+  --nw-card:#ECECE6; --nw-text:#3A4050; --nw-paper:#F8F7F3;
+}
+html body{background:var(--nw-paper);color:var(--nw-text);font-family:var(--sans);font-weight:400;letter-spacing:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;font-feature-settings:'kern' 1}
+
+/* sections, eyebrows, headings, copy */
+html body .sec{padding-top:110px;gap:18px}
+html body .eb{font:500 14px/1.4 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink55)}
+html body .sec h2{margin:0;font:400 32px/1.22 var(--serif);letter-spacing:-.005em;color:var(--ink);text-wrap:balance;max-width:680px}
+html body .sec h3{font-family:var(--serif);font-weight:400;color:var(--ink)}
+html body .sec p{font-size:17px;line-height:1.65;color:var(--body);max-width:680px}
+html body .sec p b,html body .sec p strong{color:var(--nw-text);font-weight:600}
+html body .eg{font-size:14px;color:var(--ink55)}
+
+/* left nav: kept exactly as the original design (own tokens + font, no rail styling) */
+html body .toc{--ink40:rgba(50,64,79,.4);--ink55:rgba(50,64,79,.55);font-family:"Lausanne Ref",system-ui,sans-serif;font-weight:400;letter-spacing:.1px}
+
+/* cards and panels: one grey card language */
+html body .two-t>div,html body .rc>div,html body .tl3>div,html body .br>div,html body .hg>div,html body .ba>div,
+html body .rc3>div,html body .chs>div,html body .pn,html body .chp{background:var(--nw-card);border:0;border-radius:10px}
+html body .two-t>div,html body .tl3>div,html body .hg>div,html body .ba>div{padding:18px 20px}
+html body .two-t b,html body .rc b,html body .tl3 small,html body .hg b{color:var(--ink)}
+html body .two-t b{font:400 22px/1.25 var(--serif)}
+html body .rc b{font:600 16px/1.35 var(--sans)}
+html body .two-t span,html body .rc span,html body .tl3 p,html body .br>div,html body .hg>div{color:#3F4554}
+html body .tl3 small{display:block;margin-bottom:6px;font:500 13px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink55)}
+html body .loss>div{background:var(--nw-card)}
+html body .yl{background:#F4EFE2;border:0;border-radius:10px}
+
+/* how-might-we */
+html body .hmw-card{padding:28px 30px 26px;background:#fff;border:1px solid var(--hair);border-radius:16px;box-shadow:0 6px 18px -14px rgba(40,40,60,.12)}
+html body .hmw-card small{display:flex;align-items:center;gap:8px;font:600 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#2F6B5E}
+html body .hmw-card small::before{content:"";width:8px;height:8px;border-radius:50%;background:#2F6B5E}
+html body .sec .hmw-card .hmw-q{margin:14px 0 18px;max-width:none;font:400 27px/1.32 var(--serif);letter-spacing:0;color:var(--ink);text-wrap:pretty}
+html body .hmw-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+html body .hmw-chips li{padding:6px 12px;border-radius:999px;background:var(--nw-card);font:500 14px/1.3 var(--sans);color:var(--nw-text)}
+
+/* figures: white frame, caption under */
+html body .fig{padding:8px 8px 0;background:#fff;border:1px solid var(--hair);border-radius:12px}
+html body .fig img,html body .fig video{border:0;border-radius:6px;background:#F4F4F1}
+html body .fig figcaption{margin:0;padding:10px 4px 12px;font:500 14.5px/1.45 var(--sans);color:var(--ink55)}
+html body .vid video,html body .vid img{border-radius:12px}
+
+/* tables: two-tone headers */
+html body .tb{border:1px solid var(--hair);border-radius:12px;overflow:hidden;border-collapse:separate;border-spacing:0;background:#fff;font-size:15px}
+html body .tb th{padding:13px 16px;text-align:left;font:500 13px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:#4D6E86;background:#E8EEF2}
+html body .tb th:nth-child(2n){background:#E4EBE6;color:#466A5A}
+html body .tb td{border-top:1px solid var(--hair);color:var(--nw-text)}
+
+/* impact: grey stat panels instead of the dark block */
+html body .imp{gap:12px;background:none;border:0}
+html body .imp>div{background:var(--nw-card);border-radius:12px;padding:22px}
+html body .imp b{color:var(--ink);font:400 40px/1.05 var(--serif)}
+html body .imp span,html body .imp p,html body .imp small{color:var(--body)}
+
+/* learnings + close */
+html body .lg b{font:400 22px/1.3 var(--serif);color:var(--ink)}
+html body .thanks{border-top:1px solid var(--hair)}
+html body .thanks h2{font-size:38px}
+
+/* "Here's what we found": option C, "1 of 5" rows inside one quiet grey panel */
+html body .yl.fnd{margin:32px 0 8px;padding:24px 26px 10px;background:#fff;border:1px solid var(--hair);border-radius:14px;box-shadow:none;gap:0}
+html body .yl.fnd small{display:flex;align-items:center;gap:8px;margin:0 0 14px;font:600 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#9A6410}
+html body .yl.fnd small svg{color:#C99335}
+html body .sec .yl.fnd>p{margin:0 0 10px;max-width:none;font-size:17px;line-height:1.6;color:var(--ink)}
+html body .yl.fnd ol{counter-reset:f;list-style:none;margin:0;padding:0;display:block}
+html body .yl.fnd li{counter-increment:f;display:grid;grid-template-columns:36px minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;padding:16px 0;border-top:1px solid var(--hair);font:500 16px/1.45 var(--sans);color:var(--ink)}
+html body .yl.fnd li::before{content:counter(f);padding-top:0;font:400 22px/1.1 var(--serif);color:#9A6410}
+html body .yl.fnd .eg{display:block;margin:0;font:400 15px/1.5 var(--sans);color:#5F6575}
+@media (max-width:760px){html body .yl.fnd li{grid-template-columns:56px 1fr}html body .yl.fnd .eg{grid-column:2}}
+
+/* why templates can't scope services: goods vs services, then the multiplication */
+html body .gs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 4px}
+html body .gs>div{display:flex;flex-direction:column;gap:8px;padding:18px 20px;border-radius:14px;background:#fff;border:1px solid var(--hair)}
+html body .gs-s{background:#FBEDEC!important;border-color:#F0D2CF!important}
+html body .gs small{font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink55)}
+html body .gs-s small{color:#A33A33}
+html body .gs b{font:400 24px/1.2 var(--serif);color:var(--ink)}
+html body .gs-f{display:flex;flex-wrap:wrap;gap:6px}
+html body .gs-f i{font-style:normal;padding:4px 10px;border-radius:999px;background:var(--nw-card);font:500 13.5px/1.3 var(--sans);color:var(--ink)}
+html body .gs-s .gs-f i{background:#fff;border:1px dashed #E3B5B1}
+html body .gs em{font-style:normal;font-size:14px;color:var(--ink55)}
+html body .mult{margin:8px 0 4px}
+html body .sec .mult .mult-h{margin:0 0 10px;font:400 22px/1.3 var(--serif);color:var(--ink)}
+html body .mult-c{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+html body .mult-c span{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:12px;background:var(--nw-card);font:600 15px/1.35 var(--sans);color:var(--ink)}
+html body .mult-c span:last-child{background:transparent;border:1px dashed #C9C7BE}
+html body .mult-c em{font-style:normal;font-weight:400;font-size:14px;color:var(--ink55)}
+@media (max-width:760px){html body .gs,html body .mult-c{grid-template-columns:1fr}}
+
+/* B1: why templates can't scope services, as two equations */
+html body .tmath{display:grid;gap:12px;margin:6px 0 4px}
+html body .tm-r{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:16px;padding:18px 20px;border-radius:14px;background:#fff;border:1px solid var(--hair)}
+html body .tm-l{font:400 22px/1.25 var(--serif);color:var(--ink)}
+html body .tm-l small{display:block;margin-top:4px;font:400 14px/1.45 var(--sans);color:var(--ink55)}
+html body .tm-o{font:400 30px/1 var(--serif);color:var(--ink55)}
+html body .tm-v{min-width:120px;text-align:right;font:400 40px/1 var(--serif);color:#2F6B4F}
+html body .tm-r.bad{background:#FBEDEC;border-color:#F0D2CF}
+html body .tm-r.bad .tm-v{color:#A33A33}
+@media (max-width:760px){html body .tm-r{grid-template-columns:1fr auto}html body .tm-o{display:none}html body .tm-v{min-width:0;font-size:32px}}
+html body .tm-r.bad .tm-v{font:400 58px/0.8 Georgia,"Times New Roman",serif}
+html body .tm-r.mid{background:#FBF4E6;border-color:#EFDFBE}
+html body .tm-r.mid .tm-v{color:#9A6410;font-size:34px}
+html body .tm-jobs{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px}
+html body .tm-jobs i{font-style:normal;padding:2px 9px;border-radius:999px;background:#fff;border:1px solid #EFDFBE;font:500 13px/1.4 var(--sans);color:var(--ink)}
