@@ -389,8 +389,8 @@ addEventListener('pointerleave',()=>{lx=null});document.addEventListener('mousel
 const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
 document.querySelectorAll('.tiles .tile').forEach(t=>{const m=t.querySelector('.media');if(!m)return;const cv=document.createElement('canvas');cv.className='shim';cv.setAttribute('aria-hidden','true');m.appendChild(cv);const x=cv.getContext('2d');let raf=0,t0=0;
  const size=()=>{const r=m.getBoundingClientRect();cv.width=Math.max(1,Math.ceil(r.width/8));cv.height=Math.max(1,Math.ceil(r.height/8))};
- function draw(now){const p=Math.min(1,(now-t0)/700),W=cv.width,H=cv.height,c=p*1.5-.25;x.clearRect(0,0,W,H);x.fillStyle='rgba(244,244,242,.92)';
-  for(let i=0;i<W;i++){const band=1-Math.abs(i/W-c)*4;if(band<=0)continue;for(let j=0;j<H;j++)if(band>B[(j%4)*4+i%4]/16)x.fillRect(i,j,1,1)}
+ function draw(now){const p=Math.min(1,(now-t0)/700),W=cv.width,H=cv.height,c=p*1.5-.25;x.clearRect(0,0,W,H);x.fillStyle='rgba(244,244,242,.5)';
+  for(let i=0;i<W;i++){const band=(1-Math.abs(i/W-c)*6)*.55;if(band<=0)continue;for(let j=0;j<H;j++)if(band>B[(j%4)*4+i%4]/16)x.fillRect(i,j,1,1)}
   if(p<1)raf=requestAnimationFrame(draw);else x.clearRect(0,0,W,H)}
  t.addEventListener('mouseenter',()=>{cancelAnimationFrame(raf);size();t0=performance.now();raf=requestAnimationFrame(draw)});});
 })();</script></body></html>
